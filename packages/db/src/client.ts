@@ -19,7 +19,10 @@ export function getPool(connectionString?: string): Pool {
       connectionString: url,
       max: serverless ? 1 : 10,
       idleTimeoutMillis: serverless ? 10_000 : 30_000,
-      connectionTimeoutMillis: 15_000,
+      // Under the platform's own function timeout, so a database that cannot
+      // be reached surfaces as an error naming the reason rather than as the
+      // request being killed mid-connect with nothing to show for it.
+      connectionTimeoutMillis: serverless ? 8_000 : 15_000,
       ...(url.includes("supabase") ? { ssl: { rejectUnauthorized: false } } : {}),
     });
   }

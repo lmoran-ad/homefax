@@ -267,16 +267,43 @@ export function registerAdminRoutes(app: FastifyInstance, ctx: AppContext): void
   });
 
   /** Cheap check that the deployment can reach its database. */
+  /**
+   * Says whether this instance can actually serve a page, and if not, why.
+   *
+   * A deployment that will not load gives you nothing to go on from a browser
+   * — every screen renders through the database, so a bad connection string
+   * looks exactly like a broken app. This route is the one thing that answers
+   * without a database, so it reports the failure instead of throwing it.
+   *
+   * Nothing secret is returned. The counts and flags say whether a value is
+   * present, never what it is; the driver's message names a host and a reason,
+   * which is what makes it worth reading, and never a credential.
+   */
   app.get("/admin/status", async () => {
-    const [row] = await ctx.db
+    const startedAt = Date.now();
+    const database = await ctx.db
       .select({ count: sql<number>`count(*)::int` })
-      .from(properties);
+      .from(properties)
+      .then((rows) => ({
+        reachable: true as const,
+        properties: rows[0]?.count ?? 0,
+        latencyMs: Date.now() - startedAt,
+      }))
+      .catch((error: unknown) => ({
+        reachable: false as const,
+        code: (error as { code?: string }).code ?? null,
+        reason: error instanceof Error ? error.message : String(error),
+        latencyMs: Date.now() - startedAt,
+      }));
+
     return {
-      databaseReachable: true,
-      properties: row?.count ?? 0,
-      seedRouteEnabled: Boolean(process.env.SEED_SECRET),
+      ok: database.reachable,
+      seeded: database.reachable && database.properties > 0,
+      demoMode: ctx.env.DEMO_MODE,
       storageDriver: ctx.env.STORAGE_DRIVER,
       aiConfigured: Boolean(ctx.env.ANTHROPIC_API_KEY),
+      seedRouteEnabled: Boolean(process.env.SEED_SECRET),
+      database,
     };
   });
 }
