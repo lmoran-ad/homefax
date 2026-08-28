@@ -14,6 +14,7 @@
     "@homefax/contracts": "workspace:*",
     "dotenv": "16.4.7",
     "next": "16.3.3",
+    "pg": "8.23.0",
     "react": "19.2.8",
     "react-dom": "19.2.8",
     "server-only": "0.0.1"
