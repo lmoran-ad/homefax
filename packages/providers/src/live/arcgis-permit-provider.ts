@@ -1,6 +1,6 @@
 import type { PermitProvider, PermitRecord } from "../contracts/types";
 import { ArcgisLayer, normalizeAddress, sqlLiteral } from "./arcgis";
-import { isoDate, text } from "./http";
+import { isoDate, num, text } from "./http";
 import type { PermitSource } from "./sources";
 
 /**
@@ -69,7 +69,7 @@ export class ArcgisPermitProvider implements PermitProvider {
     // timeline and be pointed at, so it is dropped rather than shown blank.
     if (!issuedAt || !permitNumber) return null;
 
-    const finaled = f.finaledAt ? isoDate(row[f.finaledAt]) : null;
+    const finaledAt = f.finaledAt ? isoDate(row[f.finaledAt]) : null;
     const status = f.status ? text(row[f.status]).toUpperCase() : "";
 
     return {
@@ -77,9 +77,12 @@ export class ArcgisPermitProvider implements PermitProvider {
       issuedAt,
       scope: (f.scope ? text(row[f.scope]) : "") || "Permit issued",
       status:
-        finaled || status.includes("FINAL") || status.includes("COMPLETE")
+        finaledAt || status.includes("FINAL") || status.includes("COMPLETE")
           ? "FINALED"
           : "ISSUED",
+      contractor: (f.contractor ? text(row[f.contractor]) : "") || null,
+      valuation: f.valuation ? num(row[f.valuation]) : null,
+      finaledAt,
     };
   }
 }

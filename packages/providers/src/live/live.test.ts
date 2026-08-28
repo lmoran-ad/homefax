@@ -4,7 +4,12 @@ import { FixturePermitProvider } from "../fixture/permit-provider";
 import { ArcgisParcelProvider } from "./arcgis-parcel-provider";
 import { ArcgisPermitProvider } from "./arcgis-permit-provider";
 import { SocrataPermitProvider } from "./socrata-permit-provider";
-import { withOverrides, type ParcelSource, type PermitSource } from "./sources";
+import {
+  DENVER_PERMITS,
+  withOverrides,
+  type ParcelSource,
+  type PermitSource,
+} from "./sources";
 
 /**
  * These never touch the network. Every response is a recorded shape, which is
@@ -323,8 +328,51 @@ describe("the ArcGIS permit provider", () => {
         issuedAt: "2021-05-17",
         scope: "Water heater replacement",
         status: "FINALED",
+        // This descriptor maps neither, so neither is guessed at.
+        contractor: null,
+        valuation: null,
+        finaledAt: null,
       },
     ]);
+  });
+
+  it("keeps the contractor, the valuation and the completion date", async () => {
+    // These are the columns that make a permit worth reading: a third party,
+    // on the record, saying who did the work and what it was worth.
+    stubFetch(() => ({
+      features: [
+        {
+          attributes: {
+            PERMIT_NUM: "2012-RESCON-0000004625",
+            DATE_ISSUED: Date.UTC(2012, 10, 15),
+            ADDRESS: "3729 N LIPAN ST",
+            CLASS: "NEW BUILDING",
+            FINAL_DATE: Date.UTC(2013, 0, 4),
+            CONTRACTOR_NAME: "BUDGET GARAGES & CONSTRUCTION CO INC",
+            VALUATION: 14285,
+          },
+        },
+      ],
+    }));
+
+    const provider = new ArcgisPermitProvider(
+      { ...ARCGIS_PERMITS, fields: DENVER_PERMITS.fields, arcgisUrl: ARCGIS_PERMITS.arcgisUrl },
+      new FixturePermitProvider(),
+    );
+    const [permit] = await provider.getPermitHistory({
+      parcelId: "0228105015000",
+      address: "3729 N Lipan St",
+    });
+
+    expect(permit).toEqual({
+      permitNumber: "2012-RESCON-0000004625",
+      issuedAt: "2012-11-15",
+      scope: "NEW BUILDING",
+      status: "FINALED",
+      contractor: "BUDGET GARAGES & CONSTRUCTION CO INC",
+      valuation: 14285,
+      finaledAt: "2013-01-04",
+    });
   });
 
   it("falls back when the layer rejects the query", async () => {

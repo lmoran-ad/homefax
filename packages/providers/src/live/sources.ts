@@ -44,6 +44,10 @@ export type PermitFieldMap = {
   status?: string;
   parcelId?: string;
   finaledAt?: string;
+  /** Who pulled it. A permit names a licensed contractor; that is the point. */
+  contractor?: string;
+  /** The declared value of the work. */
+  valuation?: string;
 };
 
 /**
@@ -82,15 +86,21 @@ export const DENVER_PARCELS: ParcelSource = {
   fields: {
     address: "SITUS_ADDRESS_LINE1",
     parcelId: "SCHEDNUM",
-    city: "SITUS_ADDRESS_CITY",
-    postalCode: "SITUS_ADDRESS_ZIP",
-    yearBuilt: "CCYRBLT",
-    livingSqft: "TOTAL_BUILDING_SQFT",
-    lotSqft: "LAND_SQFT",
-    bedrooms: "BED_ROOMS",
-    bathrooms: "FULL_BATHS",
-    propertyType: "PROPERTY_CLASS",
-    assessedValue: "TOTAL_VALUE",
+    city: "SITUS_CITY",
+    // Denver publishes ZIP+4; the provider keeps the first five.
+    postalCode: "SITUS_ZIP",
+    // Residential columns. The layer carries a parallel COM_ set for
+    // commercial parcels, which a HomeFax is not about.
+    yearBuilt: "RES_ORIG_YEAR_BUILT",
+    livingSqft: "RES_ABOVE_GRADE_AREA",
+    lotSqft: "LAND_AREA",
+    // The assessor publishes no bedroom or bathroom count, so this record
+    // does not claim one. Leaving these unmapped is the honest answer.
+    propertyType: "D_CLASS_CN",
+    // Appraised, not assessed: Colorado assesses residential property at a
+    // fraction of market value, so ASSESSED_TOTAL_VALUE_LOCAL would show a
+    // house worth a fraction of what anyone would list it for.
+    assessedValue: "APPRAISED_TOTAL_VALUE",
   },
   defaults: { city: "Denver", state: "CO", postalCode: "80202" },
 };
@@ -107,11 +117,19 @@ export const DENVER_PERMITS: PermitSource = {
   arcgisUrl:
     "https://services1.arcgis.com/zdB7qR0BtYrg0Xpl/ArcGIS/rest/services/ODC_DEV_RESIDENTIALCONSTPERMIT_P/FeatureServer/316",
   fields: {
-    permitNumber: "PERMIT_NUMBER",
-    issuedAt: "ISSUED_DATE",
-    address: "ADDRESS_LINE1",
-    scope: "PERMIT_DESCRIPTION",
-    status: "STATUS",
+    permitNumber: "PERMIT_NUM",
+    issuedAt: "DATE_ISSUED",
+    address: "ADDRESS",
+    scope: "CLASS",
+    // No status column — but a finaled permit has a completion date, which is
+    // a better signal anyway: it is the jurisdiction recording that the work
+    // passed inspection rather than merely that it was allowed to start.
+    finaledAt: "FINAL_DATE",
+    // Permits carry the assessor's schedule number, so they join to a parcel
+    // by identifier rather than by matching address strings.
+    parcelId: "SCHEDNUM",
+    contractor: "CONTRACTOR_NAME",
+    valuation: "VALUATION",
   },
 };
 

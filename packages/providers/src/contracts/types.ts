@@ -75,6 +75,16 @@ export type PermitRecord = {
   issuedAt: string;
   scope: string;
   status: "ISSUED" | "FINALED";
+  /**
+   * A permit names the licensed contractor who pulled it and the declared
+   * value of the work. That is most of what makes a permit worth putting on a
+   * timeline — it is a third party, on the record, saying who did what — so
+   * neither is thrown away when the jurisdiction publishes it.
+   */
+  contractor?: string | null;
+  valuation?: number | null;
+  /** When the jurisdiction recorded the work as passing inspection. */
+  finaledAt?: string | null;
 };
 
 export interface PermitProvider {

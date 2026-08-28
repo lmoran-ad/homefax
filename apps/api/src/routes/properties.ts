@@ -165,6 +165,18 @@ export function registerPropertyRoutes(
         address: parcel.address,
       });
       for (const permit of permits) {
+        // The contractor and the declared value are most of what makes a
+        // permit worth reading: a third party, on the record, saying who did
+        // what and what it was worth. Both go in the summary line the timeline
+        // shows, and neither is invented when the jurisdiction omits it.
+        const summary = [
+          permit.scope,
+          permit.contractor,
+          permit.valuation ? formatMoney(permit.valuation) : null,
+        ]
+          .filter(Boolean)
+          .join(" · ");
+
         await ctx.db.insert(propertyEvents).values({
           publicId: `${parcel.tokenId}-PERMIT-${permit.permitNumber}`,
           propertyId: row.id,
@@ -173,12 +185,15 @@ export function registerPropertyRoutes(
           occurredAt: permit.issuedAt,
           title:
             permit.status === "FINALED"
-              ? `Permit finaled · ${permit.permitNumber}`
-              : `Permit issued · ${permit.permitNumber}`,
-          description: permit.scope || null,
+              ? `Permit finaled · ${permit.scope}`
+              : `Permit issued · ${permit.scope}`,
+          description:
+            permit.status === "FINALED" && permit.finaledAt
+              ? `Permit ${permit.permitNumber}, issued ${permit.issuedAt} and finaled ${permit.finaledAt} by the jurisdiction.`
+              : `Permit ${permit.permitNumber}, issued by the jurisdiction. No completion has been recorded against it.`,
           verificationLevel: "SOURCE_VERIFIED",
           visibility: "PUBLIC",
-          metadata: { summary: `Permit ${permit.permitNumber}` },
+          metadata: { summary: summary || `Permit ${permit.permitNumber}` },
           eventHash: "pending",
         });
         permitCount += 1;
