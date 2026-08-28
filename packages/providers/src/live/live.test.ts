@@ -148,6 +148,49 @@ describe("the ArcGIS parcel provider", () => {
     });
   });
 
+  it("recovers when the service has renumbered its single layer", async () => {
+    // Denver publishes one layer per service at an index that is neither zero
+    // nor stable. A renumber otherwise drops the integration back to fixtures
+    // silently, and the record quietly stops being real.
+    const seen: string[] = [];
+    stubFetch((url) => {
+      seen.push(url);
+      if (url.includes("/FeatureServer/0/query")) {
+        return new TypeError("Invalid URL");
+      }
+      if (url.includes("/FeatureServer?f=json")) {
+        return { layers: [{ id: 245, name: "PROP_PARCELS_A" }] };
+      }
+      return { features: [{ attributes: { SITUS_ADDR: "9 REAL ST", SCHEDNUM: "42" } }] };
+    });
+
+    const provider = new ArcgisParcelProvider(PARCELS, new FixtureParcelProvider());
+    const parcel = await provider.findByAddress("9 Real St");
+
+    expect(parcel).toMatchObject({ address: "9 REAL ST", parcelId: "42" });
+    expect(seen.some((url) => url.includes("/FeatureServer/245/query"))).toBe(true);
+  });
+
+  it("does not guess a layer when the service publishes several", async () => {
+    stubFetch((url) => {
+      if (url.includes("/query")) return new TypeError("Invalid URL");
+      return {
+        layers: [
+          { id: 1, name: "PARCELS" },
+          { id: 2, name: "PARCEL_POINTS" },
+        ],
+      };
+    });
+
+    const provider = new ArcgisParcelProvider(PARCELS, new FixtureParcelProvider());
+
+    // Ambiguous, so it falls back rather than picking one and being confidently
+    // wrong about which house a record describes.
+    await expect(provider.findByAddress("123 Main Street")).resolves.toMatchObject({
+      tokenId: "HF-US-CO-DEN-00001234",
+    });
+  });
+
   it("does not let an address close a quote in the where clause", async () => {
     const seen: string[] = [];
     stubFetch((url) => {

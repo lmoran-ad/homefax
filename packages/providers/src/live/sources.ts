@@ -105,7 +105,7 @@ export const DENVER_PERMITS: PermitSource = {
   id: "denver-permits",
   label: "Denver Community Planning & Development · residential permits",
   arcgisUrl:
-    "https://services1.arcgis.com/zdB7qR0BtYrg0Xpl/ArcGIS/rest/services/ODC_DEV_RESIDENTIALCONSTPERMIT_P/FeatureServer/0",
+    "https://services1.arcgis.com/zdB7qR0BtYrg0Xpl/ArcGIS/rest/services/ODC_DEV_RESIDENTIALCONSTPERMIT_P/FeatureServer/316",
   fields: {
     permitNumber: "PERMIT_NUMBER",
     issuedAt: "ISSUED_DATE",

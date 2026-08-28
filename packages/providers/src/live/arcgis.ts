@@ -14,32 +14,30 @@ type EsriResponse = {
  * shape, the encoding and the way failure is reported are identical.
  */
 export class ArcgisLayer {
-  private readonly base: string;
+  private readonly configured: string;
+  /** Set once, if the configured layer index turned out to be wrong. */
+  private repaired: string | null = null;
+  private repairAttempted = false;
 
   constructor(
     private readonly sourceId: string,
     url: string,
   ) {
-    this.base = url.trim().replace(/\/+$/, "");
+    this.configured = url.trim().replace(/\/+$/, "");
+  }
+
+  private get base(): string {
+    return this.repaired ?? this.configured;
   }
 
   async query(where: string, limit: number): Promise<EsriResponse> {
-    const url = this.urlFor(where, limit);
-
-    const payload = await fetchJson<EsriResponse>({ source: this.sourceId, url });
-
-    // ArcGIS answers a rejected query with HTTP 200 and an error object, so a
-    // wrong column name looks like success until this check.
-    if (payload.error) {
-      throw new SourceError(
-        this.sourceId,
-        `${payload.error.message ?? "query rejected"}${
-          payload.error.details?.length ? ` (${payload.error.details.join("; ")})` : ""
-        }`,
-        { url },
-      );
+    try {
+      return await this.queryAt(this.base, where, limit);
+    } catch (error) {
+      const base = await this.repairLayerIndex();
+      if (!base) throw error;
+      return this.queryAt(base, where, limit);
     }
-    return payload;
   }
 
   async queryOne(where: string): Promise<Record<string, unknown> | null> {
@@ -76,27 +74,81 @@ export class ArcgisLayer {
     const payload = await this.query("1=1", 1);
     const row = payload.features?.[0]?.attributes ?? null;
     return {
-      url: this.urlFor("1=1", 1),
+      // Reported after the query, so it names the layer actually read rather
+      // than the one that was configured.
+      url: urlFor(this.base, "1=1", 1),
       fields: payload.fields?.map((x) => x.name) ?? (row ? Object.keys(row) : []),
       row,
     };
   }
 
-  /**
-   * Built with URLSearchParams rather than by hand: a `where` clause carries
-   * spaces, quotes and percent signs, and a single unencoded one turns the
-   * whole request into something the runtime will not parse.
-   */
+  /** The request this layer would make, for reporting a failure. */
   urlFor(where: string, limit: number): string {
-    const params = new URLSearchParams({
-      where,
-      outFields: "*",
-      returnGeometry: "false",
-      resultRecordCount: String(limit),
-      f: "json",
-    });
-    return `${this.base}/query?${params.toString()}`;
+    return urlFor(this.base, where, limit);
   }
+
+  private async queryAt(
+    base: string,
+    where: string,
+    limit: number,
+  ): Promise<EsriResponse> {
+    const url = urlFor(base, where, limit);
+    const payload = await fetchJson<EsriResponse>({ source: this.sourceId, url });
+
+    // ArcGIS answers a rejected query with HTTP 200 and an error object, so a
+    // wrong column name looks like success until this check.
+    if (payload.error) {
+      throw new SourceError(
+        this.sourceId,
+        `${payload.error.message ?? "query rejected"}${
+          payload.error.details?.length ? ` (${payload.error.details.join("; ")})` : ""
+        }`,
+        { url },
+      );
+    }
+    return payload;
+  }
+
+  /**
+   * Recovers from a layer index that has moved.
+   *
+   * Publishers renumber: these services carry a single layer at an index that
+   * is neither zero nor stable, and asking for one that no longer exists does
+   * not even fail as a 404 — ArcGIS answers with a redirect that fetch cannot
+   * follow. Left alone, a renumber silently drops the integration back to
+   * fixtures, and the record quietly stops being real.
+   *
+   * Only taken when the service publishes exactly one layer, because then
+   * there is no question which was meant, and only once per instance.
+   */
+  private async repairLayerIndex(): Promise<string | null> {
+    if (this.repairAttempted) return null;
+    this.repairAttempted = true;
+
+    const layers = await this.serviceLayers().catch(() => []);
+    if (layers.length !== 1) return null;
+
+    const root = this.configured.replace(/\/\d+$/, "");
+    const only = `${root}/${layers[0]!.id}`;
+    if (only === this.configured) return null;
+
+    this.repaired = only;
+    return only;
+  }
+}
+
+function urlFor(base: string, where: string, limit: number): string {
+  // Built with URLSearchParams rather than by hand: a `where` clause carries
+  // spaces, quotes and percent signs, and a single unencoded one turns the
+  // whole request into something the runtime will not parse.
+  const params = new URLSearchParams({
+    where,
+    outFields: "*",
+    returnGeometry: "false",
+    resultRecordCount: String(limit),
+    f: "json",
+  });
+  return `${base}/query?${params.toString()}`;
 }
 
 /**
