@@ -301,6 +301,8 @@ export function registerAdminRoutes(app: FastifyInstance, ctx: AppContext): void
         fields: string[];
         row: Record<string, unknown> | null;
       }>;
+      /** Only an ArcGIS source can enumerate itself; Socrata cannot. */
+      serviceLayers?: () => Promise<{ id: number; name: string }[]>;
     };
 
     const probe = async (provider: Sampler | null) => {
@@ -310,14 +312,21 @@ export function registerAdminRoutes(app: FastifyInstance, ctx: AppContext): void
         const { url, fields, row } = await provider.sample();
         return { ok: true as const, latencyMs: Date.now() - startedAt, url, fields, row };
       } catch (error) {
+        // Ask the service what it does contain. A wrong layer index, a moved
+        // service and a wrong column name all fail identically, and the layer
+        // list is what tells them apart — so it is worth one extra request on
+        // the path where something is already broken.
+        const layers = await provider
+          .serviceLayers?.()
+          .catch(() => null);
         return {
           ok: false as const,
           latencyMs: Date.now() - startedAt,
           reason: error instanceof Error ? error.message : String(error),
-          // The request that failed, which is what separates "the layer moved"
-          // from "the number on the end is wrong" from "that query was
-          // malformed". All three report the same way without it.
+          // The request that failed. Without it, "not found" reads the same
+          // whether the layer moved or the query was malformed.
           url: error instanceof SourceError ? error.url : null,
+          availableLayers: layers,
         };
       }
     };

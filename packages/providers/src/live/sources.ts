@@ -75,7 +75,7 @@ export type PermitSource = {
 export const DENVER_PARCELS: ParcelSource = {
   id: "denver-parcels",
   label: "Denver County Assessor · parcels",
-  url: "https://services1.arcgis.com/zdB7qR0BtYrg0Xpl/ArcGIS/rest/services/ODC_PARCELS_A/FeatureServer/83",
+  url: "https://services1.arcgis.com/zdB7qR0BtYrg0Xpl/ArcGIS/rest/services/ODC_PROP_PARCELS_A/FeatureServer/0",
   fields: {
     address: "SITUS_ADDRESS_LINE1",
     parcelId: "SCHEDNUM",

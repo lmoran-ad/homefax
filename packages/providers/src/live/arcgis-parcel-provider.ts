@@ -130,6 +130,10 @@ export class ArcgisParcelProvider implements ParcelProvider {
     return this.layer.sample();
   }
 
+  serviceLayers(): ReturnType<ArcgisLayer["serviceLayers"]> {
+    return this.layer.serviceLayers();
+  }
+
   private toRecord(row: Record<string, unknown>): ParcelRecord {
     const f = this.source.fields;
     const pick = (field: string | undefined): unknown =>

@@ -47,6 +47,26 @@ export class ArcgisLayer {
     return payload.features?.[0]?.attributes ?? null;
   }
 
+  /**
+   * The layers the service publishes, with their indices.
+   *
+   * A FeatureServer holds many layers and the number on the end of the URL
+   * picks one; getting it wrong fails exactly like a wrong column name or a
+   * moved service. Asking the service what it contains turns three
+   * indistinguishable failures into a list you can read.
+   */
+  async serviceLayers(): Promise<{ id: number; name: string }[]> {
+    const root = this.base.replace(/\/\d+$/, "");
+    const payload = await fetchJson<{
+      layers?: { id: number; name: string }[];
+      tables?: { id: number; name: string }[];
+    }>({ source: this.sourceId, url: `${root}?f=json` });
+    return [...(payload.layers ?? []), ...(payload.tables ?? [])].map((layer) => ({
+      id: layer.id,
+      name: layer.name,
+    }));
+  }
+
   /** The layer's real column names plus one row, for diagnostics. */
   async sample(): Promise<{
     url: string;

@@ -55,6 +55,10 @@ export class ArcgisPermitProvider implements PermitProvider {
     return this.layer.sample();
   }
 
+  serviceLayers(): ReturnType<ArcgisLayer["serviceLayers"]> {
+    return this.layer.serviceLayers();
+  }
+
   private toRecord(row: Record<string, unknown>): PermitRecord | null {
     const f = this.source.fields;
     // Esri encodes dates as epoch milliseconds; isoDate handles both that and
