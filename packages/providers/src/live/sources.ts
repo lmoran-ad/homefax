@@ -92,18 +92,23 @@ export const DENVER_PARCELS: ParcelSource = {
   defaults: { city: "Denver", state: "CO", postalCode: "80202" },
 };
 
+/**
+ * Denver publishes residential construction permits as an Esri point layer
+ * rather than on an open-data portal, which is why this one carries an
+ * ArcGIS URL. Residential-only is the right scope here: a HomeFax is about a
+ * house, and a commercial tenant finish two blocks away is noise.
+ */
 export const DENVER_PERMITS: PermitSource = {
   id: "denver-permits",
-  label: "Denver Community Planning & Development · building permits",
-  domain: "data.colorado.gov",
-  dataset: "j5wq-v6hp",
+  label: "Denver Community Planning & Development · residential permits",
+  arcgisUrl:
+    "https://services1.arcgis.com/zdB7qR0BtYrg0Xpl/ArcGIS/rest/services/ODC_DEV_RESIDENTIALCONSTPERMIT_P/FeatureServer/0",
   fields: {
-    permitNumber: "permit_number",
-    issuedAt: "issued_date",
-    address: "address_line1",
-    scope: "permit_description",
-    status: "status",
-    parcelId: "parcel_id",
+    permitNumber: "PERMIT_NUMBER",
+    issuedAt: "ISSUED_DATE",
+    address: "ADDRESS_LINE1",
+    scope: "PERMIT_DESCRIPTION",
+    status: "STATUS",
   },
 };
 
