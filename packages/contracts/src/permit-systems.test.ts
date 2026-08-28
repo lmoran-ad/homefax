@@ -3,6 +3,7 @@ import { calculateHealthScore } from "./health";
 import {
   assessFromPermit,
   assessSystemsFromPermits,
+  classifyPermit,
   classifyPermitSystem,
 } from "./permit-systems";
 
@@ -31,6 +32,80 @@ describe("placing a permit against a system", () => {
     expect(classifyPermitSystem("NEW BUILDING")).toBe("other");
     expect(classifyPermitSystem("Kitchen remodel")).toBe("other");
     expect(classifyPermitSystem("Deck")).toBe("other");
+  });
+});
+
+describe("falling back to who did the work", () => {
+  // Denver classifies a great deal of work as REPAIR/REPLACE and stops there,
+  // which records that something happened without saying what. The permit
+  // still names the licensed contractor, and trade contractors put their trade
+  // in their business name.
+  it("reads the trade out of a contractor's name when the class says nothing", () => {
+    expect(classifyPermit("REPAIR/REPLACE", "ABC ROOFING LLC")).toEqual({
+      system: "roof",
+      basis: "contractor",
+    });
+    expect(classifyPermit("Alteration/Tenant Finish", "Mile High Plumbing Co.")).toEqual({
+      system: "plumbing",
+      basis: "contractor",
+    });
+    expect(classifyPermit("REPAIR/REPLACE", "Summit Mechanical")).toEqual({
+      system: "hvac",
+      basis: "contractor",
+    });
+  });
+
+  it("prefers a stated work type over the contractor's trade", () => {
+    // A roofing company pulling a permit that says FURNACE did a furnace.
+    expect(classifyPermit("FURNACE REPLACEMENT", "ABC ROOFING LLC")).toEqual({
+      system: "hvac",
+      basis: "work",
+    });
+  });
+
+  it("infers nothing from a general contractor or a brand name", () => {
+    // "RAM JACK OF COLORADO" is foundation work, and nothing in the string
+    // says so. Guessing from brands would mean maintaining a directory of
+    // franchises and being confidently wrong about the ones it missed.
+    expect(classifyPermit("REPAIR/REPLACE", "RAM JACK OF COLORADO")).toEqual({
+      system: "other",
+      basis: "none",
+    });
+    expect(classifyPermit("New Building", "Front Range Builders")).toEqual({
+      system: "other",
+      basis: "none",
+    });
+  });
+
+  it("says on the card when the system was inferred rather than stated", () => {
+    const assessment = assessFromPermit(
+      {
+        system: "roof",
+        occurredAt: "2023-02-20",
+        finaled: true,
+        label: "REPAIR/REPLACE",
+        basis: "contractor",
+        contractor: "ABC ROOFING LLC",
+      },
+      TODAY,
+    );
+    expect(assessment.reason).toContain("does not state the work type");
+    expect(assessment.reason).toContain("ABC ROOFING LLC");
+  });
+
+  it("does not add that caveat when the permit said so itself", () => {
+    const assessment = assessFromPermit(
+      {
+        system: "roof",
+        occurredAt: "2023-02-20",
+        finaled: true,
+        label: "REROOF",
+        basis: "work",
+        contractor: "ABC ROOFING LLC",
+      },
+      TODAY,
+    );
+    expect(assessment.reason).not.toContain("inferred");
   });
 });
 

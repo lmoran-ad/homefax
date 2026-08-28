@@ -93,10 +93,67 @@ const SYSTEM_KEYWORDS: [SystemKey, readonly string[]][] = [
  * that prompted this rule was a garage builder, and reading it as "the house
  * is new" would inflate a score on evidence that does not support it.
  */
-export function classifyPermitSystem(work: string): SystemKey {
+export type PermitBasis = "work" | "contractor" | "none";
+
+/** The system a permit speaks to, and which signal said so. */
+export function classifyPermit(
+  work: string,
+  contractor?: string | null,
+): { system: SystemKey; basis: PermitBasis } {
   const text = work.toUpperCase();
   for (const [system, keywords] of SYSTEM_KEYWORDS) {
-    if (keywords.some((keyword) => text.includes(keyword))) return system;
+    if (keywords.some((keyword) => text.includes(keyword))) {
+      return { system, basis: "work" };
+    }
+  }
+
+  /*
+   * Nothing in the work class named a system, so fall back to who did it.
+   *
+   * Plenty of jurisdictions classify every permit as REPAIR/REPLACE or
+   * ALTERATION and leave it there — which records that something happened
+   * without saying what. But a permit also names the licensed contractor who
+   * pulled it, and trade contractors put their trade in their business name:
+   * "ABC Roofing LLC", "Mile High Plumbing", "Cap Hill Electric". That is a
+   * weaker inference than a stated work type and it is labelled as one on the
+   * card, so nobody mistakes it for the permit having said so.
+   *
+   * A general contractor's name says nothing, and neither does a brand — a
+   * foundation specialist trading under an invented word will not match. Those
+   * stay `other`, which is the right place for a permit whose purpose is
+   * genuinely unclear.
+   */
+  const bySource = classifyByContractor(contractor ?? "");
+  return bySource === "other"
+    ? { system: "other", basis: "none" }
+    : { system: bySource, basis: "contractor" };
+}
+
+export function classifyPermitSystem(
+  work: string,
+  contractor?: string | null,
+): SystemKey {
+  return classifyPermit(work, contractor).system;
+}
+
+/** Trade words as they appear in business names, specific before general. */
+const CONTRACTOR_KEYWORDS: [SystemKey, readonly string[]][] = [
+  ["waterHeater", ["WATER HEATER"]],
+  ["roof", ["ROOFING", "ROOFER", "ROOFS", "ROOF CO"]],
+  [
+    "hvac",
+    ["HEATING", "AIR CONDITION", "HVAC", "MECHANICAL", "FURNACE", "COOLING", "CLIMATE CONTROL"],
+  ],
+  ["electrical", ["ELECTRIC", "ELECTRICAL"]],
+  ["plumbing", ["PLUMBING", "PLUMBER", "SEWER", "DRAIN", "ROOTER"]],
+  ["foundation", ["FOUNDATION", "UNDERPIN", "WATERPROOF", "STRUCTURAL", "CONCRETE LIFT"]],
+];
+
+function classifyByContractor(contractor: string): SystemKey {
+  const name = contractor.toUpperCase();
+  if (!name) return "other";
+  for (const [system, keywords] of CONTRACTOR_KEYWORDS) {
+    if (keywords.some((keyword) => name.includes(keyword))) return system;
   }
   return "other";
 }
@@ -108,6 +165,13 @@ export type PermitEvidence = {
   /** Whether the jurisdiction recorded the work as passing inspection. */
   finaled: boolean;
   label: string;
+  /**
+   * Which signal placed this permit against a system. A stated work type is
+   * the permit saying so; a contractor's trade is an inference from who did
+   * it, and the card says which, because they are not equally strong.
+   */
+  basis?: PermitBasis;
+  contractor?: string | null;
 };
 
 export type SystemAssessment = {
@@ -158,15 +222,22 @@ export function assessFromPermit(
   const ageLabel =
     years === 0 ? "this year" : years === 1 ? "1 year ago" : `${years} years ago`;
 
+  const inferred =
+    evidence.basis === "contractor" && evidence.contractor
+      ? ` The permit does not state the work type; this is inferred from the trade of ${evidence.contractor}.`
+      : "";
+
   return {
     status,
     installedAt: evidence.occurredAt,
     expectedLifeYears: life,
     remainingYears,
     label: evidence.label,
-    reason: evidence.finaled
-      ? `Permit finaled ${ageLabel}. Expected service life ${life} years.`
-      : `Permit issued ${ageLabel}, with no completion recorded against it.`,
+    reason:
+      (evidence.finaled
+        ? `Permit finaled ${ageLabel}. Expected service life ${life} years.`
+        : `Permit issued ${ageLabel}, with no completion recorded against it.`) +
+      inferred,
   };
 }
 

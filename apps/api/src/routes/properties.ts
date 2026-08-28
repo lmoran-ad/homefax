@@ -2,7 +2,7 @@ import {
   AppendEventRequestSchema,
   AskRequestSchema,
   assessSystemsFromPermits,
-  classifyPermitSystem,
+  classifyPermit,
   ExtractionRequestSchema,
   ProvisionRequestSchema,
   PropertySearchRequestSchema,
@@ -195,12 +195,17 @@ export function registerPropertyRoutes(
       // Home Health of exactly 50 — honest, but silent, while the permit
       // history sitting beside it on the timeline plainly says more.
       assessments = assessSystemsFromPermits(
-        permits.map((permit) => ({
-          system: classifyPermitSystem(permit.scope),
-          occurredAt: permit.issuedAt,
-          finaled: permit.status === "FINALED",
-          label: permit.scope,
-        })),
+        permits.map((permit) => {
+          const { system, basis } = classifyPermit(permit.scope, permit.contractor);
+          return {
+            system,
+            basis,
+            contractor: permit.contractor ?? null,
+            occurredAt: permit.issuedAt,
+            finaled: permit.status === "FINALED",
+            label: permit.scope,
+          };
+        }),
         today(),
       );
 
