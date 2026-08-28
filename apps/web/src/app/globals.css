@@ -1,0 +1,179 @@
+@import "tailwindcss";
+
+/*
+ * The design tokens from the handoff. The prototype was built with inline
+ * styles because its authoring environment had no class system; that was a
+ * constraint of the tool, not a design decision, so the values move here and
+ * the components use utilities.
+ */
+@theme {
+  --color-brand: #e4002b;
+  --color-brand-hover: #c60025;
+  --color-navy: #0b2c52;
+  --color-navy-alt: #12395f;
+  --color-link: #1a4f9c;
+  --color-green: #12693b;
+  --color-green-soft: #2f8f57;
+  --color-amber: #8a5a06;
+  --color-amber-dot: #c98a12;
+  --color-amber-strong: #b5761a;
+  --color-error: #a8102a;
+  --color-error-soft: #d1213c;
+
+  --color-ink: #12222f;
+  --color-body: #3d4a57;
+  --color-muted: #5b6875;
+  --color-soft: #7d8a97;
+  --color-softer: #8a95a1;
+  --color-faint: #9aa5b1;
+  --color-slate: #4a5663;
+  --color-grey: #6b7580;
+
+  --color-page: #f4f6f8;
+  --color-card: #f8fafb;
+  --color-line: #e3e7ec;
+  --color-line-light: #eef1f4;
+  --color-input: #d8dee5;
+
+  /* Status fills, as fill/border pairs. */
+  --color-ok-bg: #e7f4ec;
+  --color-ok-line: #cfe6d9;
+  --color-info-bg: #e8f0fb;
+  --color-info-line: #cfe0f5;
+  --color-warn-bg: #fdf3e2;
+  --color-warn-line: #f2dcb4;
+  --color-warn-panel: #fffaf1;
+  --color-danger-bg: #fdecee;
+  --color-danger-line: #f5c2c8;
+  --color-neutral-bg: #eef1f4;
+  --color-neutral-line: #f1f3f5;
+
+  --font-sans: "Plus Jakarta Sans", system-ui, -apple-system, sans-serif;
+  --font-mono: "IBM Plex Mono", ui-monospace, SFMono-Regular, monospace;
+
+  --radius-badge: 6px;
+  --radius-control: 9px;
+  --radius-field: 10px;
+  --radius-inset: 12px;
+  --radius-card: 16px;
+  --radius-hero: 18px;
+
+  --shadow-menu: 0 14px 34px #0b2c5226;
+  --shadow-toast: 0 12px 30px #0b2c5240;
+}
+
+/*
+ * These must sit in @layer base. Unlayered CSS wins over layered CSS in the
+ * cascade regardless of specificity, so a bare `a { color }` here would beat
+ * every Tailwind text-colour utility — which rendered white-on-red buttons as
+ * dark-on-red wherever the button was a link.
+ */
+@layer base {
+  html,
+  body {
+    margin: 0;
+    padding: 0;
+    background: var(--color-page);
+  }
+
+  body {
+    font-family: var(--font-sans);
+    color: var(--color-ink);
+    -webkit-font-smoothing: antialiased;
+  }
+
+  * {
+    box-sizing: border-box;
+  }
+
+  a {
+    color: var(--color-link);
+    text-decoration: none;
+  }
+
+  a:hover {
+    color: var(--color-brand);
+  }
+
+  input,
+  textarea,
+  select,
+  button {
+    font-family: inherit;
+  }
+
+  input:focus-visible,
+  textarea:focus-visible,
+  select:focus-visible {
+    outline: 2px solid #1a4f9c33;
+    outline-offset: 0;
+  }
+
+  button:focus-visible,
+  a:focus-visible {
+    outline: 2px solid var(--color-link);
+    outline-offset: 2px;
+  }
+}
+
+/*
+ * The prototype hit repeated overflow bugs from fixed-count grid tracks and
+ * nowrap rows inside overflow:hidden cards. `min-width: 0` on grid and flex
+ * children is what lets a track actually shrink instead of being pinned to its
+ * min-content width and spilling out of its card.
+ */
+.track-min-0 > * {
+  min-width: 0;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes fadeUp {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+.animate-spin-slow {
+  animation: spin 0.8s linear infinite;
+}
+
+.animate-fade-up {
+  animation: fadeUp 0.25s ease;
+}
+
+.animate-fade-up-fast {
+  animation: fadeUp 0.16s ease;
+}
+
+/* Navy panels and photo placeholders carry a dot grid rather than an image. */
+.dot-grid {
+  background-color: var(--color-navy);
+  background-image: radial-gradient(#ffffff1f 1px, transparent 1px);
+  background-size: 22px 22px;
+}
+
+.dot-grid-photo {
+  background-color: var(--color-navy);
+  background-image: radial-gradient(#ffffff26 1px, transparent 1px);
+  background-size: 16px 16px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}

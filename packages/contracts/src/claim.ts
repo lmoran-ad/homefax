@@ -4,8 +4,8 @@ import {
   ClaimStatusSchema,
   OwnerClaimMethodSchema,
   ProofDocumentSchema,
-} from "./enums.js";
-import { IsoDateSchema } from "./property.js";
+} from "./enums";
+import { IsoDateSchema } from "./property";
 
 export const ClaimSchema = z.object({
   tokenId: z.string(),

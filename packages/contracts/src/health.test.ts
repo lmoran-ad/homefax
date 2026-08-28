@@ -6,7 +6,7 @@ import {
   STATUS_MULTIPLIERS,
   SYSTEM_WEIGHTS,
   type ScoredSystem,
-} from "./health.js";
+} from "./health";
 
 const all = (status: ScoredSystem["status"]): ScoredSystem[] =>
   HEALTH_SYSTEM_ORDER.map((key) => ({ key, status }));

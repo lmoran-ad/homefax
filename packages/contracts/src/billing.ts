@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { BillingCycleSchema, PaywallGateSchema, PlanSchema } from "./enums.js";
+import { BillingCycleSchema, PaywallGateSchema, PlanSchema } from "./enums";
 
 export const PlanFeatureSchema = z.object({
   label: z.string(),

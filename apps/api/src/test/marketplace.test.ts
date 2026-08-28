@@ -408,3 +408,32 @@ describe("contractor verification", () => {
     }
   });
 });
+
+describe("query-string coercion", () => {
+  it("treats verifiedOnly=false as off, not on", async () => {
+    // Boolean("false") is true in JavaScript, so a naive coercion pins this
+    // filter on and hides the unverified contractor entirely.
+    const { body } = await call<{ results: { id: string }[] }>(app, {
+      url: "/api/contractors?verifiedOnly=false",
+      cookie: owner,
+    });
+    expect(body.results.map((c) => c.id)).toContain("C-MHL");
+    expect(body.results).toHaveLength(8);
+  });
+
+  it("treats an absent verifiedOnly as off", async () => {
+    const { body } = await call<{ results: unknown[] }>(app, {
+      url: "/api/contractors",
+      cookie: owner,
+    });
+    expect(body.results).toHaveLength(8);
+  });
+
+  it("still honours verifiedOnly=true", async () => {
+    const { body } = await call<{ results: { id: string }[] }>(app, {
+      url: "/api/contractors?verifiedOnly=true",
+      cookie: owner,
+    });
+    expect(body.results.map((c) => c.id)).not.toContain("C-MHL");
+  });
+});

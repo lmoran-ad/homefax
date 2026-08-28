@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { PlanSchema, RoleSchema } from "./enums.js";
+import { PlanSchema, RoleSchema } from "./enums";
 
 export const LoginRequestSchema = z.object({
   email: z.email("Enter a valid email address"),

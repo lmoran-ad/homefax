@@ -6,7 +6,7 @@ import {
   SystemStatusSchema,
   VerificationLevelSchema,
   VisibilitySchema,
-} from "./enums.js";
+} from "./enums";
 
 /** `YYYY-MM-DD`. Property events are day-precision; time of day is noise here. */
 export const IsoDateSchema = z

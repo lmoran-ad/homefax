@@ -1,5 +1,5 @@
-import type { SystemKey, SystemStatus } from "./enums.js";
-import type { HealthScore } from "./property.js";
+import type { SystemKey, SystemStatus } from "./enums";
+import type { HealthScore } from "./property";
 
 /**
  * Home Health lives here, beside the enums it is defined over, because three

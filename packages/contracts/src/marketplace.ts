@@ -1,6 +1,6 @@
 import { z } from "zod";
-import { EventTypeSchema, JobStatusSchema } from "./enums.js";
-import { IsoDateSchema } from "./property.js";
+import { EventTypeSchema, JobStatusSchema } from "./enums";
+import { IsoDateSchema } from "./property";
 
 export const ContractorSchema = z.object({
   id: z.string(),
@@ -96,7 +96,15 @@ export type SubmitWork = z.infer<typeof SubmitWorkSchema>;
 export const ContractorSearchRequestSchema = z.object({
   q: z.string().max(200).default(""),
   trade: z.string().max(80).default("All"),
-  verifiedOnly: z.coerce.boolean().default(false),
+  // Not `z.coerce.boolean()`: that runs JavaScript's Boolean(), which turns the
+  // string "false" into true and pins the filter permanently on — hiding the
+  // one unverified contractor the demo exists to show.
+  verifiedOnly: z
+    .union([z.boolean(), z.string()])
+    .default(false)
+    .transform((value) =>
+      typeof value === "boolean" ? value : value === "true" || value === "1",
+    ),
 });
 
 export const DemoDocumentSchema = z.object({

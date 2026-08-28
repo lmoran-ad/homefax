@@ -1,6 +1,6 @@
 import { z } from "zod";
-import { ConfidenceSchema } from "./enums.js";
-import { IsoDateSchema } from "./property.js";
+import { ConfidenceSchema } from "./enums";
+import { IsoDateSchema } from "./property";
 
 /**
  * What the assistant must return. Validated before anything reaches the UI —
