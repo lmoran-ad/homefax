@@ -1,8 +1,8 @@
 import "../src/load-env.js";
 import { eq } from "drizzle-orm";
-import { calculateHealthScore } from "@hometoken/contracts";
-import type { SystemKey, SystemStatus } from "@hometoken/contracts";
-import { verifyLedger } from "@hometoken/ledger";
+import { calculateHealthScore } from "@homefax/contracts";
+import type { SystemKey, SystemStatus } from "@homefax/contracts";
+import { verifyLedger } from "@homefax/ledger";
 import {
   closeDb,
   getDb,
@@ -15,7 +15,7 @@ import {
 /**
  * Sanity check on a freshly seeded database: every ledger must validate, and
  * the cached health score must equal a fresh calculation. Wired to
- * `pnpm --filter @hometoken/db verify` and run in CI after seeding.
+ * `pnpm --filter @homefax/db verify` and run in CI after seeding.
  */
 async function main(): Promise<void> {
   const db = getDb();

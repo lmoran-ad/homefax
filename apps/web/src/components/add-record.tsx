@@ -7,8 +7,8 @@ import type {
   ExtractionResponse,
   VerificationLevel,
   Visibility,
-} from "@hometoken/contracts";
-import { AUTHORABLE_EVENT_TYPES } from "@hometoken/contracts";
+} from "@homefax/contracts";
+import { AUTHORABLE_EVENT_TYPES } from "@homefax/contracts";
 import { Button } from "./buttons";
 import { ErrorBanner, SelectField, TextArea, TextField } from "./fields";
 import { useToast } from "./feedback";
@@ -192,6 +192,8 @@ export function AddRecord({
                 <button
                   key={document.key}
                   type="button"
+                  data-testid="add-record-demo-doc"
+                  data-doc-key={document.key}
                   onClick={() =>
                     void extract({ demoDocumentKey: document.key }, document.name)
                   }
@@ -228,6 +230,7 @@ export function AddRecord({
                 });
                 setStage("review");
               }}
+              data-testid="add-record-manual"
               className="mt-[22px] cursor-pointer border-0 bg-transparent p-0 text-[13.5px] font-bold text-link hover:text-brand"
             >
               Enter a record manually instead →
@@ -236,7 +239,10 @@ export function AddRecord({
         ) : null}
 
         {stage === "extracting" ? (
-          <section className="rounded-[16px] border border-line bg-white p-[46px_28px] text-center">
+          <section
+            data-testid="add-record-extracting"
+            className="rounded-[16px] border border-line bg-white p-[46px_28px] text-center"
+          >
             <div className="flex justify-center">
               <Spinner size={28} />
             </div>
@@ -250,9 +256,15 @@ export function AddRecord({
         ) : null}
 
         {stage === "review" && form ? (
-          <section className="rounded-[16px] border border-line bg-white p-[26px_28px]">
+          <section
+            data-testid="add-record-review"
+            className="rounded-[16px] border border-line bg-white p-[26px_28px]"
+          >
             {extraction ? (
-              <div className="mb-[22px] rounded-[12px] border border-warn-line bg-warn-panel p-[16px_18px]">
+              <div
+                data-testid="add-record-pending-notice"
+                className="mb-[22px] rounded-[12px] border border-warn-line bg-warn-panel p-[16px_18px]"
+              >
                 <div className="text-[11px] font-bold tracking-[0.12em] text-amber">
                   AI EXTRACTED — PENDING VERIFICATION
                 </div>
@@ -266,12 +278,14 @@ export function AddRecord({
 
             <div className="grid gap-[16px] sm:grid-cols-2">
               <TextField
+                testId="field-title"
                 className="sm:col-span-2"
                 label="Title"
                 value={form.title}
                 onChange={(e) => set("title", e.target.value)}
               />
               <SelectField
+                testId="field-event-type"
                 label="Event type"
                 value={form.eventType}
                 onChange={(e) => set("eventType", e.target.value)}
@@ -281,24 +295,28 @@ export function AddRecord({
                 }))}
               />
               <TextField
+                testId="field-date"
                 label="Date"
                 type="date"
                 value={form.occurredAt}
                 onChange={(e) => set("occurredAt", e.target.value)}
               />
               <TextField
+                testId="field-contractor"
                 label="Contractor"
                 value={form.contractor}
                 onChange={(e) => set("contractor", e.target.value)}
                 placeholder="Not stated in the document"
               />
               <TextField
+                testId="field-amount"
                 label="Amount"
                 value={form.amount}
                 onChange={(e) => set("amount", e.target.value)}
                 placeholder="Not stated"
               />
               <TextField
+                testId="field-system"
                 label="System"
                 value={form.systemType}
                 onChange={(e) => set("systemType", e.target.value)}
@@ -306,18 +324,21 @@ export function AddRecord({
                 hint="Updates the matching system card when set."
               />
               <TextField
+                testId="field-permit"
                 label="Permit number"
                 value={form.permitNumber}
                 onChange={(e) => set("permitNumber", e.target.value)}
                 placeholder="Not stated"
               />
               <TextArea
+                testId="field-description"
                 className="sm:col-span-2"
                 label="Description"
                 value={form.description}
                 onChange={(e) => set("description", e.target.value)}
               />
               <SelectField
+                testId="field-verification"
                 label="Verification level"
                 value={form.verificationLevel}
                 onChange={(e) =>
@@ -326,6 +347,7 @@ export function AddRecord({
                 options={VERIFICATION_OPTIONS}
               />
               <SelectField
+                testId="field-visibility"
                 label="Visibility"
                 value={form.visibility}
                 onChange={(e) => set("visibility", e.target.value as Visibility)}
@@ -338,7 +360,10 @@ export function AddRecord({
             </div>
 
             {extraction && extraction.proposal.evidence.length > 0 ? (
-              <div className="mt-[22px] rounded-[12px] bg-card p-[16px_18px]">
+              <div
+                data-testid="evidence-block"
+                className="mt-[22px] rounded-[12px] bg-card p-[16px_18px]"
+              >
                 <div className="text-[10.5px] font-bold tracking-[0.14em] text-softer">
                   EVIDENCE FROM THE DOCUMENT
                 </div>
@@ -357,8 +382,13 @@ export function AddRecord({
             ) : null}
 
             <div className="mt-[24px] flex flex-wrap gap-[10px]">
-              <Button variant="green" onClick={() => void approve()} disabled={saving}>
-                {saving ? "Adding…" : "Approve & Add to HomeToken"}
+              <Button
+                variant="green"
+                onClick={() => void approve()}
+                disabled={saving}
+                testId="approve-button"
+              >
+                {saving ? "Adding…" : "Approve & Add to HomeFax"}
               </Button>
               <Button
                 variant="outline"

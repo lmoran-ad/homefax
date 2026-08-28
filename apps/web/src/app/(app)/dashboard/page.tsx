@@ -5,7 +5,7 @@ import type {
   Job,
   PropertySummary,
   SessionUser,
-} from "@hometoken/contracts";
+} from "@homefax/contracts";
 import { ButtonLink } from "@/components/buttons";
 import { ClaimPanel } from "@/components/claim-panel";
 import { PageShell, PageHeading, SectionRule } from "@/components/page-shell";
@@ -37,7 +37,7 @@ type DashboardResponse =
 
 const LEAD: Record<string, string> = {
   agent:
-    "Search any HomeToken, claim stewardship of a listing, and compile a record a buyer can actually read.",
+    "Search any HomeFax, claim stewardship of a listing, and compile a record a buyer can actually read.",
   homeowner:
     "Your home's record, its Home Health, and everything waiting for your approval.",
   contractor:
@@ -67,7 +67,7 @@ export default async function DashboardPage() {
           <SectionRule>Your book</SectionRule>
           {data.book.length === 0 ? (
             <EmptyState
-              title="No HomeTokens under your stewardship"
+              title="No HomeFaxes under your stewardship"
               body="Claim a listing by MLS number, seller authorization or title at closing to start contributing to its record."
               action={<ButtonLink href="/properties">Browse properties</ButtonLink>}
             />
@@ -153,7 +153,7 @@ export default async function DashboardPage() {
         />
       ) : null}
 
-      <SectionRule>Recent HomeTokens</SectionRule>
+      <SectionRule>Recent HomeFaxes</SectionRule>
       <div className="grid grid-cols-[repeat(auto-fit,minmax(260px,1fr))] gap-5">
         {data.recent.map((property) => (
           <PropertyCard key={property.tokenId} property={property} />

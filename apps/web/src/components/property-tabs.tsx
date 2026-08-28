@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import type { Role } from "@hometoken/contracts";
+import type { Role } from "@homefax/contracts";
 
 export function PropertyTabs({
   tokenId,
@@ -29,7 +29,7 @@ export function PropertyTabs({
   }
 
   return (
-    <div className="-mb-px flex gap-1 overflow-x-auto">
+    <div data-testid="property-tabs" className="-mb-px flex gap-1 overflow-x-auto">
       {tabs.map((tab) => {
         const active =
           tab.href === base ? pathname === base : pathname.startsWith(tab.href);
@@ -37,6 +37,8 @@ export function PropertyTabs({
           <Link
             key={tab.href}
             href={tab.href}
+            data-testid="property-tab"
+            data-active={active}
             className={`border-b-2 px-[14px] py-[14px] text-[14px] whitespace-nowrap no-underline ${
               active
                 ? "border-brand font-bold text-ink"

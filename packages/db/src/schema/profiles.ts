@@ -34,7 +34,7 @@ export const profiles = pgTable(
     askQuestionsUsed: text("ask_questions_used").notNull().default("0"),
 
     /** Homeowner's property, when the account has one. */
-    homeTokenId: text("home_token_id"),
+    ownedTokenId: text("owned_token_id"),
     /** Contractor's company record, when the account has one. */
     contractorId: text("contractor_id"),
 

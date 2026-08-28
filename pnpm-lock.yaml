@@ -32,25 +32,25 @@ importers:
       '@fastify/cors':
         specifier: 11.1.0
         version: 11.1.0
-      '@hometoken/ai':
+      '@homefax/ai':
         specifier: workspace:*
         version: link:../../packages/ai
-      '@hometoken/auth':
+      '@homefax/auth':
         specifier: workspace:*
         version: link:../../packages/auth
-      '@hometoken/config':
+      '@homefax/config':
         specifier: workspace:*
         version: link:../../packages/config
-      '@hometoken/contracts':
+      '@homefax/contracts':
         specifier: workspace:*
         version: link:../../packages/contracts
-      '@hometoken/db':
+      '@homefax/db':
         specifier: workspace:*
         version: link:../../packages/db
-      '@hometoken/ledger':
+      '@homefax/ledger':
         specifier: workspace:*
         version: link:../../packages/ledger
-      '@hometoken/providers':
+      '@homefax/providers':
         specifier: workspace:*
         version: link:../../packages/providers
       drizzle-orm:
@@ -84,7 +84,10 @@ importers:
 
   apps/web:
     dependencies:
-      '@hometoken/contracts':
+      '@homefax/api':
+        specifier: workspace:*
+        version: link:../api
+      '@homefax/contracts':
         specifier: workspace:*
         version: link:../../packages/contracts
       next:
@@ -121,7 +124,7 @@ importers:
       '@anthropic-ai/sdk':
         specifier: 0.122.0
         version: 0.122.0(zod@4.4.3)
-      '@hometoken/contracts':
+      '@homefax/contracts':
         specifier: workspace:*
         version: link:../contracts
     devDependencies:
@@ -137,7 +140,7 @@ importers:
 
   packages/auth:
     dependencies:
-      '@hometoken/contracts':
+      '@homefax/contracts':
         specifier: workspace:*
         version: link:../contracts
     devDependencies:
@@ -182,18 +185,21 @@ importers:
 
   packages/db:
     dependencies:
-      '@hometoken/auth':
+      '@homefax/auth':
         specifier: workspace:*
         version: link:../auth
-      '@hometoken/config':
+      '@homefax/config':
         specifier: workspace:*
         version: link:../config
-      '@hometoken/contracts':
+      '@homefax/contracts':
         specifier: workspace:*
         version: link:../contracts
-      '@hometoken/ledger':
+      '@homefax/ledger':
         specifier: workspace:*
         version: link:../ledger
+      '@homefax/providers':
+        specifier: workspace:*
+        version: link:../providers
       drizzle-orm:
         specifier: 0.45.2
         version: 0.45.2(@types/pg@8.11.10)(pg@8.23.0)
@@ -237,15 +243,18 @@ importers:
 
   packages/providers:
     dependencies:
-      '@hometoken/contracts':
+      '@homefax/contracts':
         specifier: workspace:*
         version: link:../contracts
-      '@hometoken/db':
+      '@homefax/db':
         specifier: workspace:*
         version: link:../db
-      '@hometoken/ledger':
+      '@homefax/ledger':
         specifier: workspace:*
         version: link:../ledger
+      drizzle-orm:
+        specifier: 0.45.2
+        version: 0.45.2(@types/pg@8.11.10)(pg@8.23.0)
     devDependencies:
       '@types/node':
         specifier: 22.13.5

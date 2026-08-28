@@ -1,5 +1,5 @@
 import Link from "next/link";
-import type { PlanCard } from "@hometoken/contracts";
+import type { PlanCard } from "@homefax/contracts";
 import { BrandLockup, LogoMark } from "@/components/brand";
 import { ButtonLink } from "@/components/buttons";
 import { Eyebrow, VerificationBadge } from "@/components/ui";
@@ -22,7 +22,7 @@ type PropertyDetail = {
 const PILLARS = [
   {
     title: "The record belongs to the property",
-    body: "Owners change, agents change, contractors change. The HomeToken stays with the parcel, so the next buyer inherits the history rather than starting from an empty folder.",
+    body: "Owners change, agents change, contractors change. The HomeFax stays with the parcel, so the next buyer inherits the history rather than starting from an empty folder.",
   },
   {
     title: "Append-only, and tamper-evident",
@@ -37,7 +37,7 @@ const PILLARS = [
 const STEPS = [
   {
     title: "The county provides the record",
-    body: "Assessor and recorder data is public and bulk-available. A HomeToken is pre-provisioned for the parcel before anyone asks for it.",
+    body: "Assessor and recorder data is public and bulk-available. A HomeFax is pre-provisioned for the parcel before anyone asks for it.",
   },
   {
     title: "An agent or owner claims it",
@@ -65,7 +65,7 @@ const ROLES = [
       "Ask grounded questions about any home in your book",
       "Export a buyer-ready report with a ledger attestation",
     ],
-    email: "agent@hometoken.demo",
+    email: "agent@homefax.demo",
     primary: true,
   },
   {
@@ -79,7 +79,7 @@ const ROLES = [
       "Find contractors whose licenses are actually verified",
       "Approve or decline everything before it enters the record",
     ],
-    email: "owner@hometoken.demo",
+    email: "owner@homefax.demo",
     primary: false,
   },
   {
@@ -93,7 +93,7 @@ const ROLES = [
       "Carry Professional Verified status on every record",
       "The next owner sees who did the work, and when",
     ],
-    email: "summit@hometoken.demo",
+    email: "summit@homefax.demo",
     primary: false,
   },
 ];
@@ -107,7 +107,7 @@ const NOT = [
 
 export default async function LandingPage() {
   const [{ property }, { plans }] = await Promise.all([
-    apiFetch<{ property: PropertyDetail }>("/properties/HT-US-CO-DEN-00001234"),
+    apiFetch<{ property: PropertyDetail }>("/properties/HF-US-CO-DEN-00001234"),
     apiFetch<{ plans: PlanCard[] }>("/plans"),
   ]);
 
@@ -126,7 +126,7 @@ export default async function LandingPage() {
           <div className="flex shrink-0 items-center gap-[11px]">
             <LogoMark size={30} />
             <span className="text-[19px] font-extrabold tracking-[-0.02em]">
-              HomeToken
+              HomeFax
             </span>
             <span className="hidden h-[18px] w-px bg-line sm:block" />
             <span className="hidden sm:block">
@@ -149,7 +149,7 @@ export default async function LandingPage() {
               </a>
             ))}
           </nav>
-          <ButtonLink href="/login" size="md" className="shrink-0">
+          <ButtonLink href="/login" size="md" className="shrink-0" testId="landing-sign-in">
             Sign in
           </ButtonLink>
         </div>
@@ -172,7 +172,7 @@ export default async function LandingPage() {
               className="mt-[22px] max-w-[560px] text-[19px] leading-[1.55]"
               style={{ color: "#ffffffcc" }}
             >
-              Cars have VINs. Homes have an address and a filing cabinet. HomeToken
+              Cars have VINs. Homes have an address and a filing cabinet. HomeFax
               gives every property one permanent, append-only record of what was
               built, repaired, inspected, permitted and paid for.
             </p>
@@ -252,7 +252,7 @@ export default async function LandingPage() {
       <section id="how" className="mx-auto max-w-[1180px] px-6 pt-[80px]">
         <Eyebrow>HOW IT WORKS</Eyebrow>
         <h2 className="mt-[12px] mb-[26px] text-[clamp(26px,3.4vw,30px)] font-extrabold tracking-[-0.03em]">
-          Nobody creates a HomeToken. They claim one.
+          Nobody creates a HomeFax. They claim one.
         </h2>
         <div className="grid grid-cols-[repeat(auto-fit,minmax(240px,1fr))] gap-[18px]">
           {STEPS.map((step, index) => (
@@ -322,6 +322,8 @@ export default async function LandingPage() {
               <div className="flex-1" />
               <Link
                 href={`/login?account=${encodeURIComponent(role.email)}`}
+                data-testid="landing-role-cta"
+                data-account={role.email}
                 className="mt-[22px] block rounded-[9px] border border-input px-4 py-[11px] text-center text-[14px] font-bold text-ink no-underline hover:border-navy hover:text-navy"
               >
                 Sign in as {role.name.split(" ")[0]}
@@ -345,7 +347,7 @@ export default async function LandingPage() {
       <section className="mx-auto max-w-[1180px] px-6 pt-[80px]">
         <div className="rounded-[16px] border border-line bg-white p-[28px_30px]">
           <h2 className="m-0 text-[21px] font-extrabold tracking-[-0.02em] text-ink">
-            What a HomeToken is not
+            What a HomeFax is not
           </h2>
           <ul className="mt-[16px] mb-0 list-none space-y-[11px] p-0">
             {NOT.map((item) => (
@@ -363,7 +365,7 @@ export default async function LandingPage() {
           <h2 className="m-0 text-[clamp(26px,4vw,36px)] font-extrabold tracking-[-0.03em] text-white">
             The owner changes. The agent changes.
             <br />
-            The HomeToken remains.
+            The HomeFax remains.
           </h2>
           <p className="mx-auto mt-[16px] max-w-[560px] text-[16px] leading-[1.6]" style={{ color: "#ffffffcc" }}>
             Sign in with one of three demo accounts and walk the record end to end.
@@ -381,7 +383,7 @@ export default async function LandingPage() {
           <span>
             Demo data. All addresses, names, licenses and figures are fictional.
           </span>
-          <span>HomeToken is a property record, not a deed or a security.</span>
+          <span>HomeFax is a property record, not a deed or a security.</span>
         </div>
       </footer>
     </div>

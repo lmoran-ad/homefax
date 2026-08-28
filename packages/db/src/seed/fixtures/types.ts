@@ -4,7 +4,7 @@ import type {
   VerificationLevel,
   Visibility,
   EventType,
-} from "@hometoken/contracts";
+} from "@homefax/contracts";
 
 export type FixtureDocument = {
   name: string;
@@ -104,7 +104,7 @@ export type FixtureAccount = {
   phone: string;
   brokerage: string | null;
   landingRoute: string;
-  homeTokenId: string | null;
+  ownedTokenId: string | null;
   contractorId: string | null;
 };
 

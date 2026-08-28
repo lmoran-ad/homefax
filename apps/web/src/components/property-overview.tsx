@@ -7,8 +7,8 @@ import type {
   PropertyDetail,
   PropertyEvent,
   PropertySystem,
-} from "@hometoken/contracts";
-import { healthArcDegrees } from "@hometoken/contracts";
+} from "@homefax/contracts";
+import { healthArcDegrees } from "@homefax/contracts";
 import { StatusPill, VerificationBadge } from "./ui";
 import { formatDate, formatMoney, SYSTEM_STATUS } from "@/lib/format";
 
@@ -18,6 +18,8 @@ export function HealthDonut({ health }: { health: HealthScore }) {
   return (
     <div className="flex flex-col items-center">
       <div
+        data-testid="health-donut"
+        data-score={health.score}
         className="flex h-[132px] w-[132px] items-center justify-center rounded-full"
         style={{
           background: `conic-gradient(#12693b ${degrees}deg, #eef1f4 0)`,
@@ -26,7 +28,10 @@ export function HealthDonut({ health }: { health: HealthScore }) {
         aria-label={`Home Health ${health.score} out of 100`}
       >
         <div className="flex h-[104px] w-[104px] flex-col items-center justify-center rounded-full bg-white">
-          <div className="text-[38px] leading-none font-extrabold tracking-[-0.03em] text-ink">
+          <div
+            data-testid="health-score"
+            className="text-[38px] leading-none font-extrabold tracking-[-0.03em] text-ink"
+          >
             {health.score}
           </div>
           <div className="mt-[2px] text-[11px] font-bold tracking-[0.1em] text-softer">
@@ -36,6 +41,7 @@ export function HealthDonut({ health }: { health: HealthScore }) {
       </div>
       <div className="mt-[14px]">
         <span
+          data-testid="health-confidence"
           className="rounded-[999px] px-[11px] py-[4px] text-[11.5px] font-bold"
           style={{
             background:
@@ -119,6 +125,8 @@ export function LedgerBar({
   const valid = ledger.valid;
   return (
     <section
+      data-testid="ledger-bar"
+      data-valid={valid}
       className="flex flex-wrap items-center gap-[16px] rounded-[16px] p-[18px_22px]"
       style={{
         background: valid ? "#e7f4ec" : "#fdecee",
@@ -134,12 +142,13 @@ export function LedgerBar({
       </div>
       <div className="min-w-0 flex-1">
         <div
+          data-testid="ledger-status"
           className="text-[15.5px] font-bold"
           style={{ color: valid ? "#12693b" : "#a8102a" }}
         >
           {valid ? "Ledger Verified" : "Ledger Integrity Warning"}
         </div>
-        <div className="mt-[3px] text-[13px] text-body">
+        <div data-testid="ledger-count" className="mt-[3px] text-[13px] text-body">
           {valid ? (
             <>
               {ledger.checkedEvents} events checked · SHA-256 hash chain intact ·
@@ -182,6 +191,9 @@ export function SystemsGrid({
         return (
           <article
             key={system.key}
+            data-testid="system-card"
+            data-system={system.key}
+            data-status={system.status}
             className="flex min-w-0 flex-col rounded-[14px] bg-white p-[18px_20px]"
             style={{
               border: `1px solid ${needsAttention ? "#f0dcb8" : "#e3e7ec"}`,
@@ -191,7 +203,7 @@ export function SystemsGrid({
               <h3 className="m-0 text-[16px] font-bold tracking-[-0.015em] text-ink">
                 {system.name}
               </h3>
-              <StatusPill status={system.status} />
+              <StatusPill status={system.status} testId="system-status" />
             </div>
 
             <dl className="mt-[14px] mb-0 space-y-[7px]">
@@ -220,6 +232,7 @@ export function SystemsGrid({
               {system.sourceEventId ? (
                 <Link
                   href={`/properties/${tokenId}/timeline#ev-${system.sourceEventId}`}
+                  data-testid="source-event-link"
                   className="ml-auto text-[12.5px] font-semibold text-link no-underline hover:text-brand"
                 >
                   Source event →
@@ -275,6 +288,8 @@ export function StewardshipBar({
 
   return (
     <section
+      data-testid="stewardship-bar"
+      data-state={claimStateKey}
       className="flex flex-wrap items-center gap-[16px] rounded-[16px] p-[18px_22px]"
       style={{ background: state.bg, border: `1px solid ${state.line}` }}
     >
@@ -302,6 +317,7 @@ export function OwnershipCard({ periods }: { periods: OwnershipPeriod[] }) {
         {periods.map((period) => (
           <div
             key={period.sequenceNumber}
+            data-testid="ownership-period"
             className="rounded-[12px] p-[14px_16px]"
             style={{
               background: period.isCurrent ? "#f2f7fd" : "#f8fafb",

@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import type { PropertyDetail, Role } from "@hometoken/contracts";
+import type { PropertyDetail, Role } from "@homefax/contracts";
 import { PhotoPlaceholder } from "./brand";
 import { Button, ButtonLink } from "./buttons";
 import { useToast } from "./feedback";
@@ -57,12 +57,18 @@ export function PropertyHero({
   }
 
   return (
-    <section className="track-min-0 grid overflow-hidden rounded-[16px] border border-line bg-white lg:grid-cols-[minmax(0,0.85fr)_minmax(0,1.15fr)]">
+    <section
+      data-testid="property-hero"
+      className="track-min-0 grid overflow-hidden rounded-[16px] border border-line bg-white lg:grid-cols-[minmax(0,0.85fr)_minmax(0,1.15fr)]"
+    >
       <PhotoPlaceholder className="min-h-[290px] w-full" />
 
       <div className="min-w-0 p-[26px_28px]">
         <div className="flex flex-wrap items-start justify-between gap-3">
-          <h1 className="m-0 text-[clamp(26px,3.6vw,36px)] leading-[1.1] font-extrabold tracking-[-0.03em] text-ink">
+          <h1
+            data-testid="property-address"
+            className="m-0 text-[clamp(26px,3.6vw,36px)] leading-[1.1] font-extrabold tracking-[-0.03em] text-ink"
+          >
             {property.address}
           </h1>
           {/* Saving is a bookmark and an agent-only affordance. */}
@@ -70,6 +76,8 @@ export function PropertyHero({
             <button
               type="button"
               onClick={() => void toggleSave()}
+              data-testid="save-toggle"
+              data-saved={isSaved}
               className="shrink-0 cursor-pointer rounded-[8px] border border-line bg-white px-[12px] py-[7px] text-[13px] font-bold text-body hover:border-navy hover:text-navy"
             >
               {isSaved ? "★ Saved" : "☆ Save"}
@@ -85,15 +93,16 @@ export function PropertyHero({
         <div className="mt-[20px] grid grid-cols-[repeat(auto-fit,minmax(180px,1fr))] gap-[16px]">
           <div className="min-w-0">
             <div className="text-[10.5px] font-bold tracking-[0.14em] text-softer">
-              HOMETOKEN ID
+              HOMEFAX ID
             </div>
             <div className="mt-[5px] flex flex-wrap items-center gap-[8px]">
               <Mono className="text-[13px] font-medium break-all text-link">
-                {property.tokenId}
+                <span data-testid="property-token-id">{property.tokenId}</span>
               </Mono>
               <button
                 type="button"
                 onClick={() => void copyToken()}
+                data-testid="copy-token-button"
                 className="shrink-0 cursor-pointer rounded-[6px] border border-line bg-card px-[8px] py-[3px] text-[11px] font-bold text-muted hover:border-navy hover:text-navy"
               >
                 {copied ? "Copied" : "Copy"}
@@ -115,7 +124,10 @@ export function PropertyHero({
             <div className="text-[10.5px] font-bold tracking-[0.14em] text-softer">
               ESTIMATED VALUE
             </div>
-            <div className="mt-[4px] text-[clamp(28px,4vw,38px)] leading-none font-extrabold tracking-[-0.03em] text-ink">
+            <div
+              data-testid="property-value"
+              className="mt-[4px] text-[clamp(28px,4vw,38px)] leading-none font-extrabold tracking-[-0.03em] text-ink"
+            >
               {formatMoney(property.estimatedValue)}
             </div>
           </div>
@@ -129,10 +141,14 @@ export function PropertyHero({
         </div>
 
         <div className="mt-[20px] flex flex-wrap gap-[10px]">
-          <ButtonLink href={`/properties/${property.tokenId}/ask`}>
+          <ButtonLink href={`/properties/${property.tokenId}/ask`} testId="hero-ask">
             Ask This Home
           </ButtonLink>
-          <ButtonLink href={`/properties/${property.tokenId}/add-record`} variant="outline">
+          <ButtonLink
+            href={`/properties/${property.tokenId}/add-record`}
+            variant="outline"
+            testId="hero-add-record"
+          >
             Add Record
           </ButtonLink>
           {role === "agent" ? (
@@ -140,7 +156,7 @@ export function PropertyHero({
               href={`/properties/${property.tokenId}/transfer`}
               variant="outline"
             >
-              Transfer HomeToken
+              Transfer HomeFax
             </ButtonLink>
           ) : null}
           {!canContribute ? (
@@ -164,6 +180,7 @@ export function ReVerifyButton({ tokenId }: { tokenId: string }) {
       variant="outline"
       size="sm"
       disabled={busy}
+      testId="re-verify-button"
       onClick={async () => {
         setBusy(true);
         try {
@@ -233,7 +250,7 @@ export function ClaimActionButton({
 
   return (
     <ButtonLink href={`/properties/${tokenId}/claim`} size="sm">
-      {role === "homeowner" ? "Verify ownership" : "Claim HomeToken"}
+      {role === "homeowner" ? "Verify ownership" : "Claim HomeFax"}
     </ButtonLink>
   );
 }

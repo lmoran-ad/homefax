@@ -199,7 +199,7 @@ describe("the contractor loop", () => {
     expect(property.body.property.events.length).toBeGreaterThan(0);
   });
 
-  it("refuses a submission to an address with no HomeToken", async () => {
+  it("refuses a submission to an address with no HomeFax", async () => {
     const { status, body } = await call<{ error: { message: string } }>(app, {
       method: "POST",
       url: "/api/jobs/submit",
@@ -213,10 +213,10 @@ describe("the contractor loop", () => {
       },
     });
     expect(status).toBe(400);
-    expect(body.error.message).toContain("No HomeToken found");
+    expect(body.error.message).toContain("No HomeFax found");
   });
 
-  it("refuses a submission to a HomeToken with no homeowner account", async () => {
+  it("refuses a submission to a HomeFax with no homeowner account", async () => {
     // Without an owner there is nobody to accept or decline, so the submission
     // would amount to writing straight into someone's record.
     const { status, body } = await call<{ error: { message: string } }>(app, {

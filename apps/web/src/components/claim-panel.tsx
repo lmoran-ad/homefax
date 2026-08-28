@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import type { PropertySummary } from "@hometoken/contracts";
+import type { PropertySummary } from "@homefax/contracts";
 import { Button } from "./buttons";
 import { useToast } from "./feedback";
 import { Eyebrow, Mono, SectionHeading, Spinner } from "./ui";
@@ -54,7 +54,7 @@ export function ClaimPanel({ role }: { role: "agent" | "homeowner" }) {
         "/properties/provision",
         { method: "POST", body: { address } },
       );
-      toast(`HomeToken provisioned for ${property.address}.`);
+      toast(`HomeFax provisioned for ${property.address}.`);
       router.push(`/properties/${property.tokenId}`);
     } catch (error) {
       toast(
@@ -68,11 +68,12 @@ export function ClaimPanel({ role }: { role: "agent" | "homeowner" }) {
 
   return (
     <section
+      data-testid="claim-panel"
       className="rounded-[16px] bg-white p-[24px_26px]"
       style={{ border: "1.5px solid #cfe0f5" }}
     >
       <Eyebrow color="#1a4f9c">
-        {isAgent ? "CLAIM A HOMETOKEN" : "ADD ONE OF YOUR HOMES"}
+        {isAgent ? "CLAIM A HOMEFAX" : "ADD ONE OF YOUR HOMES"}
       </Eyebrow>
       <SectionHeading className="mt-[10px]">
         {isAgent
@@ -96,10 +97,11 @@ export function ClaimPanel({ role }: { role: "agent" | "homeowner" }) {
           value={address}
           onChange={(event) => setAddress(event.target.value)}
           placeholder="123 Main Street, Denver, 80206"
+          data-testid="claim-lookup-input"
           aria-label="Property address"
           className="min-w-[220px] flex-1 rounded-[10px] border border-input bg-white px-4 py-[13px] text-[15px] text-ink placeholder:text-faint"
         />
-        <Button type="submit" disabled={busy}>
+        <Button type="submit" disabled={busy} testId="claim-lookup-submit">
           {busy ? "Looking up…" : "Look up"}
         </Button>
       </form>
@@ -110,7 +112,11 @@ export function ClaimPanel({ role }: { role: "agent" | "homeowner" }) {
             Nothing looked up yet.
           </p>
         ) : result.kind === "found" ? (
-          <div className="flex flex-wrap items-center gap-[16px] rounded-[12px] bg-card p-[16px_18px]">
+          <div
+            data-testid="claim-lookup-result"
+            data-kind="found"
+            className="flex flex-wrap items-center gap-[16px] rounded-[12px] bg-card p-[16px_18px]"
+          >
             <div className="min-w-0 flex-1">
               <div className="truncate text-[15.5px] font-bold text-ink">
                 {result.property.address}
@@ -135,9 +141,13 @@ export function ClaimPanel({ role }: { role: "agent" | "homeowner" }) {
             </Button>
           </div>
         ) : (
-          <div className="rounded-[12px] border border-warn-line bg-warn-panel p-[18px_20px]">
+          <div
+            data-testid="claim-lookup-result"
+            data-kind="missing"
+            className="rounded-[12px] border border-warn-line bg-warn-panel p-[18px_20px]"
+          >
             <div className="text-[14.5px] font-bold text-amber">
-              No HomeToken for that address yet
+              No HomeFax for that address yet
             </div>
             <p className="mt-[8px] mb-0 max-w-[620px] text-[13.5px] leading-[1.6] text-body">
               That parcel sits outside the markets provisioned so far. Pulling it
@@ -147,7 +157,11 @@ export function ClaimPanel({ role }: { role: "agent" | "homeowner" }) {
             </p>
             {isAgent ? (
               <div className="mt-[16px] flex items-center gap-3">
-                <Button onClick={() => void provision()} disabled={provisioning}>
+                <Button
+                  onClick={() => void provision()}
+                  disabled={provisioning}
+                  testId="provision-button"
+                >
                   {provisioning ? "Provisioning…" : "Provision from county records"}
                 </Button>
                 {provisioning ? <Spinner /> : null}

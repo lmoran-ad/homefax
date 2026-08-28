@@ -14,7 +14,7 @@ CREATE TABLE "profiles" (
 	"billing_cycle" text DEFAULT 'monthly' NOT NULL,
 	"subscription_cancelled" boolean DEFAULT false NOT NULL,
 	"ask_questions_used" text DEFAULT '0' NOT NULL,
-	"home_token_id" text,
+	"owned_token_id" text,
 	"contractor_id" text,
 	"created_at" timestamp with time zone DEFAULT now() NOT NULL,
 	"updated_at" timestamp with time zone DEFAULT now() NOT NULL
@@ -205,6 +205,15 @@ CREATE TABLE "token_transfers" (
 	"transfer_event_id" uuid
 );
 --> statement-breakpoint
+CREATE TABLE "document_blobs" (
+	"id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
+	"storage_key" text NOT NULL,
+	"content_type" text NOT NULL,
+	"bytes" "bytea" NOT NULL,
+	"sha256" text NOT NULL,
+	"created_at" timestamp with time zone DEFAULT now() NOT NULL
+);
+--> statement-breakpoint
 ALTER TABLE "property_events" ADD CONSTRAINT "property_events_property_id_properties_id_fk" FOREIGN KEY ("property_id") REFERENCES "public"."properties"("id") ON DELETE restrict ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "property_events" ADD CONSTRAINT "property_events_created_by_profiles_id_fk" FOREIGN KEY ("created_by") REFERENCES "public"."profiles"("id") ON DELETE no action ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "property_documents" ADD CONSTRAINT "property_documents_property_id_properties_id_fk" FOREIGN KEY ("property_id") REFERENCES "public"."properties"("id") ON DELETE restrict ON UPDATE no action;--> statement-breakpoint
@@ -251,4 +260,5 @@ CREATE UNIQUE INDEX "jobs_public_id_key" ON "jobs" USING btree ("public_id");-->
 CREATE INDEX "jobs_property_idx" ON "jobs" USING btree ("property_id");--> statement-breakpoint
 CREATE INDEX "jobs_contractor_idx" ON "jobs" USING btree ("contractor_id");--> statement-breakpoint
 CREATE INDEX "ai_extraction_jobs_property_idx" ON "ai_extraction_jobs" USING btree ("property_id");--> statement-breakpoint
-CREATE INDEX "token_transfers_property_idx" ON "token_transfers" USING btree ("property_id");
+CREATE INDEX "token_transfers_property_idx" ON "token_transfers" USING btree ("property_id");--> statement-breakpoint
+CREATE UNIQUE INDEX "document_blobs_storage_key_key" ON "document_blobs" USING btree ("storage_key");

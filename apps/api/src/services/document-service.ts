@@ -1,10 +1,10 @@
-import type { Visibility } from "@hometoken/contracts";
-import { LocalStorageProvider } from "@hometoken/providers";
+import type { Visibility } from "@homefax/contracts";
+import { LocalStorageProvider } from "@homefax/providers";
 import {
   propertyDocuments,
   type PropertyDocumentRow,
   type PropertyRow,
-} from "@hometoken/db";
+} from "@homefax/db";
 import { and, eq } from "drizzle-orm";
 import type { AppContext } from "../lib/context.js";
 import { AppError, notFound } from "../lib/errors.js";
@@ -28,7 +28,7 @@ export async function findDocument(
       ),
     )
     .limit(1);
-  if (!row) throw notFound("That document is not part of this HomeToken");
+  if (!row) throw notFound("That document is not part of this HomeFax");
   return row;
 }
 

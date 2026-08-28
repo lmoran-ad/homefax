@@ -1,4 +1,4 @@
-import { fixtureProperties } from "@hometoken/db/fixtures";
+import { fixtureProperties } from "@homefax/db/fixtures";
 import type { DeedProvider } from "../contracts/types.js";
 
 export class FixtureDeedProvider implements DeedProvider {

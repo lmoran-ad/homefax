@@ -10,7 +10,7 @@ import type {
   ProofDocument,
   Role,
   SeededRecordStats,
-} from "@hometoken/contracts";
+} from "@homefax/contracts";
 import { Button, ButtonLink } from "./buttons";
 import { Checkbox, ErrorBanner, SelectField, TextField } from "./fields";
 import { useToast } from "./feedback";
@@ -173,10 +173,13 @@ export function ClaimScreen({
         <p className="mt-[12px] mb-0 max-w-[620px] text-[14.5px] leading-[1.6] text-muted">
           {isOwner
             ? "This record already exists and already has history. Verifying ownership gives you the right to approve what enters it — it does not create it, and it does not change anything already recorded."
-            : "This HomeToken was provisioned from public county data before anyone asked for it. Claiming grants you authorization over a record that already exists. It never gives you edit rights over what is already there."}
+            : "This HomeFax was provisioned from public county data before anyone asked for it. Claiming grants you authorization over a record that already exists. It never gives you edit rights over what is already there."}
         </p>
 
-        <div className="track-min-0 mt-[22px] grid grid-cols-[repeat(auto-fit,minmax(130px,1fr))] gap-[14px] rounded-[14px] border border-line bg-white p-[18px_20px]">
+        <div
+          data-testid="seeded-stats"
+          className="track-min-0 mt-[22px] grid grid-cols-[repeat(auto-fit,minmax(130px,1fr))] gap-[14px] rounded-[14px] border border-line bg-white p-[18px_20px]"
+        >
           {[
             ["SEEDED EVENTS", seededStats.events],
             ["DOCUMENTS", seededStats.documents],
@@ -196,6 +199,8 @@ export function ClaimScreen({
 
         {result ? (
           <section
+            data-testid="claim-result"
+            data-status={result.status}
             className="animate-fade-up mt-[22px] rounded-[16px] p-[28px_30px]"
             style={{
               background: result.status === "active" ? "#eef7f1" : "#fffaf1",
@@ -222,7 +227,7 @@ export function ClaimScreen({
             </h2>
             <p className="mt-[10px] mb-0 max-w-[560px] text-[14px] leading-[1.6] text-body">
               {result.status === "active"
-                ? "You can now add records, ask grounded questions and export this HomeToken. Everything already on the record is unchanged."
+                ? "You can now add records, ask grounded questions and export this HomeFax. Everything already on the record is unchanged."
                 : "Until this completes you can read the county-seeded record, but not contribute to it."}
             </p>
 
@@ -263,13 +268,16 @@ export function ClaimScreen({
               void submit();
             }}
           >
-            {error ? <ErrorBanner>{error}</ErrorBanner> : null}
+            {error ? <ErrorBanner testId="claim-error">{error}</ErrorBanner> : null}
 
             {methods.map((option) => {
               const selected = method === option.id;
               return (
                 <label
                   key={option.id}
+                  data-testid="claim-method"
+                  data-method={option.id}
+                  data-selected={selected}
                   className="block cursor-pointer rounded-[14px] p-[20px_22px]"
                   style={{
                     border: selected ? "1.5px solid #0b2c52" : "1px solid #e3e7ec",
@@ -304,6 +312,7 @@ export function ClaimScreen({
                       {selected && option.id === "mls" ? (
                         <div className="mt-[16px] grid gap-[12px] sm:grid-cols-2">
                           <TextField
+                            testId="claim-mls-number"
                             label="MLS number"
                             value={mlsNumber}
                             onChange={(e) => setMlsNumber(e.target.value)}
@@ -320,6 +329,7 @@ export function ClaimScreen({
 
                       {selected && option.id === "title" ? (
                         <TextField
+                          testId="claim-escrow-number"
                           className="mt-[16px] max-w-[300px]"
                           label="Escrow or file number"
                           value={escrowNumber}
@@ -330,10 +340,11 @@ export function ClaimScreen({
 
                       {selected && option.id === "seller" ? (
                         <Checkbox
+                          testId="claim-acknowledge"
                           className="mt-[16px]"
                           checked={acknowledged}
                           onChange={setAcknowledged}
-                          label="I have the owner's permission to request stewardship of this HomeToken."
+                          label="I have the owner's permission to request stewardship of this HomeFax."
                         />
                       ) : null}
 
@@ -346,6 +357,7 @@ export function ClaimScreen({
 
                       {selected && option.id === "proof" ? (
                         <SelectField
+                          testId="claim-proof-document"
                           className="mt-[16px] max-w-[300px]"
                           label="Document you are submitting"
                           value={proofDocument}
@@ -365,7 +377,7 @@ export function ClaimScreen({
             })}
 
             <div className="pt-[8px]">
-              <Button type="submit" size="lg" disabled={busy}>
+              <Button type="submit" size="lg" disabled={busy} testId="claim-submit">
                 {busy
                   ? "Submitting…"
                   : isOwner
@@ -380,11 +392,11 @@ export function ClaimScreen({
       <aside className="min-w-0 space-y-[18px]">
         <div className="dot-grid rounded-[16px] p-[24px_26px] text-white">
           <h3 className="m-0 text-[16px] font-extrabold tracking-[-0.015em]">
-            Agents don&apos;t create HomeTokens
+            Agents don&apos;t create HomeFaxes
           </h3>
           <p className="mt-[10px] mb-0 text-[13.5px] leading-[1.6]" style={{ color: "#ffffffcc" }}>
             Assessor and recorder files are public and bulk-available, so a
-            HomeToken is provisioned for every parcel in a market before anyone asks
+            HomeFax is provisioned for every parcel in a market before anyone asks
             for one. Claiming is authorization over a record that already exists —
             which is why coverage is a data problem, not a sales problem.
           </p>

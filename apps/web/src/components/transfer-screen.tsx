@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import type { TransferResult } from "@hometoken/contracts";
+import type { TransferResult } from "@homefax/contracts";
 import { Button, ButtonLink } from "./buttons";
 import { Checkbox, ErrorBanner, TextField } from "./fields";
 import { useToast } from "./feedback";
@@ -57,7 +57,10 @@ export function TransferScreen({
 
   if (result) {
     return (
-      <div className="animate-fade-up mx-auto max-w-[620px] rounded-[16px] border border-ok-line bg-[#eef7f1] p-[36px_38px]">
+      <div
+        data-testid="transfer-result"
+        className="animate-fade-up mx-auto max-w-[620px] rounded-[16px] border border-ok-line bg-[#eef7f1] p-[36px_38px]"
+      >
         <div
           className="flex h-[46px] w-[46px] items-center justify-center rounded-full bg-green text-[22px] font-bold text-white"
           aria-hidden="true"
@@ -75,7 +78,7 @@ export function TransferScreen({
         <dl className="mt-[22px] mb-0 space-y-[9px]">
           {[
             ["Property", address],
-            ["HomeToken", tokenId],
+            ["HomeFax", tokenId],
             ["Events retained", String(result.retainedEventCount)],
             ["New ownership period", `#${result.ownershipPeriodNumber}`],
             [
@@ -115,10 +118,10 @@ export function TransferScreen({
     <div className="track-min-0 grid items-start gap-[22px] lg:grid-cols-[minmax(0,1.6fr)_minmax(270px,0.85fr)]">
       <div className="min-w-0">
         <h1 className="m-0 text-[26px] font-extrabold tracking-[-0.03em] text-ink">
-          Transfer HomeToken stewardship
+          Transfer HomeFax stewardship
         </h1>
         <p className="mt-[10px] mb-[22px] max-w-[560px] text-[14.5px] leading-[1.6] text-muted">
-          The HomeToken history remains attached to the property. This transfers
+          The HomeFax history remains attached to the property. This transfers
           administration of the digital record; legal ownership remains governed by
           the deed and title process.
         </p>
@@ -134,20 +137,23 @@ export function TransferScreen({
 
           <TextField label="Current steward" value={stewardName} disabled />
           <TextField
+            testId="transfer-name"
             label="New owner name"
             value={newOwnerName}
             onChange={(e) => setNewOwnerName(e.target.value)}
             placeholder="Dana Whitfield"
           />
           <TextField
+            testId="transfer-email"
             label="New owner email"
             type="email"
             value={newOwnerEmail}
             onChange={(e) => setNewOwnerEmail(e.target.value)}
-            placeholder="owner@hometoken.demo"
+            placeholder="owner@homefax.demo"
             hint="They are invited to claim the record at this address."
           />
           <TextField
+            testId="transfer-date"
             label="Transfer date"
             type="date"
             value={transferDate}
@@ -155,12 +161,13 @@ export function TransferScreen({
           />
 
           <Checkbox
+            testId="transfer-acknowledge"
             checked={acknowledged}
             onChange={setAcknowledged}
             label="I understand this is a simulated transfer of the digital property record. It is not a legal title transfer and no deed is recorded."
           />
 
-          <Button type="submit" size="lg" disabled={busy}>
+          <Button type="submit" size="lg" disabled={busy} testId="transfer-submit">
             {busy ? "Transferring…" : "Transfer stewardship"}
           </Button>
         </form>

@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import type { Contractor, VerificationChecklistItem } from "@hometoken/contracts";
+import type { Contractor, VerificationChecklistItem } from "@homefax/contracts";
 import { Button } from "./buttons";
 import { ErrorBanner, TextField } from "./fields";
 import { useToast } from "./feedback";
@@ -67,7 +67,10 @@ export function VerificationScreen({
   return (
     <div className="track-min-0 grid items-start gap-[22px] lg:grid-cols-[minmax(0,1.5fr)_minmax(260px,0.9fr)]">
       <div className="min-w-0 space-y-[22px]">
-        <section className="rounded-[16px] border border-line bg-white p-[26px_28px]">
+        <section
+          data-testid="verification-profile"
+          className="rounded-[16px] border border-line bg-white p-[26px_28px]"
+        >
           <div className="flex flex-wrap items-center gap-[14px]">
             <div
               className="flex h-[48px] w-[48px] items-center justify-center rounded-[12px] bg-card text-[16px] font-bold text-navy"
@@ -81,6 +84,7 @@ export function VerificationScreen({
                   {contractor.name}
                 </h2>
                 <Pill
+                  testId="contractor-verification"
                   label={contractor.verified ? "VERIFIED SOURCE" : "UNVERIFIED"}
                   bg={contractor.verified ? "#e7f4ec" : "#eef1f4"}
                   fg={contractor.verified ? "#12693b" : "#6b7580"}
@@ -110,6 +114,7 @@ export function VerificationScreen({
               onChange={(event) => set("trade", event.target.value)}
             />
             <TextField
+              testId="contractor-license"
               label="License number"
               value={form.license}
               onChange={(event) => set("license", event.target.value)}
@@ -123,7 +128,7 @@ export function VerificationScreen({
           </div>
 
           <div className="mt-[22px]">
-            <Button onClick={() => void save()} disabled={busy}>
+            <Button onClick={() => void save()} disabled={busy} testId="save-profile-button">
               {busy ? "Saving…" : "Save profile"}
             </Button>
           </div>
@@ -139,6 +144,8 @@ export function VerificationScreen({
               return (
                 <div
                   key={item.label}
+                  data-testid="verification-checklist-item"
+                  data-status={item.status}
                   className="flex flex-wrap items-start justify-between gap-3 rounded-[12px] bg-card p-[16px_18px]"
                 >
                   <div className="min-w-0 flex-1">

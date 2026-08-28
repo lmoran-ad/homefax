@@ -3,7 +3,7 @@ import type {
   JobSubmission,
   RequestWork,
   SubmitWork,
-} from "@hometoken/contracts";
+} from "@homefax/contracts";
 import {
   contractors,
   jobs,
@@ -13,7 +13,7 @@ import {
   type ContractorRow,
   type JobRow,
   type PropertyRow,
-} from "@hometoken/db";
+} from "@homefax/db";
 import { desc, eq, sql } from "drizzle-orm";
 import type { AppContext } from "../lib/context.js";
 import { badRequest, forbidden, notFound } from "../lib/errors.js";
@@ -86,14 +86,14 @@ export async function requestWork(
   if (user.role !== "homeowner") {
     throw forbidden("Only a homeowner can request work at their property");
   }
-  if (!user.homeTokenId) {
+  if (!user.ownedTokenId) {
     throw badRequest("Verify ownership of a home before requesting work");
   }
 
   const [property] = await ctx.db
     .select()
     .from(properties)
-    .where(eq(properties.tokenId, user.homeTokenId))
+    .where(eq(properties.tokenId, user.ownedTokenId))
     .limit(1);
   if (!property) throw notFound("Your home record could not be found");
 
@@ -146,7 +146,7 @@ export async function acceptJob(
  * The contractor submits a proposed record.
  *
  * Two refusals here are deliberate and should not be relaxed: an address with
- * no HomeToken cannot receive a submission, and neither can one with no
+ * no HomeFax cannot receive a submission, and neither can one with no
  * homeowner account — because there would be nobody to accept or decline it,
  * and an unreviewed submission would amount to a contractor writing directly
  * into someone's property record.
@@ -159,14 +159,14 @@ export async function submitWork(
   const property = await findByAddress(ctx, input.address);
   if (!property) {
     throw badRequest(
-      "No HomeToken found for that address. Only seeded demo properties can receive a submission.",
+      "No HomeFax found for that address. Only seeded demo properties can receive a submission.",
     );
   }
 
   const [owner] = await ctx.db
     .select()
     .from(profiles)
-    .where(eq(profiles.homeTokenId, property.tokenId))
+    .where(eq(profiles.ownedTokenId, property.tokenId))
     .limit(1);
   if (!owner) {
     throw badRequest(

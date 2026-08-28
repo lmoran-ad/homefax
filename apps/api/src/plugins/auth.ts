@@ -1,4 +1,4 @@
-import { SESSION_COOKIE, verifySession } from "@hometoken/auth";
+import { SESSION_COOKIE, verifySession } from "@homefax/auth";
 import type { FastifyInstance, FastifyRequest } from "fastify";
 import fp from "fastify-plugin";
 import type { AppContext } from "../lib/context.js";
@@ -52,4 +52,4 @@ async function plugin(app: FastifyInstance, options: { ctx: AppContext }) {
   });
 }
 
-export const authPlugin = fp(plugin, { name: "hometoken-auth" });
+export const authPlugin = fp(plugin, { name: "homefax-auth" });

@@ -1,6 +1,6 @@
 import type { ReactNode } from "react";
 import { redirect } from "next/navigation";
-import type { Job, PropertySummary, SessionUser } from "@hometoken/contracts";
+import type { Job, PropertySummary, SessionUser } from "@homefax/contracts";
 import { AppHeader } from "@/components/app-header";
 import { apiFetchOptional } from "@/lib/api";
 

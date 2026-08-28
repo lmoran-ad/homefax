@@ -85,7 +85,7 @@ export function LogoCluster({
         className="text-[19px] font-extrabold tracking-[-0.02em]"
         style={{ color: tone === "ink" ? "#12222f" : "#ffffff" }}
       >
-        HomeToken
+        HomeFax
       </div>
       {showLockup ? (
         <>

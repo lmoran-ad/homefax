@@ -3,7 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import type { DemoAccount, SessionUser } from "@hometoken/contracts";
+import type { DemoAccount, SessionUser } from "@homefax/contracts";
 import { BrandLockup, LogoMark } from "@/components/brand";
 import { Button } from "@/components/buttons";
 import {
@@ -63,7 +63,7 @@ export function LoginScreen({
         <div className="flex items-center gap-[11px]">
           <LogoMark size={34} variant="white" />
           <span className="text-[21px] font-extrabold tracking-[-0.02em]">
-            HomeToken
+            HomeFax
           </span>
           <span className="h-[18px] w-px" style={{ background: "#ffffff33" }} />
           <BrandLockup tone="white" />
@@ -77,13 +77,13 @@ export function LoginScreen({
             className="mt-[20px] max-w-[440px] text-[16.5px] leading-[1.6]"
             style={{ color: "#ffffffcc" }}
           >
-            Owners change, agents change, contractors change. The HomeToken stays
+            Owners change, agents change, contractors change. The HomeFax stays
             with the parcel — permanent, append-only, and hash-chained end to end.
           </p>
         </div>
 
         <p className="m-0 max-w-[460px] text-[12.5px] leading-[1.6]" style={{ color: "#ffffff8a" }}>
-          A HomeToken is a property record. It is not a deed, a security, or
+          A HomeFax is a property record. It is not a deed, a security, or
           cryptocurrency, and it does not replace title. All demo data is fictional.
         </p>
       </aside>
@@ -108,15 +108,17 @@ export function LoginScreen({
           </p>
 
           <form
+            data-testid="login-form"
             className="mt-[26px] space-y-[16px]"
             onSubmit={(event) => {
               event.preventDefault();
               void signIn();
             }}
           >
-            {error ? <ErrorBanner>{error}</ErrorBanner> : null}
+            {error ? <ErrorBanner testId="login-error">{error}</ErrorBanner> : null}
 
             <TextField
+              testId="login-email"
               label="Email"
               type="email"
               autoComplete="username"
@@ -124,6 +126,7 @@ export function LoginScreen({
               onChange={(e) => setEmail(e.target.value)}
             />
             <PasswordField
+              testId="login-password"
               label="Password"
               autoComplete="current-password"
               value={password}
@@ -141,7 +144,7 @@ export function LoginScreen({
               </span>
             </div>
 
-            <Button type="submit" size="lg" full disabled={signingIn}>
+            <Button type="submit" size="lg" full disabled={signingIn} testId="login-submit">
               {signingIn ? "Signing in…" : "Sign in"}
             </Button>
           </form>
@@ -161,6 +164,8 @@ export function LoginScreen({
                 <button
                   key={account.email}
                   type="button"
+                  data-testid="demo-account"
+                  data-role={account.role}
                   onClick={() => {
                     // Fills the credentials only. Signing in stays a deliberate
                     // second action.

@@ -1,5 +1,5 @@
-import { loadServerEnv, type ServerEnv } from "@hometoken/config";
-import { getDb, type Database } from "@hometoken/db";
+import { loadServerEnv, type ServerEnv } from "@homefax/config";
+import { getDb, type Database } from "@homefax/db";
 import {
   getDeedProvider,
   getLicenseProvider,
@@ -13,7 +13,7 @@ import {
   type ParcelProvider,
   type PermitProvider,
   type StorageProvider,
-} from "@hometoken/providers";
+} from "@homefax/providers";
 
 /**
  * Everything a service needs, resolved once. Services take this rather than

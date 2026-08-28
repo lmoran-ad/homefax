@@ -235,7 +235,7 @@ describe("stewardship transfer", () => {
       cookie: agent,
       payload: {
         newOwnerName: "Dana Whitfield",
-        newOwnerEmail: "owner@hometoken.demo",
+        newOwnerEmail: "owner@homefax.demo",
         transferDate: "2026-08-28",
         acknowledged: true,
       },
@@ -459,7 +459,7 @@ describe("account settings", () => {
       cookie: owner,
       payload: {
         name: "Dana Whitfield",
-        email: "owner@hometoken.demo",
+        email: "owner@homefax.demo",
         phone: "(303) 555-9999",
       },
     });

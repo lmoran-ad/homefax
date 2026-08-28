@@ -20,13 +20,18 @@ export function TextField({
   label,
   hint,
   className = "",
+  testId,
   ...rest
-}: InputHTMLAttributes<HTMLInputElement> & { label?: string; hint?: string }) {
+}: InputHTMLAttributes<HTMLInputElement> & {
+  label?: string;
+  hint?: string;
+  testId?: string;
+}) {
   const id = useId();
   return (
     <div className={className}>
       {label ? <FieldLabel htmlFor={id}>{label}</FieldLabel> : null}
-      <input id={id} className={INPUT_CLASS} {...rest} />
+      <input id={id} data-testid={testId} className={INPUT_CLASS} {...rest} />
       {hint ? <p className="mt-[6px] text-[12.5px] text-muted">{hint}</p> : null}
     </div>
   );
@@ -36,13 +41,23 @@ export function TextArea({
   label,
   rows = 4,
   className = "",
+  testId,
   ...rest
-}: React.TextareaHTMLAttributes<HTMLTextAreaElement> & { label?: string }) {
+}: React.TextareaHTMLAttributes<HTMLTextAreaElement> & {
+  label?: string;
+  testId?: string;
+}) {
   const id = useId();
   return (
     <div className={className}>
       {label ? <FieldLabel htmlFor={id}>{label}</FieldLabel> : null}
-      <textarea id={id} rows={rows} className={`${INPUT_CLASS} resize-y`} {...rest} />
+      <textarea
+        id={id}
+        data-testid={testId}
+        rows={rows}
+        className={`${INPUT_CLASS} resize-y`}
+        {...rest}
+      />
     </div>
   );
 }
@@ -51,16 +66,18 @@ export function SelectField({
   label,
   options,
   className = "",
+  testId,
   ...rest
 }: React.SelectHTMLAttributes<HTMLSelectElement> & {
   label?: string;
+  testId?: string;
   options: { value: string; label: string }[];
 }) {
   const id = useId();
   return (
     <div className={className}>
       {label ? <FieldLabel htmlFor={id}>{label}</FieldLabel> : null}
-      <select id={id} className={INPUT_CLASS} {...rest}>
+      <select id={id} data-testid={testId} className={INPUT_CLASS} {...rest}>
         {options.map((option) => (
           <option key={option.value} value={option.value}>
             {option.label}
@@ -75,8 +92,12 @@ export function SelectField({
 export function PasswordField({
   label,
   className = "",
+  testId,
   ...rest
-}: InputHTMLAttributes<HTMLInputElement> & { label?: string }) {
+}: InputHTMLAttributes<HTMLInputElement> & {
+  label?: string;
+  testId?: string;
+}) {
   const id = useId();
   const [visible, setVisible] = useState(false);
   return (
@@ -85,6 +106,7 @@ export function PasswordField({
       <div className="relative">
         <input
           id={id}
+          data-testid={testId}
           type={visible ? "text" : "password"}
           className={`${INPUT_CLASS} pr-[64px]`}
           {...rest}
@@ -106,17 +128,20 @@ export function Checkbox({
   checked,
   onChange,
   className = "",
+  testId,
 }: {
   label: ReactNode;
   checked: boolean;
   onChange: (next: boolean) => void;
   className?: string;
+  testId?: string;
 }) {
   const id = useId();
   return (
     <div className={`flex items-start gap-[10px] ${className}`}>
       <input
         id={id}
+        data-testid={testId}
         type="checkbox"
         checked={checked}
         onChange={(e) => onChange(e.target.checked)}
@@ -130,10 +155,17 @@ export function Checkbox({
   );
 }
 
-export function ErrorBanner({ children }: { children: ReactNode }) {
+export function ErrorBanner({
+  children,
+  testId,
+}: {
+  children: ReactNode;
+  testId?: string;
+}) {
   return (
     <div
       role="alert"
+      data-testid={testId}
       className="rounded-[10px] border border-danger-line bg-danger-bg px-4 py-3 text-[13.5px] leading-[1.5] text-error"
     >
       {children}
@@ -145,10 +177,12 @@ export function FilterPills({
   options,
   value,
   onChange,
+  testId,
 }: {
   options: { value: string; label: string; count?: number }[];
   value: string;
   onChange: (next: string) => void;
+  testId?: string;
 }) {
   return (
     <div className="flex flex-wrap gap-[8px]">
@@ -158,6 +192,9 @@ export function FilterPills({
           <button
             key={option.value}
             type="button"
+            data-testid={testId}
+            data-value={option.value}
+            data-active={active}
             onClick={() => onChange(option.value)}
             className={`cursor-pointer rounded-[999px] border px-[13px] py-[7px] text-[13px] whitespace-nowrap transition-colors ${
               active

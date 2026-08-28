@@ -1,4 +1,4 @@
-import type { DemoDocument } from "@hometoken/contracts";
+import type { DemoDocument } from "@homefax/contracts";
 import { LockPanel } from "@/components/lock-panel";
 import { PageShell } from "@/components/page-shell";
 import { AddRecord } from "@/components/add-record";

@@ -1,4 +1,4 @@
-import type { SessionUser, Subscription } from "@hometoken/contracts";
+import type { SessionUser, Subscription } from "@homefax/contracts";
 import { PageShell, PageHeading } from "@/components/page-shell";
 import { SettingsScreen } from "@/components/settings-screen";
 import { apiFetch } from "@/lib/api";

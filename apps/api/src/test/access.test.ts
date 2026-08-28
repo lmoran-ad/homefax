@@ -53,7 +53,7 @@ describe("authentication", () => {
     const unknown = await call<{ error: { message: string } }>(app, {
       method: "POST",
       url: "/api/auth/login",
-      payload: { email: "nobody@hometoken.demo", password: "demo-password" },
+      payload: { email: "nobody@homefax.demo", password: "demo-password" },
     });
     const wrong = await call<{ error: { message: string } }>(app, {
       method: "POST",
@@ -222,7 +222,7 @@ describe("agent stewardship claims", () => {
   });
 
   it("lands seller authorization pending, without granting access", async () => {
-    const token = "HT-US-CO-DEN-00003042";
+    const token = "HF-US-CO-DEN-00003042";
     const { body } = await call<{ result: { status: string } }>(app, {
       method: "POST",
       url: `/api/properties/${token}/claim`,
@@ -239,7 +239,7 @@ describe("agent stewardship claims", () => {
   it("refuses seller authorization without the acknowledgement", async () => {
     const { status } = await call(app, {
       method: "POST",
-      url: "/api/properties/HT-US-CO-DEN-00002914/claim",
+      url: "/api/properties/HF-US-CO-DEN-00002914/claim",
       cookie: agent,
       payload: { method: "seller", acknowledged: false },
     });
@@ -251,7 +251,7 @@ describe("agent stewardship claims", () => {
       app,
       {
         method: "POST",
-        url: "/api/properties/HT-US-CO-DEN-00005120/claim",
+        url: "/api/properties/HF-US-CO-DEN-00005120/claim",
         cookie: agent,
         payload: { method: "title", escrowNumber: "ESC-2026-4471" },
       },
@@ -263,7 +263,7 @@ describe("agent stewardship claims", () => {
   it("refuses title and escrow with no escrow number", async () => {
     const { status } = await call(app, {
       method: "POST",
-      url: "/api/properties/HT-US-CO-DEN-00005388/claim",
+      url: "/api/properties/HF-US-CO-DEN-00005388/claim",
       cookie: agent,
       payload: { method: "title", escrowNumber: "" },
     });
@@ -273,7 +273,7 @@ describe("agent stewardship claims", () => {
   it("refuses a claim from a homeowner", async () => {
     const { status } = await call(app, {
       method: "POST",
-      url: "/api/properties/HT-US-CO-LTN-00000912/claim",
+      url: "/api/properties/HF-US-CO-LTN-00000912/claim",
       cookie: owner,
       payload: { method: "mls", mlsNumber: "9180533" },
     });
@@ -320,7 +320,7 @@ describe("homeowner ownership verification", () => {
       app,
       {
         method: "POST",
-        url: "/api/properties/HT-US-CO-DEN-00004501/verify-ownership",
+        url: "/api/properties/HF-US-CO-DEN-00004501/verify-ownership",
         cookie: owner,
         payload: { method: "record" },
       },
@@ -331,7 +331,7 @@ describe("homeowner ownership verification", () => {
   });
 
   it("lands a proof upload pending, without granting access", async () => {
-    const token = "HT-US-CO-DEN-00004501";
+    const token = "HF-US-CO-DEN-00004501";
     const { body } = await call<{ result: { status: string } }>(app, {
       method: "POST",
       url: `/api/properties/${token}/verify-ownership`,
@@ -348,7 +348,7 @@ describe("homeowner ownership verification", () => {
   it("refuses an unrecognised proof document", async () => {
     const { status } = await call(app, {
       method: "POST",
-      url: "/api/properties/HT-US-CO-BLD-00000377/verify-ownership",
+      url: "/api/properties/HF-US-CO-BLD-00000377/verify-ownership",
       cookie: owner,
       payload: { method: "proof", proofDocument: "A napkin" },
     });
@@ -358,7 +358,7 @@ describe("homeowner ownership verification", () => {
   it("refuses ownership verification from an agent", async () => {
     const { status } = await call(app, {
       method: "POST",
-      url: "/api/properties/HT-US-CO-AUR-00001604/verify-ownership",
+      url: "/api/properties/HF-US-CO-AUR-00001604/verify-ownership",
       cookie: agent,
       payload: { method: "record" },
     });
@@ -397,10 +397,10 @@ describe("saved properties", () => {
   it("saving claims nothing", async () => {
     await call(app, {
       method: "POST",
-      url: "/api/properties/HT-US-CO-AUR-00001604/save",
+      url: "/api/properties/HF-US-CO-AUR-00001604/save",
       cookie: agent,
     });
-    const body = await contributeFor("HT-US-CO-AUR-00001604", agent);
+    const body = await contributeFor("HF-US-CO-AUR-00001604", agent);
     expect(body.claimState.key).toBe("unclaimed");
     expect(body.contribute.allowed).toBe(false);
   });

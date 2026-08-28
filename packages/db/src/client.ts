@@ -11,7 +11,17 @@ export function getPool(connectionString?: string): Pool {
   if (!pool) {
     const url = connectionString ?? process.env.DATABASE_URL;
     if (!url) throw new Error("DATABASE_URL is not set");
-    pool = new Pool({ connectionString: url, max: 10 });
+    // A serverless instance handles one request at a time, so a large pool
+    // buys nothing and multiplies connections against the database. The
+    // platform pooler is what handles concurrency.
+    const serverless = Boolean(process.env.VERCEL);
+    pool = new Pool({
+      connectionString: url,
+      max: serverless ? 1 : 10,
+      idleTimeoutMillis: serverless ? 10_000 : 30_000,
+      connectionTimeoutMillis: 15_000,
+      ...(url.includes("supabase") ? { ssl: { rejectUnauthorized: false } } : {}),
+    });
   }
   return pool;
 }

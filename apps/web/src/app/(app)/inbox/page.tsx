@@ -1,5 +1,5 @@
 import { redirect } from "next/navigation";
-import type { Job, SessionUser } from "@hometoken/contracts";
+import type { Job, SessionUser } from "@homefax/contracts";
 import { ButtonLink } from "@/components/buttons";
 import { PageShell, PageHeading } from "@/components/page-shell";
 import { RequestsList } from "@/components/requests-list";
@@ -18,7 +18,7 @@ export default async function InboxPage() {
     <PageShell>
       <PageHeading
         title="Requests"
-        lead="Work you have asked for, and records contractors have proposed. Nothing enters your HomeToken until you accept it."
+        lead="Work you have asked for, and records contractors have proposed. Nothing enters your HomeFax until you accept it."
       />
 
       {jobs.length === 0 ? (

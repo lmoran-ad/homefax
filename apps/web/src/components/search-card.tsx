@@ -7,7 +7,7 @@ import { Button } from "./buttons";
 const SUGGESTIONS = [
   "123 Main",
   "Denver",
-  "HT-US-CO-DEN-00001234",
+  "HF-US-CO-DEN-00001234",
   "DEN-1234-567-89",
 ];
 
@@ -31,11 +31,12 @@ export function SearchCard({ initialQuery = "" }: { initialQuery?: string }) {
         <input
           value={query}
           onChange={(event) => setQuery(event.target.value)}
-          placeholder="Address, HomeToken ID or parcel ID"
-          aria-label="Search HomeTokens"
+          placeholder="Address, HomeFax ID or parcel ID"
+          data-testid="search-input"
+          aria-label="Search HomeFaxes"
           className="min-w-[220px] flex-1 rounded-[10px] border border-input bg-white px-4 py-[14px] text-[15px] text-ink placeholder:text-faint"
         />
-        <Button type="submit" variant="navy" size="lg">
+        <Button type="submit" variant="navy" size="lg" testId="search-submit">
           Search
         </Button>
       </form>
@@ -46,6 +47,7 @@ export function SearchCard({ initialQuery = "" }: { initialQuery?: string }) {
           <button
             key={suggestion}
             type="button"
+            data-testid="search-suggestion"
             onClick={() => {
               setQuery(suggestion);
               search(suggestion);

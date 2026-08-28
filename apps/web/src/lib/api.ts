@@ -1,5 +1,5 @@
 import { cookies } from "next/headers";
-import type { ApiError } from "@hometoken/contracts";
+import type { ApiError } from "@homefax/contracts";
 
 const API_BASE = process.env.API_BASE_URL ?? "http://localhost:4000";
 

@@ -1,5 +1,5 @@
 import { redirect } from "next/navigation";
-import type { DemoDocument, Job, SessionUser } from "@hometoken/contracts";
+import type { DemoDocument, Job, SessionUser } from "@homefax/contracts";
 import { PageShell, PageHeading } from "@/components/page-shell";
 import { JobsWorkspace } from "@/components/jobs-workspace";
 import { apiFetch } from "@/lib/api";

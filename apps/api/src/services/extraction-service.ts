@@ -3,10 +3,10 @@ import {
   isConfigured,
   manualProposal,
   type AiConfig,
-} from "@hometoken/ai";
-import type { ExtractionResponse } from "@hometoken/contracts";
-import { aiExtractionJobs, type PropertyRow } from "@hometoken/db";
-import { allDemoDocuments } from "@hometoken/db/fixtures";
+} from "@homefax/ai";
+import type { ExtractionResponse } from "@homefax/contracts";
+import { aiExtractionJobs, type PropertyRow } from "@homefax/db";
+import { allDemoDocuments } from "@homefax/db/fixtures";
 import { eq } from "drizzle-orm";
 import type { AppContext } from "../lib/context.js";
 import { badRequest } from "../lib/errors.js";

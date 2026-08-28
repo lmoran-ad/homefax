@@ -7,7 +7,7 @@ import type {
   PropertyDetail,
   SeededRecordStats,
   SessionUser,
-} from "@hometoken/contracts";
+} from "@homefax/contracts";
 import { apiFetch } from "./api";
 
 export type PropertyResponse = {

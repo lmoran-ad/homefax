@@ -4,7 +4,7 @@ import { ToastProvider } from "@/components/feedback";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "REAL / REMAX HomeToken",
+  title: "REAL / REMAX HomeFax",
   description:
     "The digital identity of real estate — a permanent, append-only property record.",
 };

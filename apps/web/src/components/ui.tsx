@@ -4,7 +4,7 @@ import type {
   JobStatus,
   SystemStatus,
   VerificationLevel,
-} from "@hometoken/contracts";
+} from "@homefax/contracts";
 import { CLAIM_STATE, JOB_STATUS, SYSTEM_STATUS, VERIFICATION } from "@/lib/format";
 
 export function Card({
@@ -67,6 +67,7 @@ export function Pill({
   line,
   dot,
   className = "",
+  testId,
 }: {
   label: string;
   bg: string;
@@ -74,9 +75,11 @@ export function Pill({
   line?: string;
   dot?: string;
   className?: string;
+  testId?: string;
 }) {
   return (
     <span
+      data-testid={testId}
       className={`inline-flex items-center gap-[6px] rounded-[999px] px-[10px] py-[4px] text-[11px] font-bold tracking-[0.06em] whitespace-nowrap ${className}`}
       style={{
         background: bg,
@@ -98,22 +101,48 @@ export function Pill({
 export function VerificationBadge({
   level,
   className = "",
+  testId,
 }: {
   level: VerificationLevel;
   className?: string;
+  testId?: string;
 }) {
   const meta = VERIFICATION[level];
-  return <Pill label={meta.label} bg={meta.bg} fg={meta.fg} className={className} />;
+  return (
+    <Pill
+      label={meta.label}
+      bg={meta.bg}
+      fg={meta.fg}
+      className={className}
+      testId={testId}
+    />
+  );
 }
 
-export function StatusPill({ status }: { status: SystemStatus }) {
+export function StatusPill({
+  status,
+  testId,
+}: {
+  status: SystemStatus;
+  testId?: string;
+}) {
   const meta = SYSTEM_STATUS[status];
-  return <Pill label={meta.label} bg={meta.bg} fg={meta.fg} dot={meta.dot} />;
+  return (
+    <Pill label={meta.label} bg={meta.bg} fg={meta.fg} dot={meta.dot} testId={testId} />
+  );
 }
 
-export function JobStatusPill({ status }: { status: JobStatus }) {
+export function JobStatusPill({
+  status,
+  testId,
+}: {
+  status: JobStatus;
+  testId?: string;
+}) {
   const meta = JOB_STATUS[status];
-  return <Pill label={meta.label} bg={meta.bg} fg={meta.fg} line={meta.line} />;
+  return (
+    <Pill label={meta.label} bg={meta.bg} fg={meta.fg} line={meta.line} testId={testId} />
+  );
 }
 
 export function ClaimBadge({ state }: { state: ClaimStateKey }) {
@@ -174,13 +203,18 @@ export function EmptyState({
   title,
   body,
   action,
+  testId = "empty-state",
 }: {
   title: string;
   body: string;
   action?: ReactNode;
+  testId?: string;
 }) {
   return (
-    <div className="rounded-[16px] border border-line bg-white px-6 py-[46px] text-center">
+    <div
+      data-testid={testId}
+      className="rounded-[16px] border border-line bg-white px-6 py-[46px] text-center"
+    >
       <div className="text-[17px] font-bold text-ink">{title}</div>
       <p className="mx-auto mt-2 max-w-[420px] text-[14px] leading-[1.6] text-muted">
         {body}

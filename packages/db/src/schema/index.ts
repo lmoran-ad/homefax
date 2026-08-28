@@ -7,3 +7,4 @@ export * from "./ownership-periods.js";
 export * from "./claims.js";
 export * from "./marketplace.js";
 export * from "./workflows.js";
+export * from "./document-blobs.js";

@@ -1,4 +1,4 @@
-import type { PropertySummary } from "@hometoken/contracts";
+import type { PropertySummary } from "@homefax/contracts";
 import { ButtonLink } from "@/components/buttons";
 import { PageShell, PageHeading } from "@/components/page-shell";
 import { PropertyRow } from "@/components/property-cards";
@@ -23,21 +23,21 @@ export default async function PropertiesPage({
       <PageHeading title="Properties" />
       <SearchCard initialQuery={q} />
 
-      <p className="mt-[22px] mb-[16px] text-[13.5px] text-muted">
+      <p data-testid="result-count" className="mt-[22px] mb-[16px] text-[13.5px] text-muted">
         {q ? (
           <>
             {results.length} {results.length === 1 ? "result" : "results"} for{" "}
             <span className="font-bold text-ink">{q}</span>
           </>
         ) : (
-          <>{results.length} HomeTokens in the demo dataset</>
+          <>{results.length} HomeFaxes in the demo dataset</>
         )}
       </p>
 
       {results.length === 0 ? (
         <EmptyState
-          title="No HomeTokens match that search"
-          body="Try 123 Main, Denver, or a HomeToken ID such as HT-US-CO-DEN-00001234."
+          title="No HomeFaxes match that search"
+          body="Try 123 Main, Denver, or a HomeFax ID such as HF-US-CO-DEN-00001234."
           action={<ButtonLink href="/properties">Show all properties</ButtonLink>}
         />
       ) : (

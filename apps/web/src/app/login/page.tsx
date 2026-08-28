@@ -1,4 +1,4 @@
-import type { DemoAccount } from "@hometoken/contracts";
+import type { DemoAccount } from "@homefax/contracts";
 import { apiFetch } from "@/lib/api";
 import { LoginScreen } from "./login-screen";
 

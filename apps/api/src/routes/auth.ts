@@ -3,15 +3,15 @@ import {
   SESSION_TTL_SECONDS,
   SHORT_SESSION_TTL_SECONDS,
   signSession,
-} from "@hometoken/auth";
+} from "@homefax/auth";
 import {
   ChangePasswordRequestSchema,
   LoginRequestSchema,
   UpdateProfileRequestSchema,
   type DemoAccount,
   type Role,
-} from "@hometoken/contracts";
-import { fixtureAccounts } from "@hometoken/db/fixtures";
+} from "@homefax/contracts";
+import { fixtureAccounts } from "@homefax/db/fixtures";
 import type { FastifyInstance } from "fastify";
 import type { AppContext } from "../lib/context.js";
 import { unauthorized } from "../lib/errors.js";

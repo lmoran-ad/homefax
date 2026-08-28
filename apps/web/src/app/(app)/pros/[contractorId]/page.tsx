@@ -1,5 +1,5 @@
 import Link from "next/link";
-import type { ContractorProfile } from "@hometoken/contracts";
+import type { ContractorProfile } from "@homefax/contracts";
 import { PageShell } from "@/components/page-shell";
 import { Mono, Pill } from "@/components/ui";
 import { apiFetch } from "@/lib/api";
@@ -86,7 +86,7 @@ export default async function ContractorPage({
 
           <section className="mt-[22px] rounded-[16px] border border-line bg-white p-[26px_28px]">
             <h2 className="m-0 text-[19px] font-extrabold tracking-[-0.02em] text-ink">
-              Work recorded on HomeToken
+              Work recorded on HomeFax
             </h2>
             <p className="mt-[8px] mb-[18px] text-[13.5px] leading-[1.6] text-muted">
               Matched by company name across every property. Shown by ZIP only —
@@ -96,7 +96,7 @@ export default async function ContractorPage({
 
             {contractor.work.length === 0 ? (
               <p className="m-0 text-[14px] text-faint">
-                No work recorded on a HomeToken yet.
+                No work recorded on a HomeFax yet.
               </p>
             ) : (
               <div className="space-y-[10px]">
@@ -170,7 +170,7 @@ export default async function ContractorPage({
             </p>
             <p className="mt-[10px] mb-0 text-[13px] leading-[1.6] text-muted">
               It is not an endorsement, a warranty, or a rating of the quality of
-              their work. HomeToken records who did what and when — it does not
+              their work. HomeFax records who did what and when — it does not
               vouch for how well.
             </p>
           </div>

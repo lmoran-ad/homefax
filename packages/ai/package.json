@@ -1,5 +1,5 @@
 {
-  "name": "@hometoken/ai",
+  "name": "@homefax/ai",
   "version": "0.1.0",
   "private": true,
   "type": "module",
@@ -14,7 +14,7 @@
   },
   "dependencies": {
     "@anthropic-ai/sdk": "0.122.0",
-    "@hometoken/contracts": "workspace:*"
+    "@homefax/contracts": "workspace:*"
   },
   "devDependencies": {
     "@types/node": "22.13.5",

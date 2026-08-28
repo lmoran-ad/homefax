@@ -8,7 +8,7 @@ import type {
   Plan,
   PlanCard,
   UnitEconomicsRow,
-} from "@hometoken/contracts";
+} from "@homefax/contracts";
 import { Button } from "./buttons";
 import { useToast } from "./feedback";
 import {
@@ -77,11 +77,17 @@ export function PlansScreen({
         </div>
 
         <div className="flex shrink-0 items-center gap-3">
-          <div className="flex rounded-[999px] border border-line bg-white p-[3px]">
+          <div
+            data-testid="cycle-toggle"
+            className="flex rounded-[999px] border border-line bg-white p-[3px]"
+          >
             {(["monthly", "annual"] as const).map((option) => (
               <button
                 key={option}
                 type="button"
+                data-testid="cycle-option"
+                data-cycle={option}
+                data-active={cycle === option}
                 onClick={() => setCycle(option)}
                 className={`cursor-pointer rounded-[999px] px-[16px] py-[7px] text-[13px] font-bold capitalize ${
                   cycle === option
@@ -111,6 +117,7 @@ export function PlansScreen({
             variant={plan.primary ? "primary" : "outline"}
             disabled={plan.id === currentPlan || busy !== null}
             onClick={() => void choose(plan)}
+            testId="plan-cta"
           >
             {plan.id === currentPlan
               ? "Current plan"
@@ -139,7 +146,10 @@ export function PlansScreen({
         </p>
 
         <div className="overflow-x-auto">
-          <table className="w-full min-w-[640px] border-collapse text-left">
+          <table
+            data-testid="unit-economics-table"
+            className="w-full min-w-[640px] border-collapse text-left"
+          >
             <thead>
               <tr className="border-b border-line">
                 {["Revenue line", "Price", "Units", "Annual", "What it depends on"].map(

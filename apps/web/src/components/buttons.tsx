@@ -29,6 +29,8 @@ type Props = ButtonHTMLAttributes<HTMLButtonElement> & {
   variant?: Variant;
   size?: Size;
   full?: boolean;
+  /** Stable QA selector. See lib/testids.ts. */
+  testId?: string;
   children: ReactNode;
 };
 
@@ -37,12 +39,14 @@ export function Button({
   size = "md",
   full = false,
   className = "",
+  testId,
   children,
   ...rest
 }: Props) {
   return (
     <button
       type="button"
+      data-testid={testId}
       className={`inline-flex cursor-pointer items-center justify-center gap-2 font-bold whitespace-nowrap transition-colors disabled:cursor-not-allowed ${VARIANTS[variant]} ${SIZES[size]} ${full ? "w-full" : ""} ${className}`}
       {...rest}
     >
@@ -57,6 +61,7 @@ export function ButtonLink({
   size = "md",
   full = false,
   className = "",
+  testId,
   children,
 }: {
   href: string;
@@ -64,11 +69,13 @@ export function ButtonLink({
   size?: Size;
   full?: boolean;
   className?: string;
+  testId?: string;
   children: ReactNode;
 }) {
   return (
     <Link
       href={href}
+      data-testid={testId}
       className={`inline-flex items-center justify-center gap-2 font-bold whitespace-nowrap no-underline transition-colors ${VARIANTS[variant]} ${SIZES[size]} ${full ? "w-full" : ""} ${className}`}
     >
       {children}

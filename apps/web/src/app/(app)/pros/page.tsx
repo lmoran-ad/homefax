@@ -1,4 +1,4 @@
-import type { Contractor, SessionUser } from "@hometoken/contracts";
+import type { Contractor, SessionUser } from "@homefax/contracts";
 import { PageShell, PageHeading } from "@/components/page-shell";
 import { FindAPro } from "@/components/find-a-pro";
 import { apiFetch } from "@/lib/api";

@@ -40,7 +40,7 @@ describe("session tokens", () => {
   const claims = {
     sub: "11111111-1111-1111-1111-111111111111",
     role: "agent" as const,
-    email: "agent@hometoken.demo",
+    email: "agent@homefax.demo",
   };
 
   it("round-trips claims", () => {

@@ -3,7 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import type { Job } from "@hometoken/contracts";
+import type { Job } from "@homefax/contracts";
 import { Button } from "./buttons";
 import { useToast } from "./feedback";
 import { JobStatusPill, Mono } from "./ui";
@@ -52,11 +52,14 @@ export function RequestsList({ jobs }: { jobs: Job[] }) {
         return (
           <article
             key={job.id}
+            data-testid="job-card"
+            data-job-id={job.id}
+            data-status={job.status}
             className="rounded-[16px] bg-white p-[22px_24px]"
             style={{ border: `1.5px solid ${chip.line ?? "#e3e7ec"}` }}
           >
             <div className="flex flex-wrap items-center gap-[12px]">
-              <JobStatusPill status={job.status} />
+              <JobStatusPill status={job.status} testId="job-status" />
               <span className="text-[13px] font-semibold text-muted">
                 {job.trade}
               </span>
@@ -75,7 +78,10 @@ export function RequestsList({ jobs }: { jobs: Job[] }) {
             </p>
 
             {submission ? (
-              <div className="mt-[18px] rounded-[12px] bg-card p-[18px_20px]">
+              <div
+                data-testid="proposed-record"
+                className="mt-[18px] rounded-[12px] bg-card p-[18px_20px]"
+              >
                 <div className="text-[10.5px] font-bold tracking-[0.14em] text-softer">
                   PROPOSED RECORD
                 </div>
@@ -108,14 +114,16 @@ export function RequestsList({ jobs }: { jobs: Job[] }) {
                         size="sm"
                         disabled={busy === job.id}
                         onClick={() => void act(job, "accept-submission")}
+                        testId="accept-submission-button"
                       >
-                        {busy === job.id ? "Working…" : "Accept into my HomeToken"}
+                        {busy === job.id ? "Working…" : "Accept into my HomeFax"}
                       </Button>
                       <Button
                         variant="outline"
                         size="sm"
                         disabled={busy === job.id}
                         onClick={() => void act(job, "decline-submission")}
+                        testId="decline-submission-button"
                       >
                         Decline
                       </Button>
@@ -134,6 +142,7 @@ export function RequestsList({ jobs }: { jobs: Job[] }) {
             {job.status === "approved" ? (
               <Link
                 href={`/properties/${job.tokenId}/timeline`}
+                data-testid="view-on-timeline-link"
                 className="mt-[14px] inline-block text-[13px] font-bold text-link no-underline hover:text-brand"
               >
                 View on timeline →

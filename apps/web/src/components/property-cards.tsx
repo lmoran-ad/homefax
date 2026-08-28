@@ -1,10 +1,10 @@
 import Link from "next/link";
-import type { PropertySummary } from "@hometoken/contracts";
+import type { PropertySummary } from "@homefax/contracts";
 import { PhotoPlaceholder } from "./brand";
 import { Mono } from "./ui";
 import { formatMoney } from "@/lib/format";
 
-/** 3-up card used on the dashboard's "Recent HomeTokens" grid. */
+/** 3-up card used on the dashboard's "Recent HomeFaxes" grid. */
 export function PropertyCard({
   property,
   badge,
@@ -15,6 +15,8 @@ export function PropertyCard({
   return (
     <Link
       href={`/properties/${property.tokenId}`}
+      data-testid="property-card"
+      data-token-id={property.tokenId}
       className="block min-w-0 overflow-hidden rounded-[16px] border border-line bg-white no-underline transition-shadow hover:shadow-[0_8px_24px_#0b2c5214]"
     >
       <PhotoPlaceholder className="h-[150px] w-full">
@@ -71,7 +73,11 @@ export function PropertyRow({
   action?: React.ReactNode;
 }) {
   return (
-    <div className="track-min-0 grid grid-cols-[100px_minmax(0,1fr)_auto] items-center gap-[22px] rounded-[14px] border border-line bg-white p-[16px_20px]">
+    <div
+      data-testid="property-row"
+      data-token-id={property.tokenId}
+      className="track-min-0 grid grid-cols-[100px_minmax(0,1fr)_auto] items-center gap-[22px] rounded-[14px] border border-line bg-white p-[16px_20px]"
+    >
       <Link href={`/properties/${property.tokenId}`} className="block">
         <PhotoPlaceholder className="h-[84px] w-full rounded-[10px]" label="" />
       </Link>

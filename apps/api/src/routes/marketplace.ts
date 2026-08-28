@@ -3,8 +3,8 @@ import {
   RequestWorkSchema,
   SubmitWorkSchema,
   UpdateContractorProfileSchema,
-} from "@hometoken/contracts";
-import { contractorDocumentsForTrade } from "@hometoken/db/fixtures";
+} from "@homefax/contracts";
+import { contractorDocumentsForTrade } from "@homefax/db/fixtures";
 import type { FastifyInstance } from "fastify";
 import { z } from "zod";
 import type { AppContext } from "../lib/context.js";
@@ -30,7 +30,7 @@ import {
 } from "../services/job-service.js";
 import { findByAddress } from "../services/property-service.js";
 import { extract } from "../services/extraction-service.js";
-import { profiles } from "@hometoken/db";
+import { profiles } from "@homefax/db";
 import { eq } from "drizzle-orm";
 
 const JobParams = z.object({ jobId: z.string().min(3) });
@@ -62,7 +62,7 @@ export function registerMarketplaceRoutes(
       contractor: await contractorProfile(
         ctx,
         contractorId,
-        request.user?.homeTokenId ?? null,
+        request.user?.ownedTokenId ?? null,
       ),
     };
   });
@@ -111,7 +111,7 @@ export function registerMarketplaceRoutes(
   });
 
   /**
-   * Live address check for the submission form: green when a HomeToken exists
+   * Live address check for the submission form: green when a HomeFax exists
    * and a homeowner can accept, red when either is missing. Checking before
    * submit is what keeps the refusal a helpful state rather than a dead end
    * after the contractor has filled in the whole form.
@@ -126,26 +126,26 @@ export function registerMarketplaceRoutes(
     if (!property) {
       return {
         ok: false,
-        message: "No HomeToken found for that address.",
+        message: "No HomeFax found for that address.",
         tokenId: null,
       };
     }
     const [owner] = await ctx.db
       .select()
       .from(profiles)
-      .where(eq(profiles.homeTokenId, property.tokenId))
+      .where(eq(profiles.ownedTokenId, property.tokenId))
       .limit(1);
     if (!owner) {
       return {
         ok: false,
         message:
-          "That HomeToken has no homeowner account, so nobody can accept the record.",
+          "That HomeFax has no homeowner account, so nobody can accept the record.",
         tokenId: property.tokenId,
       };
     }
     return {
       ok: true,
-      message: `HomeToken found · ${property.addressLine1}`,
+      message: `HomeFax found · ${property.addressLine1}`,
       tokenId: property.tokenId,
     };
   });
@@ -164,7 +164,7 @@ export function registerMarketplaceRoutes(
       .parse(request.body);
 
     const property = await findByAddress(ctx, input.address);
-    if (!property) throw badRequest("No HomeToken found for that address");
+    if (!property) throw badRequest("No HomeFax found for that address");
     return extract(ctx, property, input, user.id);
   });
 

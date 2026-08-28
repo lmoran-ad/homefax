@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import type { DocumentSummary } from "@hometoken/contracts";
+import type { DocumentSummary } from "@homefax/contracts";
 import { Button } from "./buttons";
 import { Modal } from "./feedback";
 import { Spinner } from "./ui";
@@ -60,7 +60,10 @@ export function DocumentModal({
     <Modal open={Boolean(document)} onClose={onClose} labelledBy="document-title">
       {document ? (
         <>
-          <div className="flex items-start justify-between gap-4 border-b border-line p-[22px_26px]">
+          <div
+            data-testid="document-modal"
+            className="flex items-start justify-between gap-4 border-b border-line p-[22px_26px]"
+          >
             <div className="min-w-0">
               <div className="text-[10.5px] font-bold tracking-[0.14em] text-softer">
                 {document.kind.toUpperCase()} · {document.visibility}
@@ -77,7 +80,7 @@ export function DocumentModal({
                 </div>
               ) : null}
             </div>
-            <Button variant="outline" size="sm" onClick={onClose}>
+            <Button variant="outline" size="sm" onClick={onClose} testId="modal-close">
               Close
             </Button>
           </div>
@@ -102,6 +105,7 @@ export function DocumentModal({
           </div>
 
           <div
+            data-testid="document-sha"
             className="border-t border-line p-[14px_26px] text-[10.5px] break-all text-faint"
             style={{ fontFamily: "var(--font-mono)" }}
           >

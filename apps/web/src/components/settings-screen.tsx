@@ -3,7 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import type { SessionUser, Subscription } from "@hometoken/contracts";
+import type { SessionUser, Subscription } from "@homefax/contracts";
 import { Button, ButtonLink } from "./buttons";
 import { ErrorBanner, PasswordField, TextField } from "./fields";
 import { Modal, useToast } from "./feedback";
@@ -127,6 +127,7 @@ export function SettingsScreen({
 
           <div className="mt-[22px] grid gap-[16px] sm:grid-cols-2">
             <TextField
+              testId="profile-name"
               label="Full name"
               value={profile.name}
               onChange={(event) =>
@@ -134,6 +135,7 @@ export function SettingsScreen({
               }
             />
             <TextField
+              testId="profile-email"
               label="Email"
               type="email"
               value={profile.email}
@@ -142,6 +144,7 @@ export function SettingsScreen({
               }
             />
             <TextField
+              testId="profile-phone"
               label="Phone"
               value={profile.phone}
               onChange={(event) =>
@@ -152,7 +155,11 @@ export function SettingsScreen({
           </div>
 
           <div className="mt-[22px]">
-            <Button onClick={() => void saveProfile()} disabled={profileBusy}>
+            <Button
+              onClick={() => void saveProfile()}
+              disabled={profileBusy}
+              testId="save-changes-button"
+            >
               {profileBusy ? "Saving…" : "Save changes"}
             </Button>
           </div>
@@ -171,6 +178,7 @@ export function SettingsScreen({
 
           <div className="mt-[20px] grid gap-[16px] sm:grid-cols-2">
             <PasswordField
+              testId="password-current"
               className="sm:col-span-2"
               label="Current password"
               autoComplete="current-password"
@@ -180,6 +188,7 @@ export function SettingsScreen({
               }
             />
             <PasswordField
+              testId="password-new"
               label="New password"
               autoComplete="new-password"
               value={password.newPassword}
@@ -188,6 +197,7 @@ export function SettingsScreen({
               }
             />
             <PasswordField
+              testId="password-confirm"
               label="Confirm new password"
               autoComplete="new-password"
               value={password.confirmPassword}
@@ -202,6 +212,7 @@ export function SettingsScreen({
               variant="outline"
               onClick={() => void changePassword()}
               disabled={passwordBusy}
+              testId="change-password-button"
             >
               {passwordBusy ? "Changing…" : "Change password"}
             </Button>
@@ -210,12 +221,20 @@ export function SettingsScreen({
       </div>
 
       <aside className="min-w-0 space-y-[18px]">
-        <section className="rounded-[16px] border border-line bg-white p-[22px_24px]">
+        <section
+          data-testid="subscription-card"
+          className="rounded-[16px] border border-line bg-white p-[22px_24px]"
+        >
           <div className="flex flex-wrap items-center justify-between gap-2">
             <h3 className="m-0 text-[15px] font-extrabold tracking-[-0.015em] text-ink">
               Subscription
             </h3>
-            <Pill label={subscription.status} bg={chip.bg} fg={chip.fg} />
+            <Pill
+              testId="subscription-status"
+              label={subscription.status}
+              bg={chip.bg}
+              fg={chip.fg}
+            />
           </div>
 
           <div className="mt-[16px] text-[19px] font-extrabold tracking-[-0.02em] text-ink">
@@ -253,6 +272,7 @@ export function SettingsScreen({
                 size="sm"
                 full
                 onClick={() => setCancelOpen(true)}
+                testId="cancel-subscription-button"
               >
                 Cancel subscription
               </Button>
@@ -290,7 +310,7 @@ export function SettingsScreen({
         maxWidth={480}
         labelledBy="cancel-title"
       >
-        <div className="p-[26px_28px]">
+        <div data-testid="cancel-modal" className="p-[26px_28px]">
           <h2
             id="cancel-title"
             className="m-0 text-[21px] font-extrabold tracking-[-0.02em] text-ink"
@@ -303,15 +323,20 @@ export function SettingsScreen({
           </p>
 
           <div className="mt-[18px] rounded-[12px] bg-card p-[16px_18px] text-[13.5px] leading-[1.6] text-body">
-            Your HomeToken record is unaffected. Every event, document and hash stays
+            Your HomeFax record is unaffected. Every event, document and hash stays
             exactly where it is — the record belongs to the property.
           </div>
 
           <div className="mt-[22px] flex flex-wrap gap-[10px]">
-            <Button variant="danger" onClick={() => void cancel()} disabled={cancelBusy}>
+            <Button
+              variant="danger"
+              onClick={() => void cancel()}
+              disabled={cancelBusy}
+              testId="cancel-confirm"
+            >
               {cancelBusy ? "Cancelling…" : "Cancel subscription"}
             </Button>
-            <Button variant="outline" onClick={() => setCancelOpen(false)}>
+            <Button variant="outline" onClick={() => setCancelOpen(false)} testId="cancel-keep">
               Keep it
             </Button>
           </div>

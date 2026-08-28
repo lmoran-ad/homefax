@@ -70,7 +70,7 @@ const showcaseEvents: FixtureEvent[] = [
         "Recorded deed",
         "Deed",
         "PUBLIC",
-        "DENVER COUNTY CLERK & RECORDER\nInstrument 2008-0091423\n\nProperty: 123 Main Street, Denver, CO 80206\nParcel: DEN-1234-567-89\nRecorded: July 18, 2008\nConsideration: $379,000\nTransaction type: Arms-length\n\nGrantor and grantee names are withheld from the HomeToken display layer.",
+        "DENVER COUNTY CLERK & RECORDER\nInstrument 2008-0091423\n\nProperty: 123 Main Street, Denver, CO 80206\nParcel: DEN-1234-567-89\nRecorded: July 18, 2008\nConsideration: $379,000\nTransaction type: Arms-length\n\nGrantor and grantee names are withheld from the HomeFax display layer.",
       ),
     ],
   },
@@ -444,7 +444,7 @@ const showcaseEvents: FixtureEvent[] = [
 ];
 
 export const showcaseProperty: FixtureProperty = {
-  tokenId: "HT-US-CO-DEN-00001234",
+  tokenId: "HF-US-CO-DEN-00001234",
   address: "123 Main Street",
   city: "Denver",
   state: "CO",

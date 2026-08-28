@@ -1,7 +1,7 @@
 import {
   ExtractedPropertyEventSchema,
   type ExtractedPropertyEvent,
-} from "@hometoken/contracts";
+} from "@homefax/contracts";
 import { complete, extractJson, type AiConfig } from "./client.js";
 import { EXTRACTION_SYSTEM_PROMPT } from "./prompts.js";
 

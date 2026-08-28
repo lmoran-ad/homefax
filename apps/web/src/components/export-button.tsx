@@ -68,6 +68,7 @@ export function ExportButton({
         variant="outline"
         size="sm"
         disabled={disabled || busy}
+        testId="export-button"
         onClick={() => void exportRecord()}
       >
         {busy ? "Working…" : "Export record"}

@@ -3,6 +3,7 @@ import { FixtureLicenseProvider } from "./fixture/license-provider.js";
 import { FixtureMlsProvider } from "./fixture/mls-provider.js";
 import { FixtureParcelProvider } from "./fixture/parcel-provider.js";
 import { FixturePermitProvider } from "./fixture/permit-provider.js";
+import { DatabaseStorageProvider } from "./storage/database-storage-provider.js";
 import { LocalStorageProvider } from "./storage/local-storage-provider.js";
 import type {
   DeedProvider,
@@ -14,7 +15,7 @@ import type {
 } from "./contracts/types.js";
 
 export * from "./contracts/types.js";
-export { LocalStorageProvider };
+export { LocalStorageProvider, DatabaseStorageProvider };
 
 /**
  * Factories are the only supported way to obtain a provider. UI and domain
@@ -54,10 +55,20 @@ export function getLicenseProvider(): LicenseProvider {
   return license;
 }
 
+/**
+ * `STORAGE_DRIVER=database` puts document bytes in PostgreSQL, which is what a
+ * serverless deployment needs: there is no durable local disk there, so a file
+ * written by one invocation is not present for the next. Local development
+ * keeps the filesystem driver.
+ */
 export function getStorageProvider(rootPath?: string): StorageProvider {
-  storage ??= new LocalStorageProvider(
-    rootPath ?? process.env.LOCAL_STORAGE_PATH ?? "./storage/demo-uploads",
-  );
+  if (storage) return storage;
+  storage =
+    process.env.STORAGE_DRIVER === "database"
+      ? new DatabaseStorageProvider()
+      : new LocalStorageProvider(
+          rootPath ?? process.env.LOCAL_STORAGE_PATH ?? "./storage/demo-uploads",
+        );
   return storage;
 }
 

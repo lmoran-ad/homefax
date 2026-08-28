@@ -19,7 +19,7 @@ export default async function PropertyLayout({
     loadSession(),
   ]);
 
-  const isOwner = user.homeTokenId === tokenId;
+  const isOwner = user.ownedTokenId === tokenId;
 
   return (
     <>

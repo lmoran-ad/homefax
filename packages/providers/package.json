@@ -1,5 +1,5 @@
 {
-  "name": "@hometoken/providers",
+  "name": "@homefax/providers",
   "version": "0.1.0",
   "private": true,
   "type": "module",
@@ -13,9 +13,10 @@
     "test": "vitest run"
   },
   "dependencies": {
-    "@hometoken/contracts": "workspace:*",
-    "@hometoken/db": "workspace:*",
-    "@hometoken/ledger": "workspace:*"
+    "@homefax/contracts": "workspace:*",
+    "@homefax/db": "workspace:*",
+    "@homefax/ledger": "workspace:*",
+    "drizzle-orm": "0.45.2"
   },
   "devDependencies": {
     "@types/node": "22.13.5",

@@ -1,5 +1,5 @@
 {
-  "name": "@hometoken/db",
+  "name": "@homefax/db",
   "version": "0.1.0",
   "private": true,
   "type": "module",
@@ -17,13 +17,15 @@
     "seed": "tsx src/seed/index.ts",
     "reset": "tsx src/reset.ts && tsx src/migrate.ts && tsx src/seed/index.ts",
     "test": "vitest run --passWithNoTests",
-    "verify": "tsx scripts/verify-seed.ts"
+    "verify": "tsx scripts/verify-seed.ts",
+    "export-sql": "tsx scripts/export-seed-sql.ts"
   },
   "dependencies": {
-    "@hometoken/auth": "workspace:*",
-    "@hometoken/config": "workspace:*",
-    "@hometoken/contracts": "workspace:*",
-    "@hometoken/ledger": "workspace:*",
+    "@homefax/auth": "workspace:*",
+    "@homefax/config": "workspace:*",
+    "@homefax/contracts": "workspace:*",
+    "@homefax/ledger": "workspace:*",
+    "@homefax/providers": "workspace:*",
     "drizzle-orm": "0.45.2",
     "pg": "8.23.0"
   },

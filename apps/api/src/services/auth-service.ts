@@ -1,6 +1,6 @@
-import type { Plan, Role, SessionUser } from "@hometoken/contracts";
-import { hashPassword, verifyPassword } from "@hometoken/auth";
-import { profiles, type ProfileRow } from "@hometoken/db";
+import type { Plan, Role, SessionUser } from "@homefax/contracts";
+import { hashPassword, verifyPassword } from "@homefax/auth";
+import { profiles, type ProfileRow } from "@homefax/db";
 import { eq, sql } from "drizzle-orm";
 import type { AppContext } from "../lib/context.js";
 import { badRequest, unauthorized } from "../lib/errors.js";
@@ -37,14 +37,14 @@ export function toSessionUser(row: ProfileRow): SessionUser {
     planName: PLAN_NAMES[plan],
     planPrice: PLAN_PRICES[plan],
     subscriptionCancelled: row.subscriptionCancelled,
-    homeTokenId: row.homeTokenId,
+    ownedTokenId: row.ownedTokenId,
     contractorId: row.contractorId,
     landingRoute:
       row.role === "agent"
         ? "/dashboard"
         : row.role === "homeowner"
-          ? row.homeTokenId
-            ? `/properties/${row.homeTokenId}`
+          ? row.ownedTokenId
+            ? `/properties/${row.ownedTokenId}`
             : "/dashboard"
           : "/jobs",
   };

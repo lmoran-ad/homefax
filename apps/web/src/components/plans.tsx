@@ -1,4 +1,4 @@
-import type { BillingCycle, PlanCard } from "@hometoken/contracts";
+import type { BillingCycle, PlanCard } from "@homefax/contracts";
 import type { ReactNode } from "react";
 
 export function PlanGrid({
@@ -20,6 +20,8 @@ export function PlanGrid({
         return (
           <article
             key={plan.id}
+            data-testid="plan-card"
+            data-plan={plan.id}
             className="flex min-h-[520px] min-w-0 flex-col rounded-[16px] bg-white p-[26px_24px]"
             style={{
               border: plan.primary ? "1.5px solid #e4002b" : "1px solid #e3e7ec",

@@ -1,5 +1,5 @@
 import { redirect } from "next/navigation";
-import type { PropertySummary, SessionUser } from "@hometoken/contracts";
+import type { PropertySummary, SessionUser } from "@homefax/contracts";
 import { ButtonLink } from "@/components/buttons";
 import { PageShell, PageHeading } from "@/components/page-shell";
 import { EmptyState } from "@/components/ui";
@@ -22,13 +22,13 @@ export default async function SavedPage() {
     <PageShell>
       <PageHeading
         title="Saved properties"
-        lead="A bookmark and nothing more. Saving a HomeToken claims nothing and notifies no one."
+        lead="A bookmark and nothing more. Saving a HomeFax claims nothing and notifies no one."
       />
 
       {results.length === 0 ? (
         <EmptyState
           title="Nothing saved yet"
-          body="Save a HomeToken from its record to keep it here while you work your book."
+          body="Save a HomeFax from its record to keep it here while you work your book."
           action={<ButtonLink href="/properties">Browse properties</ButtonLink>}
         />
       ) : (

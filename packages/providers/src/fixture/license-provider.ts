@@ -1,4 +1,4 @@
-import { fixtureContractors } from "@hometoken/db/fixtures";
+import { fixtureContractors } from "@homefax/db/fixtures";
 import type {
   LicenseProvider,
   LicenseVerification,

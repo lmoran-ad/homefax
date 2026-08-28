@@ -1,4 +1,4 @@
-import { fixtureProperties } from "@hometoken/db/fixtures";
+import { fixtureProperties } from "@homefax/db/fixtures";
 import type {
   ParcelProvider,
   ParcelRecord,
@@ -75,7 +75,7 @@ export class FixtureParcelProvider implements ParcelProvider {
     const seed = addressSeed(`${address}|${city}|${postalCode}`);
     const num = 6000 + (seed % 3000);
     const cityCode = city.slice(0, 3).toUpperCase().padEnd(3, "X");
-    const tokenId = `HT-US-CO-${cityCode}-${String(num).padStart(8, "0")}`;
+    const tokenId = `HF-US-CO-${cityCode}-${String(num).padStart(8, "0")}`;
     const streetNumber = /\d+/.exec(address)?.[0] ?? "0000";
     const parcelId = `${cityCode}-${streetNumber}-${String(num).slice(0, 3)}-${String(num).slice(1, 3)}`;
     const yearBuilt = 1900 + (seed % 100);
@@ -101,7 +101,7 @@ export class FixtureParcelProvider implements ParcelProvider {
           id: `${tokenId}-P1`,
           occurredAt: "2026-08-28",
           eventType: "PROPERTY_CREATED",
-          title: "HomeToken provisioned from county records",
+          title: "HomeFax provisioned from county records",
           meta: `${city} County Assessor · parcel ${parcelId}`,
           description:
             "Record created from public assessor and recorder data. No maintenance, permit or inspection history has been contributed yet.",

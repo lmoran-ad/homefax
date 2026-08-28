@@ -3,7 +3,7 @@ import type {
   VerificationLevel,
   JobStatus,
   ClaimStateKey,
-} from "@hometoken/contracts";
+} from "@homefax/contracts";
 
 const MONTHS = [
   "Jan", "Feb", "Mar", "Apr", "May", "Jun",
@@ -95,7 +95,7 @@ export const JOB_STATUS: Record<JobStatus, Chip> = {
     line: "#f2dcb4",
   },
   approved: {
-    label: "ADDED TO HOMETOKEN",
+    label: "ADDED TO HOMEFAX",
     bg: "#e7f4ec",
     fg: "#12693b",
     line: "#cfe6d9",

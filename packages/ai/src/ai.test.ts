@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest";
 import {
   ExtractedPropertyEventSchema,
   HomeAnswerSchema,
-} from "@hometoken/contracts";
+} from "@homefax/contracts";
 import { extractJson, isConfigured } from "./client.js";
 import { manualProposal } from "./extract-document.js";
 

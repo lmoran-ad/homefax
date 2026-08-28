@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import type { Role, SessionUser } from "@hometoken/contracts";
+import type { Role, SessionUser } from "@homefax/contracts";
 import { LogoMark } from "./brand";
 import { Avatar } from "./ui";
 import { request } from "@/lib/client";
@@ -94,7 +94,10 @@ export function AppHeader({
   const nav = navFor(user, counts);
 
   return (
-    <header className="sticky top-0 z-20 border-b border-line bg-white">
+    <header
+      data-testid="app-header"
+      className="sticky top-0 z-20 border-b border-line bg-white"
+    >
       <div className="mx-auto flex h-[68px] max-w-[1440px] items-center gap-3 px-5">
         <Link
           href={user.landingRoute}
@@ -102,11 +105,11 @@ export function AppHeader({
         >
           <LogoMark size={30} />
           <span className="text-[18px] font-extrabold tracking-[-0.02em] text-ink">
-            HomeToken
+            HomeFax
           </span>
         </Link>
 
-        <nav className="flex shrink-0 items-center gap-1">
+        <nav data-testid="header-nav" className="flex shrink-0 items-center gap-1">
           {nav.map((item) => {
             const active =
               pathname === item.href || pathname.startsWith(`${item.href}/`);
@@ -114,6 +117,8 @@ export function AppHeader({
               <Link
                 key={item.href}
                 href={item.href}
+                data-testid="header-nav-item"
+                data-active={active}
                 className={`rounded-[8px] px-[12px] py-[8px] text-[14px] whitespace-nowrap no-underline ${
                   active
                     ? "bg-line-light font-bold text-ink"
@@ -133,7 +138,10 @@ export function AppHeader({
             pushing the account button off the edge. */}
         <div className="min-w-0 flex-auto" />
 
-        <div className="hidden shrink-0 items-center gap-[7px] sm:flex">
+        <div
+          data-testid="demo-marker"
+          className="hidden shrink-0 items-center gap-[7px] sm:flex"
+        >
           <span className="h-[8px] w-[8px] rounded-full bg-amber-dot" />
           <span className="text-[11.5px] font-bold tracking-[0.06em] text-amber">
             DEMO
@@ -144,6 +152,7 @@ export function AppHeader({
           <button
             type="button"
             onClick={() => setMenuOpen((open) => !open)}
+            data-testid="account-button"
             aria-expanded={menuOpen}
             aria-haspopup="menu"
             className="flex cursor-pointer items-center gap-[9px] rounded-[999px] border border-line bg-white py-[5px] pr-[12px] pl-[5px] hover:border-navy"
@@ -164,6 +173,7 @@ export function AppHeader({
           {menuOpen ? (
             <div
               role="menu"
+              data-testid="account-menu"
               className="animate-fade-up-fast absolute top-[52px] right-0 z-40 w-[252px] rounded-[12px] border border-line bg-white p-2"
               style={{ boxShadow: "var(--shadow-menu)" }}
             >
@@ -183,6 +193,7 @@ export function AppHeader({
               <Link
                 href="/settings"
                 role="menuitem"
+                data-testid="account-settings-link"
                 className="mt-[6px] block rounded-[8px] px-[10px] py-[9px] text-[14px] font-semibold text-body no-underline hover:bg-card hover:text-ink"
               >
                 Account settings
@@ -190,6 +201,7 @@ export function AppHeader({
               <Link
                 href="/plans"
                 role="menuitem"
+                data-testid="plans-link"
                 className="block rounded-[8px] px-[10px] py-[9px] text-[14px] font-semibold text-body no-underline hover:bg-card hover:text-ink"
               >
                 Plans &amp; billing
@@ -200,6 +212,7 @@ export function AppHeader({
               <button
                 type="button"
                 role="menuitem"
+                data-testid="sign-out-button"
                 onClick={() => void signOut()}
                 disabled={signingOut}
                 className="w-full cursor-pointer rounded-[8px] border-0 bg-transparent px-[10px] py-[9px] text-left text-[14px] font-bold text-error hover:bg-danger-bg"

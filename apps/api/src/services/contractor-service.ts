@@ -3,13 +3,13 @@ import type {
   ContractorProfile,
   ContractorWorkRow,
   VerificationChecklistItem,
-} from "@hometoken/contracts";
+} from "@homefax/contracts";
 import {
   contractors,
   properties,
   propertyEvents,
   type ContractorRow,
-} from "@hometoken/db";
+} from "@homefax/db";
 import { asc, eq, ilike, or, sql } from "drizzle-orm";
 import type { AppContext } from "../lib/context.js";
 import { notFound } from "../lib/errors.js";
@@ -94,7 +94,7 @@ export async function tradeCounts(
 export async function contractorProfile(
   ctx: AppContext,
   publicId: string,
-  viewerHomeTokenId: string | null,
+  viewerHomeFaxId: string | null,
 ): Promise<ContractorProfile> {
   const row = await findContractorRow(ctx, publicId);
 
@@ -117,7 +117,7 @@ export async function contractorProfile(
     occurredAt: r.event.occurredAt,
     title: r.event.title,
     meta: String((r.event.metadata as { summary?: unknown }).summary ?? ""),
-    onThisHome: r.property.tokenId === viewerHomeTokenId,
+    onThisHome: r.property.tokenId === viewerHomeFaxId,
   }));
 
   return {

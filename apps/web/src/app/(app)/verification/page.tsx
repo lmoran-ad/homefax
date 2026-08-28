@@ -3,7 +3,7 @@ import type {
   Contractor,
   SessionUser,
   VerificationChecklistItem,
-} from "@hometoken/contracts";
+} from "@homefax/contracts";
 import { PageShell, PageHeading } from "@/components/page-shell";
 import { VerificationScreen } from "@/components/verification-screen";
 import { apiFetch } from "@/lib/api";

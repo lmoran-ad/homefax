@@ -89,7 +89,7 @@ describe("the seeded showcase record", () => {
   });
 
   it("is searchable by address, token id and parcel id", async () => {
-    for (const q of ["123 Main", "HT-US-CO-DEN-00001234", "DEN-1234-567-89", "Denver"]) {
+    for (const q of ["123 Main", "HF-US-CO-DEN-00001234", "DEN-1234-567-89", "Denver"]) {
       const { body } = await call<{ results: { tokenId: string }[] }>(app, {
         url: `/api/properties/search?q=${encodeURIComponent(q)}`,
         cookie: agent,

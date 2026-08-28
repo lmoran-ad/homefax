@@ -6,14 +6,14 @@ import {
   PropertySearchRequestSchema,
   TransferRequestSchema,
   type PropertySummary,
-} from "@hometoken/contracts";
+} from "@homefax/contracts";
 import {
   ownershipPeriods,
   properties,
   propertyEvents,
   propertySystems,
   savedProperties,
-} from "@hometoken/db";
+} from "@homefax/db";
 import { and, eq } from "drizzle-orm";
 import type { FastifyInstance } from "fastify";
 import { z } from "zod";
@@ -42,7 +42,7 @@ import {
 import {
   AgentClaimRequestSchema,
   OwnerClaimRequestSchema,
-} from "@hometoken/contracts";
+} from "@homefax/contracts";
 import { readDocumentBody } from "../services/document-service.js";
 import { appendEvent } from "../services/event-service.js";
 import { extract, markApproved } from "../services/extraction-service.js";
@@ -95,14 +95,14 @@ export function registerPropertyRoutes(
   });
 
   /**
-   * Provisions a HomeToken for a parcel outside the pre-provisioned markets.
+   * Provisions a HomeFax for a parcel outside the pre-provisioned markets.
    * The agent is not creating history here — the county already holds this
    * record; this pulls it in and seeds it with what public data says.
    */
   app.post("/properties/provision", async (request) => {
     const user = await app.requireUser(request);
     if (user.role !== "agent") {
-      throw forbidden("Only an agent can provision a HomeToken from county records");
+      throw forbidden("Only an agent can provision a HomeFax from county records");
     }
     const { address } = ProvisionRequestSchema.parse(request.body);
 
@@ -319,7 +319,7 @@ export function registerPropertyRoutes(
     const { tokenId } = TokenParams.parse(request.params);
     const user = await app.requireUser(request);
     if (user.role !== "agent") {
-      throw forbidden("Only the steward can transfer a HomeToken to the owner");
+      throw forbidden("Only the steward can transfer a HomeFax to the owner");
     }
     const property = await findPropertyRow(ctx, tokenId);
     await requireContribute(ctx, property, user);

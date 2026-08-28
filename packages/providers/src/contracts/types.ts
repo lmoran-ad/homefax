@@ -1,4 +1,4 @@
-import type { SystemStatus, VerificationLevel, Visibility } from "@hometoken/contracts";
+import type { SystemStatus, VerificationLevel, Visibility } from "@homefax/contracts";
 
 /**
  * Every external system this product will eventually read from sits behind one

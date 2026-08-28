@@ -1,4 +1,4 @@
-import { fixtureProperties } from "@hometoken/db/fixtures";
+import { fixtureProperties } from "@homefax/db/fixtures";
 import type { MlsListing, MlsProvider } from "../contracts/types.js";
 
 /** The listing agent of record for every seeded listing, for the demo. */

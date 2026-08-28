@@ -43,6 +43,7 @@ export function ToastProvider({ children }: { children: ReactNode }) {
       {message ? (
         <div
           role="status"
+          data-testid="toast"
           aria-live="polite"
           className="animate-fade-up fixed bottom-7 left-1/2 z-[60] -translate-x-1/2 rounded-[999px] bg-navy px-[22px] py-[13px] text-[13.5px] font-semibold text-white"
           style={{ boxShadow: "var(--shadow-toast)" }}
@@ -95,6 +96,7 @@ export function Modal({
     >
       <div
         role="dialog"
+        data-testid="modal"
         aria-modal="true"
         aria-labelledby={labelledBy}
         className="animate-fade-up flex max-h-[80vh] w-full flex-col overflow-hidden rounded-[16px] bg-white"
@@ -133,7 +135,7 @@ export function PaywallModal({
   return (
     <Modal open={Boolean(paywall)} onClose={onClose} maxWidth={520} labelledBy="paywall-title">
       {paywall ? (
-        <div className="p-[30px_32px]">
+        <div data-testid="paywall-modal" className="p-[30px_32px]">
           <div className="text-[11px] font-bold tracking-[0.16em] text-brand">
             {paywall.tierLabel}
           </div>
@@ -158,10 +160,10 @@ export function PaywallModal({
             ))}
           </ul>
           <div className="mt-[24px] flex flex-wrap gap-[10px]">
-            <Button onClick={onUpgrade} disabled={busy}>
+            <Button onClick={onUpgrade} disabled={busy} testId="paywall-upgrade">
               {busy ? "Working…" : paywall.cta}
             </Button>
-            <Button variant="outline" onClick={onClose}>
+            <Button variant="outline" onClick={onClose} testId="paywall-dismiss">
               Not now
             </Button>
           </div>

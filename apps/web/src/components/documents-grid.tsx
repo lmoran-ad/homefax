@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import type { DocumentSummary, Visibility } from "@hometoken/contracts";
+import type { DocumentSummary, Visibility } from "@homefax/contracts";
 import { DocumentModal } from "./document-modal";
 import { FilterPills } from "./fields";
 import { useToast } from "./feedback";
@@ -52,6 +52,7 @@ export function DocumentsGrid({
   return (
     <>
       <FilterPills
+        testId="document-filter"
         value={filter}
         onChange={setFilter}
         options={[
@@ -82,6 +83,8 @@ export function DocumentsGrid({
               <button
                 key={document.id}
                 type="button"
+                data-testid="document-card"
+                data-visibility={document.visibility}
                 onClick={() => {
                   if (restricted) {
                     toast(

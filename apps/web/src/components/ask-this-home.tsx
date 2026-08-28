@@ -3,7 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import type { AskResponse, Plan, PropertyDetail } from "@hometoken/contracts";
+import type { AskResponse, Plan, PropertyDetail } from "@homefax/contracts";
 import { Button } from "./buttons";
 import { PaywallModal, useToast, type PaywallData } from "./feedback";
 import { Spinner } from "./ui";
@@ -97,7 +97,7 @@ export function AskThisHome({
             <h1 className="m-0 text-[24px] font-extrabold tracking-[-0.025em] text-ink">
               Ask This Home
             </h1>
-            <p className="mt-[4px] mb-0 text-[13px] text-muted">
+            <p data-testid="ask-quota" className="mt-[4px] mb-0 text-[13px] text-muted">
               {property.events.length} events · {property.documents.length} documents
               in context ·{" "}
               {remaining === null
@@ -124,15 +124,18 @@ export function AskThisHome({
 
           {messages.map((message, index) =>
             message.role === "user" ? (
-              <div key={index} className="flex justify-end">
+              <div key={index} data-testid="ask-message-user" className="flex justify-end">
                 <div className="max-w-[70%] rounded-[14px] bg-navy px-[18px] py-[13px] text-[14.5px] leading-[1.55] text-white">
                   {message.text}
                 </div>
               </div>
             ) : (
-              <div key={index} className="flex">
+              <div key={index} data-testid="ask-message-assistant" className="flex">
                 <div className="max-w-[86%] min-w-0 rounded-[14px] border border-line bg-card p-[18px_20px]">
-                  <p className="m-0 text-[14.5px] leading-[1.65] whitespace-pre-wrap text-body">
+                  <p
+                    data-testid="ask-answer"
+                    className="m-0 text-[14.5px] leading-[1.65] whitespace-pre-wrap text-body"
+                  >
                     {message.answer.answer}
                   </p>
 
@@ -148,6 +151,8 @@ export function AskThisHome({
                             <Link
                               key={id}
                               href={`/properties/${property.tokenId}/timeline#ev-${id}`}
+                              data-testid="ask-citation"
+                              data-event-id={id}
                               className="rounded-[8px] border border-line bg-white px-[10px] py-[6px] text-[12.5px] font-semibold text-link no-underline hover:border-navy"
                             >
                               {event ? event.title : id}
@@ -159,15 +164,23 @@ export function AskThisHome({
                   ) : null}
 
                   {message.answer.caveat ? (
-                    <div className="mt-[16px] rounded-[10px] border border-warn-line bg-warn-panel p-[12px_14px] text-[12.5px] leading-[1.6] text-amber">
+                    <div
+                      data-testid="ask-caveat"
+                      className="mt-[16px] rounded-[10px] border border-warn-line bg-warn-panel p-[12px_14px] text-[12.5px] leading-[1.6] text-amber"
+                    >
                       {message.answer.caveat}
                     </div>
                   ) : null}
 
                   <div className="mt-[14px] flex flex-wrap items-center gap-[10px] border-t border-line pt-[10px] text-[11.5px] text-faint">
-                    <span>Confidence: {message.answer.confidence}</span>
+                    <span data-testid="ask-confidence">
+                      Confidence: {message.answer.confidence}
+                    </span>
                     {message.answer.fallback ? (
-                      <span className="rounded-[5px] bg-neutral-bg px-[7px] py-[2px] font-bold text-grey">
+                      <span
+                        data-testid="ask-fallback-flag"
+                        className="rounded-[5px] bg-neutral-bg px-[7px] py-[2px] font-bold text-grey"
+                      >
                         LOCAL RECORD INDEX
                       </span>
                     ) : null}
@@ -179,7 +192,7 @@ export function AskThisHome({
 
           {asking ? (
             <div className="flex items-center gap-3 text-[14px] text-muted">
-              <Spinner /> Reading the HomeToken record…
+              <Spinner /> Reading the HomeFax record…
             </div>
           ) : null}
         </div>
@@ -195,11 +208,17 @@ export function AskThisHome({
             value={input}
             onChange={(event) => setInput(event.target.value)}
             placeholder={`Ask about ${property.address}…`}
-            aria-label="Your question"
+            data-testid="ask-input"
+          aria-label="Your question"
             disabled={asking}
             className="min-w-[220px] flex-1 rounded-[10px] border border-input bg-white px-4 py-[14px] text-[15px] text-ink placeholder:text-faint"
           />
-          <Button type="submit" size="lg" disabled={asking || !input.trim()}>
+          <Button
+            type="submit"
+            size="lg"
+            disabled={asking || !input.trim()}
+            testId="ask-submit"
+          >
             Ask
           </Button>
         </form>
@@ -217,6 +236,7 @@ export function AskThisHome({
                 type="button"
                 onClick={() => void ask(suggestion)}
                 disabled={asking}
+                data-testid="ask-suggestion"
                 className="w-full cursor-pointer rounded-[10px] border border-line bg-white p-[11px_13px] text-left text-[13px] leading-[1.5] text-body hover:border-navy hover:text-navy"
               >
                 {suggestion}

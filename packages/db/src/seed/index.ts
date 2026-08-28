@@ -1,9 +1,10 @@
 import "../load-env.js";
 import { mkdir, writeFile } from "node:fs/promises";
 import { dirname, isAbsolute, resolve } from "node:path";
-import { calculateHealthScore } from "@hometoken/contracts";
-import { buildChain, sha256, type ChainableEvent } from "@hometoken/ledger";
-import { hashPassword } from "@hometoken/auth";
+import { calculateHealthScore } from "@homefax/contracts";
+import { buildChain, sha256, type ChainableEvent } from "@homefax/ledger";
+import { hashPassword } from "@homefax/auth";
+import { getStorageProvider } from "@homefax/providers";
 import { closeDb, getDb, type Database } from "../client.js";
 import {
   claims,
@@ -47,9 +48,19 @@ async function storeDocument(
 ): Promise<{ storagePath: string; sha256: string; size: number }> {
   const safeName = fileName.replace(/[^A-Za-z0-9._-]/g, "_");
   const storagePath = `${tokenId}/seed-${String(index).padStart(3, "0")}-${safeName}.txt`;
+  const bytes = Buffer.from(text, "utf8");
+
+  if (process.env.STORAGE_DRIVER === "database") {
+    const stored = await getStorageProvider().put({
+      key: storagePath,
+      bytes,
+      contentType: "text/plain",
+    });
+    return { storagePath, sha256: stored.sha256, size: stored.size };
+  }
+
   const absolute = resolve(STORAGE_ROOT, storagePath);
   await mkdir(dirname(absolute), { recursive: true });
-  const bytes = Buffer.from(text, "utf8");
   await writeFile(absolute, bytes);
   return { storagePath, sha256: sha256(bytes), size: bytes.byteLength };
 }
@@ -196,7 +207,7 @@ async function main(): Promise<void> {
         // Contractors are on Verified Source from the start; that subscription
         // is what their submissions' Professional Verified status rests on.
         plan: account.role === "contractor" ? "verified_source" : "free",
-        homeTokenId: account.homeTokenId,
+        ownedTokenId: account.ownedTokenId,
         contractorId: account.contractorId,
       })
       .returning();
@@ -204,8 +215,8 @@ async function main(): Promise<void> {
     profileIdByEmail.set(account.email, row.id);
   }
 
-  const agentId = profileIdByEmail.get("agent@hometoken.demo")!;
-  const ownerId = profileIdByEmail.get("owner@hometoken.demo")!;
+  const agentId = profileIdByEmail.get("agent@homefax.demo")!;
+  const ownerId = profileIdByEmail.get("owner@homefax.demo")!;
 
   console.log("Seeding contractors…");
   for (const contractor of fixtureContractors) {
@@ -260,7 +271,7 @@ async function main(): Promise<void> {
 
   await db.insert(savedProperties).values({
     profileId: agentId,
-    propertyId: propertyIdByToken.get("HT-US-CO-DEN-00004501")!,
+    propertyId: propertyIdByToken.get("HF-US-CO-DEN-00004501")!,
   });
 
   const [{ count: eventCount } = { count: 0 }] = await db

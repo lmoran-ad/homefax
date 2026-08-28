@@ -9,7 +9,7 @@ export const DEMO_PASSWORD = "demo-password";
 
 export const fixtureAccounts: FixtureAccount[] = [
   {
-    email: "agent@hometoken.demo",
+    email: "agent@homefax.demo",
     password: DEMO_PASSWORD,
     name: "Alex Morgan",
     initials: "AM",
@@ -21,15 +21,15 @@ export const fixtureAccounts: FixtureAccount[] = [
     badgeFg: "#1a4f9c",
     kicker: "AGENT SIGN IN",
     blurb:
-      "Sign in with your REAL / REMAX agent credentials to search HomeTokens.",
+      "Sign in with your REAL / REMAX agent credentials to search HomeFaxes.",
     phone: "(303) 555-0101",
     brokerage: "REAL / REMAX Demo Brokerage",
     landingRoute: "/dashboard",
-    homeTokenId: null,
+    ownedTokenId: null,
     contractorId: null,
   },
   {
-    email: "owner@hometoken.demo",
+    email: "owner@homefax.demo",
     password: DEMO_PASSWORD,
     name: "Dana Whitfield",
     initials: "DW",
@@ -41,15 +41,15 @@ export const fixtureAccounts: FixtureAccount[] = [
     badgeFg: "#12693b",
     kicker: "HOMEOWNER SIGN IN",
     blurb:
-      "Sign in to see your home's record, find a verified contractor, and approve what enters your HomeToken.",
+      "Sign in to see your home's record, find a verified contractor, and approve what enters your HomeFax.",
     phone: "(303) 555-0164",
     brokerage: null,
-    landingRoute: "/properties/HT-US-CO-DEN-00001234",
-    homeTokenId: "HT-US-CO-DEN-00001234",
+    landingRoute: "/properties/HF-US-CO-DEN-00001234",
+    ownedTokenId: "HF-US-CO-DEN-00001234",
     contractorId: null,
   },
   {
-    email: "summit@hometoken.demo",
+    email: "summit@homefax.demo",
     password: DEMO_PASSWORD,
     name: "Marcus Vale",
     initials: "MV",
@@ -65,7 +65,7 @@ export const fixtureAccounts: FixtureAccount[] = [
     phone: "(303) 555-0148",
     brokerage: null,
     landingRoute: "/jobs",
-    homeTokenId: null,
+    ownedTokenId: null,
     contractorId: "C-SUMMIT",
   },
 ];

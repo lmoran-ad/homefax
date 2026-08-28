@@ -1,0 +1,206 @@
+/**
+ * Stable selectors for QA.
+ *
+ * These are a contract with the test suite, not styling or copy. They must not
+ * change when wording, layout or classes change — that is the entire point of
+ * having them. Renaming one is a breaking change for whoever is automating
+ * against it, so treat it like renaming a public API.
+ *
+ * Anything a person clicks, types into, or asserts on in a test should have
+ * one. Anything purely decorative should not.
+ */
+export const TESTID = {
+  // Shell
+  appHeader: "app-header",
+  headerNav: "header-nav",
+  headerNavItem: "header-nav-item",
+  accountButton: "account-button",
+  accountMenu: "account-menu",
+  accountSettingsLink: "account-settings-link",
+  plansLink: "plans-link",
+  signOutButton: "sign-out-button",
+  demoMarker: "demo-marker",
+  toast: "toast",
+  modal: "modal",
+  modalClose: "modal-close",
+
+  // Landing and login
+  landingSignIn: "landing-sign-in",
+  landingRoleCta: "landing-role-cta",
+  loginForm: "login-form",
+  loginEmail: "login-email",
+  loginPassword: "login-password",
+  loginSubmit: "login-submit",
+  loginError: "login-error",
+  demoAccount: "demo-account",
+
+  // Search and lists
+  searchInput: "search-input",
+  searchSubmit: "search-submit",
+  searchSuggestion: "search-suggestion",
+  resultCount: "result-count",
+  propertyCard: "property-card",
+  propertyRow: "property-row",
+  emptyState: "empty-state",
+  savedRemove: "saved-remove",
+
+  // Property record
+  propertyTabs: "property-tabs",
+  propertyTab: "property-tab",
+  propertyHero: "property-hero",
+  propertyAddress: "property-address",
+  propertyTokenId: "property-token-id",
+  propertyValue: "property-value",
+  copyTokenButton: "copy-token-button",
+  saveToggle: "save-toggle",
+  healthDonut: "health-donut",
+  healthScore: "health-score",
+  healthConfidence: "health-confidence",
+  ledgerBar: "ledger-bar",
+  ledgerStatus: "ledger-status",
+  ledgerCount: "ledger-count",
+  reVerifyButton: "re-verify-button",
+  stewardshipBar: "stewardship-bar",
+  systemCard: "system-card",
+  systemStatus: "system-status",
+  sourceEventLink: "source-event-link",
+  ownershipPeriod: "ownership-period",
+
+  // Timeline and documents
+  timelineFilter: "timeline-filter",
+  timelineEvent: "timeline-event",
+  eventTitle: "event-title",
+  eventVerification: "event-verification",
+  eventHash: "event-hash",
+  eventNewFlag: "event-new-flag",
+  documentChip: "document-chip",
+  documentCard: "document-card",
+  documentFilter: "document-filter",
+  documentModal: "document-modal",
+  documentSha: "document-sha",
+  exportButton: "export-button",
+
+  // Claim and gates
+  lockPanel: "lock-panel",
+  lockTitle: "lock-title",
+  lockCta: "lock-cta",
+  claimMethod: "claim-method",
+  claimMlsNumber: "claim-mls-number",
+  claimEscrowNumber: "claim-escrow-number",
+  claimAcknowledge: "claim-acknowledge",
+  claimProofDocument: "claim-proof-document",
+  claimSubmit: "claim-submit",
+  claimError: "claim-error",
+  claimResult: "claim-result",
+  claimPanel: "claim-panel",
+  claimLookupInput: "claim-lookup-input",
+  claimLookupSubmit: "claim-lookup-submit",
+  claimLookupResult: "claim-lookup-result",
+  provisionButton: "provision-button",
+  seededStats: "seeded-stats",
+
+  // Ask This Home
+  askInput: "ask-input",
+  askSubmit: "ask-submit",
+  askSuggestion: "ask-suggestion",
+  askMessageUser: "ask-message-user",
+  askMessageAssistant: "ask-message-assistant",
+  askAnswer: "ask-answer",
+  askCitation: "ask-citation",
+  askCaveat: "ask-caveat",
+  askConfidence: "ask-confidence",
+  askFallbackFlag: "ask-fallback-flag",
+  askQuota: "ask-quota",
+
+  // Add record
+  addRecordDemoDoc: "add-record-demo-doc",
+  addRecordUpload: "add-record-upload",
+  addRecordManual: "add-record-manual",
+  addRecordExtracting: "add-record-extracting",
+  addRecordReview: "add-record-review",
+  addRecordPendingNotice: "add-record-pending-notice",
+  fieldTitle: "field-title",
+  fieldEventType: "field-event-type",
+  fieldDate: "field-date",
+  fieldContractor: "field-contractor",
+  fieldAmount: "field-amount",
+  fieldSystem: "field-system",
+  fieldPermit: "field-permit",
+  fieldDescription: "field-description",
+  fieldVerification: "field-verification",
+  fieldVisibility: "field-visibility",
+  approveButton: "approve-button",
+  discardButton: "discard-button",
+  evidenceBlock: "evidence-block",
+
+  // Transfer
+  transferName: "transfer-name",
+  transferEmail: "transfer-email",
+  transferDate: "transfer-date",
+  transferAcknowledge: "transfer-acknowledge",
+  transferSubmit: "transfer-submit",
+  transferResult: "transfer-result",
+
+  // Marketplace
+  proSearchInput: "pro-search-input",
+  proSearchSubmit: "pro-search-submit",
+  proVerifiedOnly: "pro-verified-only",
+  proTradeFilter: "pro-trade-filter",
+  contractorCard: "contractor-card",
+  contractorName: "contractor-name",
+  contractorVerification: "contractor-verification",
+  contractorLicense: "contractor-license",
+  viewRecordLink: "view-record-link",
+  requestWorkButton: "request-work-button",
+  requestModal: "request-modal",
+  requestNeed: "request-need",
+  requestShare: "request-share",
+  requestSend: "request-send",
+  contractorWorkRow: "contractor-work-row",
+
+  // Requests and jobs
+  jobCard: "job-card",
+  jobStatus: "job-status",
+  proposedRecord: "proposed-record",
+  acceptSubmissionButton: "accept-submission-button",
+  declineSubmissionButton: "decline-submission-button",
+  viewOnTimelineLink: "view-on-timeline-link",
+  jobStats: "job-stats",
+  submitWorkButton: "submit-work-button",
+  acceptJobButton: "accept-job-button",
+  submissionForm: "submission-form",
+  submissionAddress: "submission-address",
+  submissionAddressCheck: "submission-address-check",
+  submissionDoc: "submission-doc",
+  submissionSend: "submission-send",
+
+  // Verification
+  verificationProfile: "verification-profile",
+  verificationChecklistItem: "verification-checklist-item",
+  saveProfileButton: "save-profile-button",
+
+  // Plans and settings
+  planCard: "plan-card",
+  planCta: "plan-cta",
+  cycleToggle: "cycle-toggle",
+  paywallModal: "paywall-modal",
+  paywallUpgrade: "paywall-upgrade",
+  paywallDismiss: "paywall-dismiss",
+  unitEconomicsTable: "unit-economics-table",
+  profileName: "profile-name",
+  profileEmail: "profile-email",
+  profilePhone: "profile-phone",
+  saveChangesButton: "save-changes-button",
+  passwordCurrent: "password-current",
+  passwordNew: "password-new",
+  passwordConfirm: "password-confirm",
+  changePasswordButton: "change-password-button",
+  subscriptionCard: "subscription-card",
+  subscriptionStatus: "subscription-status",
+  cancelSubscriptionButton: "cancel-subscription-button",
+  cancelModal: "cancel-modal",
+  cancelConfirm: "cancel-confirm",
+  cancelKeep: "cancel-keep",
+} as const;
+
+export type TestId = (typeof TESTID)[keyof typeof TESTID];

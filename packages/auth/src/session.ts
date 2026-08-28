@@ -1,5 +1,5 @@
 import { createHmac, timingSafeEqual } from "node:crypto";
-import type { Role } from "@hometoken/contracts";
+import type { Role } from "@homefax/contracts";
 
 export type SessionClaims = {
   /** Profile id. */
@@ -12,7 +12,7 @@ export type SessionClaims = {
   exp: number;
 };
 
-export const SESSION_COOKIE = "ht_session";
+export const SESSION_COOKIE = "hf_session";
 
 /** Long session when "keep me signed in" is ticked, short one when it is not. */
 export const SESSION_TTL_SECONDS = 60 * 60 * 24 * 30;

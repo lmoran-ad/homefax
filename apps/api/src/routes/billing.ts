@@ -1,5 +1,5 @@
-import { UpgradeRequestSchema } from "@hometoken/contracts";
-import { addRecordDemoDocuments } from "@hometoken/db/fixtures";
+import { UpgradeRequestSchema } from "@homefax/contracts";
+import { addRecordDemoDocuments } from "@homefax/db/fixtures";
 import type { FastifyInstance } from "fastify";
 import type { AppContext } from "../lib/context.js";
 import { toSessionUser } from "../services/auth-service.js";

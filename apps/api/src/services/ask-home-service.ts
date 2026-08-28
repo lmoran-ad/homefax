@@ -1,9 +1,9 @@
-import { askHome, isConfigured, type AiConfig } from "@hometoken/ai";
+import { askHome, isConfigured, type AiConfig } from "@homefax/ai";
 import type {
   AskResponse,
   PropertyDetail,
   VerificationLevel,
-} from "@hometoken/contracts";
+} from "@homefax/contracts";
 import { formatDate, formatMoney } from "../lib/format.js";
 
 const VERIFICATION_LABELS: Record<VerificationLevel, string> = {
@@ -71,7 +71,7 @@ export function buildContext(property: PropertyDetail): string {
   return [
     "PROPERTY",
     `${property.address}, ${property.city}, ${property.state} ${property.postalCode}`,
-    `HomeToken ${property.tokenId} | parcel ${property.parcelId}`,
+    `HomeFax ${property.tokenId} | parcel ${property.parcelId}`,
     `${facts.bedrooms} bed, ${facts.bathrooms} bath, ${facts.livingSqft} sqft, lot ${facts.lotSqft} sqft, built ${facts.yearBuilt}`,
     `Estimated value ${property.estimatedValue ? formatMoney(property.estimatedValue) : "unknown"}`,
     `Home Health score ${property.health.score}/100 (confidence ${property.health.confidence})`,
@@ -117,7 +117,7 @@ const STOPWORDS = new Set([
   "any",
   "the",
   "record",
-  "hometoken",
+  "homefax",
 ]);
 
 /**
@@ -161,7 +161,7 @@ export function localAnswer(
   if (scored.length === 0) {
     return {
       answer:
-        "The available HomeToken record for this property does not contain information that answers that question. Absence of a record does not mean the event did not occur.",
+        "The available HomeFax record for this property does not contain information that answers that question. Absence of a record does not mean the event did not occur.",
       confidence: "LOW",
       eventIds: [],
       caveat:
@@ -178,7 +178,7 @@ export function localAnswer(
   );
 
   return {
-    answer: `From this HomeToken record:\n\n${lines.join("\n\n")}`,
+    answer: `From this HomeFax record:\n\n${lines.join("\n\n")}`,
     confidence: "MEDIUM",
     eventIds: scored.map((x) => x.event.id),
     caveat:

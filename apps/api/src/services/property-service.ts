@@ -9,7 +9,7 @@ import {
   type SystemStatus,
   type VerificationLevel,
   type Visibility,
-} from "@hometoken/contracts";
+} from "@homefax/contracts";
 import {
   ownershipPeriods,
   properties,
@@ -17,7 +17,7 @@ import {
   propertyEvents,
   propertySystems,
   type PropertyRow,
-} from "@hometoken/db";
+} from "@homefax/db";
 import { and, asc, desc, eq, ilike, or, sql } from "drizzle-orm";
 import type { AppContext } from "../lib/context.js";
 import { propertyNotFound } from "../lib/errors.js";

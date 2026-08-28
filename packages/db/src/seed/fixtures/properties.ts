@@ -1,4 +1,4 @@
-import type { SystemKey, SystemStatus } from "@hometoken/contracts";
+import type { SystemKey, SystemStatus } from "@homefax/contracts";
 import { showcaseProperty } from "./showcase.js";
 import type { FixtureProperty } from "./types.js";
 
@@ -221,7 +221,7 @@ const U: SystemStatus = "UNKNOWN";
 export const fixtureProperties: FixtureProperty[] = [
   showcaseProperty,
   light({
-    tokenId: "HT-US-CO-DEN-00002187",
+    tokenId: "HF-US-CO-DEN-00002187",
     address: "4820 Tennyson Street",
     city: "Denver",
     postalCode: "80212",
@@ -236,7 +236,7 @@ export const fixtureProperties: FixtureProperty[] = [
     statuses: [E, G, E, G, G, E, G],
   }),
   light({
-    tokenId: "HT-US-CO-DEN-00003042",
+    tokenId: "HF-US-CO-DEN-00003042",
     address: "1155 Cherry Creek Dr S",
     city: "Denver",
     postalCode: "80246",
@@ -251,7 +251,7 @@ export const fixtureProperties: FixtureProperty[] = [
     statuses: [G, W, G, G, W, G, U],
   }),
   light({
-    tokenId: "HT-US-CO-DEN-00002914",
+    tokenId: "HF-US-CO-DEN-00002914",
     address: "2701 Yates Street",
     city: "Denver",
     postalCode: "80212",
@@ -266,7 +266,7 @@ export const fixtureProperties: FixtureProperty[] = [
     statuses: [G, G, E, G, G, G, G],
   }),
   light({
-    tokenId: "HT-US-CO-DEN-00004501",
+    tokenId: "HF-US-CO-DEN-00004501",
     address: "6390 E 17th Avenue Pkwy",
     city: "Denver",
     postalCode: "80220",
@@ -281,7 +281,7 @@ export const fixtureProperties: FixtureProperty[] = [
     statuses: [E, E, G, E, G, E, G],
   }),
   light({
-    tokenId: "HT-US-CO-BLD-00000377",
+    tokenId: "HF-US-CO-BLD-00000377",
     address: "890 Pearl Street",
     city: "Boulder",
     postalCode: "80302",
@@ -296,7 +296,7 @@ export const fixtureProperties: FixtureProperty[] = [
     statuses: [W, W, G, G, A, G, U],
   }),
   light({
-    tokenId: "HT-US-CO-DEN-00005120",
+    tokenId: "HF-US-CO-DEN-00005120",
     address: "3344 Osage Street",
     city: "Denver",
     postalCode: "80211",
@@ -311,7 +311,7 @@ export const fixtureProperties: FixtureProperty[] = [
     statuses: [G, E, E, G, G, G, G],
   }),
   light({
-    tokenId: "HT-US-CO-DEN-00005388",
+    tokenId: "HF-US-CO-DEN-00005388",
     address: "1780 S Gilpin Street",
     city: "Denver",
     postalCode: "80210",
@@ -326,7 +326,7 @@ export const fixtureProperties: FixtureProperty[] = [
     statuses: [E, G, G, E, G, E, G],
   }),
   light({
-    tokenId: "HT-US-CO-LTN-00000912",
+    tokenId: "HF-US-CO-LTN-00000912",
     address: "215 Lakeview Court",
     city: "Littleton",
     postalCode: "80120",
@@ -341,7 +341,7 @@ export const fixtureProperties: FixtureProperty[] = [
     statuses: [G, G, E, G, E, E, G],
   }),
   light({
-    tokenId: "HT-US-CO-AUR-00001604",
+    tokenId: "HF-US-CO-AUR-00001604",
     address: "9042 E Yale Avenue",
     city: "Aurora",
     postalCode: "80231",

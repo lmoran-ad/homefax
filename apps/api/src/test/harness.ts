@@ -3,9 +3,9 @@ import { mkdtemp, rm } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
-import { loadServerEnv, resetServerEnv } from "@hometoken/config";
-import { closeDb } from "@hometoken/db";
-import { __setProviders, LocalStorageProvider } from "@hometoken/providers";
+import { loadServerEnv, resetServerEnv } from "@homefax/config";
+import { closeDb } from "@homefax/db";
+import { __setProviders, LocalStorageProvider } from "@homefax/providers";
 import type { FastifyInstance } from "fastify";
 import { buildApp } from "../app.js";
 import { createContext } from "../lib/context.js";
@@ -14,7 +14,7 @@ const repoRoot = resolve(dirname(fileURLToPath(import.meta.url)), "../../../..")
 
 export const TEST_DATABASE_URL =
   process.env.TEST_DATABASE_URL ??
-  "postgresql://hometoken:hometoken@localhost:5432/hometoken_test";
+  "postgresql://homefax:homefax@localhost:5432/homefax_test";
 
 export type Harness = {
   app: FastifyInstance;
@@ -44,7 +44,7 @@ export async function createHarness(): Promise<Harness> {
   };
 
   const run = (script: string) =>
-    execFileSync("pnpm", ["--filter", "@hometoken/db", script], {
+    execFileSync("pnpm", ["--filter", "@homefax/db", script], {
       cwd: repoRoot,
       env,
       stdio: "pipe",
@@ -127,8 +127,8 @@ export async function signIn(
   return response.cookie;
 }
 
-export const SHOWCASE = "HT-US-CO-DEN-00001234";
-export const UNCLAIMED = "HT-US-CO-DEN-00002187";
-export const AGENT = "agent@hometoken.demo";
-export const OWNER = "owner@hometoken.demo";
-export const CONTRACTOR = "summit@hometoken.demo";
+export const SHOWCASE = "HF-US-CO-DEN-00001234";
+export const UNCLAIMED = "HF-US-CO-DEN-00002187";
+export const AGENT = "agent@homefax.demo";
+export const OWNER = "owner@homefax.demo";
+export const CONTRACTOR = "summit@homefax.demo";

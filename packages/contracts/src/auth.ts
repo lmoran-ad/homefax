@@ -23,7 +23,7 @@ export const SessionUserSchema = z.object({
   planPrice: z.string(),
   subscriptionCancelled: z.boolean(),
   /** Homeowner's own property, when they have one. */
-  homeTokenId: z.string().nullable(),
+  ownedTokenId: z.string().nullable(),
   /** Contractor's company record, when they have one. */
   contractorId: z.string().nullable(),
   /** Route this role lands on after sign-in. */

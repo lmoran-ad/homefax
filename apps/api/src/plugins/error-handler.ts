@@ -1,4 +1,4 @@
-import type { ApiError } from "@hometoken/contracts";
+import type { ApiError } from "@homefax/contracts";
 import type { FastifyInstance } from "fastify";
 import fp from "fastify-plugin";
 import { ZodError } from "zod";
@@ -53,4 +53,4 @@ async function plugin(app: FastifyInstance) {
   });
 }
 
-export const errorHandlerPlugin = fp(plugin, { name: "hometoken-errors" });
+export const errorHandlerPlugin = fp(plugin, { name: "homefax-errors" });

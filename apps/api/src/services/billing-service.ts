@@ -6,8 +6,8 @@ import type {
   Paywall,
   Subscription,
   UnitEconomicsRow,
-} from "@hometoken/contracts";
-import { profiles, type ProfileRow } from "@hometoken/db";
+} from "@homefax/contracts";
+import { profiles, type ProfileRow } from "@homefax/db";
 import { eq } from "drizzle-orm";
 import type { AppContext } from "../lib/context.js";
 import { PLAN_NAMES, PLAN_PRICES } from "./auth-service.js";
@@ -143,7 +143,7 @@ export const PLAN_CARDS: PlanCard[] = [
     pitch:
       "A verified maintenance record shortens negotiation and reduces post-inspection concessions.",
     features: [
-      { label: "Unlimited HomeToken claims and records", included: true },
+      { label: "Unlimited HomeFax claims and records", included: true },
       { label: "Unlimited grounded questions per property", included: true },
       { label: "Branded, buyer-ready report export", included: true },
       { label: "Hash-chain attestation page on every export", included: true },
@@ -182,10 +182,10 @@ export const PAYWALLS: Record<PaywallGate, Paywall> = {
     key: "export",
     tierLabel: "AGENT PRO",
     planLine: "$39 per seat / month",
-    title: "Printable HomeToken report",
+    title: "Printable HomeFax report",
     body: "Branded, buyer-ready PDF of the full property record, including verification levels, permit closures and the hash-chain attestation page. Agents on the free tier can view records but not export them.",
     bullets: [
-      "Unlimited exports across every HomeToken you touch",
+      "Unlimited exports across every HomeFax you touch",
       "Your brokerage branding on every page",
       "Attestation page showing the ledger was intact at export time",
     ],
@@ -200,7 +200,7 @@ export const PAYWALLS: Record<PaywallGate, Paywall> = {
     bullets: [
       "Unlimited grounded questions per property",
       "Cited answers you can paste into a buyer summary",
-      "Question history retained per HomeToken",
+      "Question history retained per HomeFax",
     ],
     cta: "Upgrade to Agent Pro",
   },

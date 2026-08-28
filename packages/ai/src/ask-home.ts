@@ -1,4 +1,4 @@
-import { HomeAnswerSchema, type HomeAnswer } from "@hometoken/contracts";
+import { HomeAnswerSchema, type HomeAnswer } from "@homefax/contracts";
 import { complete, extractJson, type AiConfig } from "./client.js";
 import { ASK_HOME_SYSTEM_PROMPT } from "./prompts.js";
 
@@ -18,7 +18,7 @@ export async function askHome(
   config: AiConfig,
   input: AskInput,
 ): Promise<HomeAnswer> {
-  const prompt = `HOMETOKEN RECORD\n\n${input.context}\n\nQUESTION\n${input.question}\n\nReturn only the JSON object.`;
+  const prompt = `HOMEFAX RECORD\n\n${input.context}\n\nQUESTION\n${input.question}\n\nReturn only the JSON object.`;
 
   let lastError: unknown;
   for (let attempt = 0; attempt < 2; attempt += 1) {

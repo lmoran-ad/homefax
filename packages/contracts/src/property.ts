@@ -15,7 +15,7 @@ export const IsoDateSchema = z
 
 export const TokenIdSchema = z
   .string()
-  .regex(/^HT-[A-Z]{2}-[A-Z]{2}-[A-Z]{3}-\d{8}$/, "Not a valid HomeToken ID");
+  .regex(/^HT-[A-Z]{2}-[A-Z]{2}-[A-Z]{3}-\d{8}$/, "Not a valid HomeFax ID");
 
 export const DocumentSummarySchema = z.object({
   id: z.string(),

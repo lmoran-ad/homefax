@@ -1,7 +1,7 @@
 import { mkdtemp, readFile, rm } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
-import { sha256 } from "@hometoken/ledger";
+import { sha256 } from "@homefax/ledger";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import {
   getDeedProvider,
@@ -19,7 +19,7 @@ describe("FixtureParcelProvider", () => {
 
   it("finds the showcase property by a partial address", async () => {
     await expect(provider.findByAddress("123 Main")).resolves.toMatchObject({
-      tokenId: "HT-US-CO-DEN-00001234",
+      tokenId: "HF-US-CO-DEN-00001234",
       parcelId: SHOWCASE_PARCEL,
     });
   });
@@ -55,7 +55,7 @@ describe("FixtureParcelProvider", () => {
 
   it("produces a well-formed token id", async () => {
     const parcel = await provider.provision("900 Elm Street, Denver, 80205");
-    expect(parcel.tokenId).toMatch(/^HT-US-CO-[A-Z]{3}-\d{8}$/);
+    expect(parcel.tokenId).toMatch(/^HF-US-CO-[A-Z]{3}-\d{8}$/);
   });
 });
 
@@ -174,7 +174,7 @@ describe("LocalStorageProvider", () => {
   it("returns the real SHA-256 of the stored bytes", async () => {
     const bytes = Buffer.from("INVOICE 26-3390\nTotal: $9,860.00\n");
     const result = await storage.put({
-      key: "HT-US-CO-DEN-00001234/invoice.txt",
+      key: "HF-US-CO-DEN-00001234/invoice.txt",
       bytes,
       contentType: "text/plain",
     });
@@ -211,8 +211,8 @@ describe("LocalStorageProvider", () => {
   });
 
   it("builds keys that do not leak the original file name verbatim", () => {
-    const key = LocalStorageProvider.keyFor("HT-US-CO-DEN-00001234", "in voice/../x.txt");
+    const key = LocalStorageProvider.keyFor("HF-US-CO-DEN-00001234", "in voice/../x.txt");
     expect(key).not.toContain("..");
-    expect(key.startsWith("HT-US-CO-DEN-00001234/")).toBe(true);
+    expect(key.startsWith("HF-US-CO-DEN-00001234/")).toBe(true);
   });
 });

@@ -17,3 +17,9 @@ playwright-report/
 test-results/
 blob-report/
 .DS_Store
+
+# TypeScript incremental build info
+*.tsbuildinfo
+
+# Local scratch
+shots/

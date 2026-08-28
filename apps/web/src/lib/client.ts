@@ -1,6 +1,6 @@
 "use client";
 
-import type { ApiError } from "@hometoken/contracts";
+import type { ApiError } from "@homefax/contracts";
 
 export class ClientApiError extends Error {
   constructor(

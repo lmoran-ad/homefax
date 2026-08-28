@@ -1,4 +1,4 @@
-import { fixtureProperties } from "@hometoken/db/fixtures";
+import { fixtureProperties } from "@homefax/db/fixtures";
 import type { PermitProvider, PermitRecord } from "../contracts/types.js";
 
 const PERMIT_NUMBER = /\b([A-Z]\d{2}-\d{4,5})\b/;

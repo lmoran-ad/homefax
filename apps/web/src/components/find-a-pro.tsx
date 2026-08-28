@@ -3,7 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import type { Contractor, Role } from "@hometoken/contracts";
+import type { Contractor, Role } from "@homefax/contracts";
 import { Button } from "./buttons";
 import { Checkbox, FilterPills, TextArea } from "./fields";
 import { Modal, useToast } from "./feedback";
@@ -83,13 +83,15 @@ export function FindAPro({
             value={q}
             onChange={(event) => setQ(event.target.value)}
             placeholder="Trade, company or license number"
-            aria-label="Search contractors"
+            data-testid="pro-search-input"
+          aria-label="Search contractors"
             className="min-w-[220px] flex-1 rounded-[10px] border border-input bg-white px-4 py-[13px] text-[15px] text-ink placeholder:text-faint"
           />
-          <Button type="submit" variant="navy">
+          <Button type="submit" variant="navy" testId="pro-search-submit">
             Search
           </Button>
           <Checkbox
+            testId="pro-verified-only"
             label="Verified only"
             checked={verifiedOnly}
             onChange={(next) => {
@@ -102,6 +104,7 @@ export function FindAPro({
 
       <div className="mt-[18px]">
         <FilterPills
+          testId="pro-trade-filter"
           value={initial.trade}
           onChange={(trade) => apply({ trade })}
           options={trades.map((entry) => ({
@@ -124,6 +127,9 @@ export function FindAPro({
           {contractors.map((contractor) => (
             <article
               key={contractor.id}
+              data-testid="contractor-card"
+              data-contractor-id={contractor.id}
+              data-verified={contractor.verified}
               className="flex min-w-0 flex-col rounded-[14px] bg-white p-[20px_22px]"
               style={{
                 border: contractor.verified
@@ -139,13 +145,17 @@ export function FindAPro({
                   {contractor.initials}
                 </div>
                 <Pill
+                  testId="contractor-verification"
                   label={contractor.verified ? "VERIFIED SOURCE" : "UNVERIFIED"}
                   bg={contractor.verified ? "#e7f4ec" : "#eef1f4"}
                   fg={contractor.verified ? "#12693b" : "#6b7580"}
                 />
               </div>
 
-              <h3 className="mt-[14px] mb-0 text-[17.5px] font-extrabold tracking-[-0.02em] text-ink">
+              <h3
+                data-testid="contractor-name"
+                className="mt-[14px] mb-0 text-[17.5px] font-extrabold tracking-[-0.02em] text-ink"
+              >
                 {contractor.name}
               </h3>
               <div className="mt-[3px] text-[13.5px] text-muted">
@@ -155,7 +165,7 @@ export function FindAPro({
               <dl className="mt-[14px] mb-0 space-y-[7px]">
                 {[
                   ["License", contractor.license],
-                  ["Jobs on HomeToken", String(contractor.jobCount)],
+                  ["Jobs on HomeFax", String(contractor.jobCount)],
                   ["Service area", contractor.area],
                 ].map(([label, value]) => (
                   <div key={label} className="flex justify-between gap-3 text-[13px]">
@@ -180,12 +190,17 @@ export function FindAPro({
               <div className="mt-[18px] flex flex-wrap gap-[8px]">
                 <Link
                   href={`/pros/${contractor.id}`}
+                  data-testid="view-record-link"
                   className="rounded-[8px] border border-input bg-white px-[13px] py-[8px] text-[13px] font-bold text-ink no-underline hover:border-navy hover:text-navy"
                 >
                   View record
                 </Link>
                 {role === "homeowner" ? (
-                  <Button size="sm" onClick={() => setRequesting(contractor)}>
+                  <Button
+                    size="sm"
+                    onClick={() => setRequesting(contractor)}
+                    testId="request-work-button"
+                  >
                     Request work
                   </Button>
                 ) : (
@@ -209,7 +224,7 @@ export function FindAPro({
         labelledBy="request-title"
       >
         {requesting ? (
-          <div className="p-[26px_28px]">
+          <div data-testid="request-modal" className="p-[26px_28px]">
             <h2
               id="request-title"
               className="m-0 text-[21px] font-extrabold tracking-[-0.02em] text-ink"
@@ -227,6 +242,7 @@ export function FindAPro({
             ) : null}
 
             <TextArea
+              testId="request-need"
               className="mt-[18px]"
               label="What do you need?"
               value={need}
@@ -235,6 +251,7 @@ export function FindAPro({
             />
 
             <Checkbox
+              testId="request-share"
               className="mt-[16px]"
               checked={share}
               onChange={setShare}
@@ -242,7 +259,11 @@ export function FindAPro({
             />
 
             <div className="mt-[22px] flex flex-wrap gap-[10px]">
-              <Button onClick={() => void sendRequest()} disabled={busy}>
+              <Button
+                onClick={() => void sendRequest()}
+                disabled={busy}
+                testId="request-send"
+              >
                 {busy ? "Sending…" : "Send request"}
               </Button>
               <Button variant="outline" onClick={() => setRequesting(null)}>

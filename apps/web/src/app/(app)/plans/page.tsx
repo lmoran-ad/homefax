@@ -3,7 +3,7 @@ import type {
   SessionUser,
   Subscription,
   UnitEconomicsRow,
-} from "@hometoken/contracts";
+} from "@homefax/contracts";
 import { PageShell } from "@/components/page-shell";
 import { PlansScreen } from "@/components/plans-screen";
 import { apiFetch } from "@/lib/api";

@@ -6,8 +6,8 @@ import type {
   PropertyDetail,
   PropertyEvent,
   TimelineCategory,
-} from "@hometoken/contracts";
-import { categoryOfEvent, TIMELINE_CATEGORIES } from "@hometoken/contracts";
+} from "@homefax/contracts";
+import { categoryOfEvent, TIMELINE_CATEGORIES } from "@homefax/contracts";
 import { DocumentModal } from "./document-modal";
 import { FilterPills } from "./fields";
 import { useToast } from "./feedback";
@@ -51,6 +51,7 @@ export function Timeline({
   return (
     <>
       <FilterPills
+        testId="timeline-filter"
         value={filter}
         onChange={(next) => setFilter(next as TimelineCategory)}
         options={TIMELINE_CATEGORIES.map((category) => ({
@@ -75,6 +76,9 @@ export function Timeline({
                 <article
                   key={event.id}
                   id={`ev-${event.id}`}
+                  data-testid="timeline-event"
+                  data-event-id={event.id}
+                  data-verification={event.verificationLevel}
                   className="scroll-mt-[120px] rounded-[14px] border border-line bg-white p-[18px_20px]"
                   style={
                     highlightIds.includes(event.id)
@@ -86,12 +90,18 @@ export function Timeline({
                     <span className="text-[12.5px] font-semibold text-muted">
                       {formatDate(event.occurredAt)}
                     </span>
-                    <VerificationBadge level={event.verificationLevel} />
+                    <VerificationBadge
+                      level={event.verificationLevel}
+                      testId="event-verification"
+                    />
                     <Mono className="text-[11px] tracking-[0.04em] text-faint">
                       {event.eventType}
                     </Mono>
                     {highlightIds.includes(event.id) ? (
-                      <span className="rounded-[5px] bg-brand px-[7px] py-[2px] text-[10px] font-bold tracking-[0.08em] text-white">
+                      <span
+                        data-testid="event-new-flag"
+                        className="rounded-[5px] bg-brand px-[7px] py-[2px] text-[10px] font-bold tracking-[0.08em] text-white"
+                      >
                         NEW
                       </span>
                     ) : null}
@@ -102,7 +112,10 @@ export function Timeline({
                     ) : null}
                   </div>
 
-                  <h4 className="mt-[10px] mb-0 text-[17px] font-bold tracking-[-0.015em] text-ink">
+                  <h4
+                    data-testid="event-title"
+                    className="mt-[10px] mb-0 text-[17px] font-bold tracking-[-0.015em] text-ink"
+                  >
                     {event.title}
                   </h4>
                   {event.meta ? (
@@ -124,6 +137,8 @@ export function Timeline({
                           <button
                             key={document.id}
                             type="button"
+                            data-testid="document-chip"
+                            data-visibility={document.visibility}
                             onClick={() => {
                               if (restricted) {
                                 toast(
@@ -147,6 +162,7 @@ export function Timeline({
                   ) : null}
 
                   <div
+                    data-testid="event-hash"
                     className="mt-[14px] border-t border-line-light pt-[10px] text-[10.5px] break-all text-faint"
                     style={{ fontFamily: "var(--font-mono)" }}
                   >

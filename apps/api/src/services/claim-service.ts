@@ -7,7 +7,7 @@ import type {
   HomeClaim,
   OwnerClaimRequest,
   SeededRecordStats,
-} from "@hometoken/contracts";
+} from "@homefax/contracts";
 import {
   claims,
   homeClaims,
@@ -19,7 +19,7 @@ import {
   type ClaimRow,
   type HomeClaimRow,
   type PropertyRow,
-} from "@hometoken/db";
+} from "@homefax/db";
 import { and, desc, eq, sql } from "drizzle-orm";
 import type { AppContext } from "../lib/context.js";
 import { claimRejected, forbidden } from "../lib/errors.js";
@@ -183,8 +183,8 @@ export async function contributeState(
     return {
       allowed: false,
       title: "Claim stewardship to contribute",
-      body: "This HomeToken was seeded from county records and is not yet claimed. Claim it by MLS listing, seller authorization or title at closing to add records, ask grounded questions and export the report.",
-      ctaLabel: "Claim HomeToken",
+      body: "This HomeFax was seeded from county records and is not yet claimed. Claim it by MLS listing, seller authorization or title at closing to add records, ask grounded questions and export the report.",
+      ctaLabel: "Claim HomeFax",
       ctaAction: "claim",
     };
   }
@@ -352,10 +352,10 @@ export async function submitOwnerClaim(
       .values({ propertyId: property.id, ownerId: user.id, ...values });
   }
 
-  if (!user.homeTokenId) {
+  if (!user.ownedTokenId) {
     await ctx.db
       .update(profiles)
-      .set({ homeTokenId: property.tokenId })
+      .set({ ownedTokenId: property.tokenId })
       .where(eq(profiles.id, user.id));
   }
 
@@ -369,7 +369,7 @@ export async function releaseClaim(
 ): Promise<void> {
   const claim = await findAgentClaim(ctx, property.id);
   if (!claim || claim.agentId !== user.id) {
-    throw forbidden("You do not hold stewardship of this HomeToken");
+    throw forbidden("You do not hold stewardship of this HomeFax");
   }
   // Releasing changes the claim, never the record. The events, documents and
   // chain are untouched — that separation is the whole point of stewardship
@@ -380,7 +380,7 @@ export async function releaseClaim(
     .where(eq(claims.id, claim.id));
 }
 
-/** The agent's book: every HomeToken currently under their stewardship. */
+/** The agent's book: every HomeFax currently under their stewardship. */
 export async function listAgentBook(
   ctx: AppContext,
   agentId: string,

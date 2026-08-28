@@ -2,8 +2,8 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import type { DemoDocument, Job } from "@hometoken/contracts";
-import { AUTHORABLE_EVENT_TYPES } from "@hometoken/contracts";
+import type { DemoDocument, Job } from "@homefax/contracts";
+import { AUTHORABLE_EVENT_TYPES } from "@homefax/contracts";
 import { Button } from "./buttons";
 import { ErrorBanner, SelectField, TextArea, TextField } from "./fields";
 import { useToast } from "./feedback";
@@ -187,7 +187,10 @@ export function JobsWorkspace({
   return (
     <>
       <div className="mb-[22px] flex flex-wrap items-center justify-between gap-4">
-        <div className="track-min-0 grid flex-1 grid-cols-[repeat(auto-fit,minmax(120px,1fr))] gap-[16px] rounded-[16px] border border-line bg-white p-[18px_22px]">
+        <div
+          data-testid="job-stats"
+          className="track-min-0 grid flex-1 grid-cols-[repeat(auto-fit,minmax(120px,1fr))] gap-[16px] rounded-[16px] border border-line bg-white p-[18px_22px]"
+        >
           {[
             ["OPEN REQUESTS", stats.open],
             ["IN PROGRESS", stats.inProgress],
@@ -204,13 +207,14 @@ export function JobsWorkspace({
             </div>
           ))}
         </div>
-        <Button onClick={() => startSubmission(null)}>
+        <Button onClick={() => startSubmission(null)} testId="submit-work-button">
           Submit work to an address
         </Button>
       </div>
 
       {open ? (
         <section
+          data-testid="submission-form"
           className="animate-fade-up mb-[22px] rounded-[16px] bg-white p-[26px_28px]"
           style={{ border: "1.5px solid #e4002b" }}
         >
@@ -229,6 +233,7 @@ export function JobsWorkspace({
           ) : null}
 
           <TextField
+            testId="submission-address"
             label="Property address"
             value={address}
             onChange={(event) => void checkAddress(event.target.value)}
@@ -236,6 +241,8 @@ export function JobsWorkspace({
           />
           {check ? (
             <div
+              data-testid="submission-address-check"
+              data-ok={check.ok}
               className="mt-[8px] text-[13px] font-semibold"
               style={{ color: check.ok ? "#12693b" : "#a8102a" }}
             >
@@ -252,6 +259,8 @@ export function JobsWorkspace({
                 <button
                   key={document.key}
                   type="button"
+                  data-testid="submission-doc"
+                  data-doc-key={document.key}
                   disabled={extracting}
                   onClick={() => void useDocument(document)}
                   className={`min-w-0 rounded-[12px] border p-[14px_16px] text-left ${
@@ -283,6 +292,7 @@ export function JobsWorkspace({
 
           <div className="mt-[22px] grid gap-[16px] sm:grid-cols-2">
             <TextField
+              testId="field-title"
               className="sm:col-span-2"
               label="Title"
               value={form.title}
@@ -327,6 +337,7 @@ export function JobsWorkspace({
             <Button
               onClick={() => void submit()}
               disabled={busy === "submit" || !check?.ok}
+              testId="submission-send"
             >
               {busy === "submit" ? "Sending…" : "Send to homeowner for acceptance"}
             </Button>
@@ -340,7 +351,7 @@ export function JobsWorkspace({
       {jobs.length === 0 ? (
         <EmptyState
           title="No jobs yet"
-          body="Homeowner requests land here. You can also submit completed work to any address with a HomeToken and a homeowner account."
+          body="Homeowner requests land here. You can also submit completed work to any address with a HomeFax and a homeowner account."
         />
       ) : (
         <div className="space-y-[12px]">
@@ -349,11 +360,14 @@ export function JobsWorkspace({
             return (
               <article
                 key={job.id}
+                data-testid="job-card"
+                data-job-id={job.id}
+                data-status={job.status}
                 className="rounded-[14px] bg-white p-[20px_22px]"
                 style={{ border: `1px solid ${chip.line ?? "#e3e7ec"}` }}
               >
                 <div className="flex flex-wrap items-center gap-[12px]">
-                  <JobStatusPill status={job.status} />
+                  <JobStatusPill status={job.status} testId="job-status" />
                   <span className="text-[13px] font-semibold text-muted">
                     {job.trade}
                   </span>
@@ -385,6 +399,7 @@ export function JobsWorkspace({
                       size="sm"
                       disabled={busy === job.id}
                       onClick={() => void acceptJob(job)}
+                      testId="accept-job-button"
                     >
                       {busy === job.id ? "Accepting…" : "Accept job"}
                     </Button>
@@ -403,7 +418,7 @@ export function JobsWorkspace({
                   ) : (
                     <span className="text-[13px] text-faint">
                       {job.status === "approved"
-                        ? "Recorded on the HomeToken."
+                        ? "Recorded on the HomeFax."
                         : "Waiting on the homeowner."}
                     </span>
                   )}

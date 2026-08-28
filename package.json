@@ -1,5 +1,5 @@
 {
-  "name": "hometoken",
+  "name": "homefax",
   "private": true,
   "packageManager": "pnpm@10.33.0",
   "engines": {
@@ -14,9 +14,9 @@
     "test:e2e": "playwright test",
     "db:up": "docker compose up -d postgres",
     "db:down": "docker compose down",
-    "db:migrate": "pnpm --filter @hometoken/db migrate",
-    "db:seed": "pnpm --filter @hometoken/db seed",
-    "db:reset": "pnpm --filter @hometoken/db reset"
+    "db:migrate": "pnpm --filter @homefax/db migrate",
+    "db:seed": "pnpm --filter @homefax/db seed",
+    "db:reset": "pnpm --filter @homefax/db reset"
   },
   "devDependencies": {
     "@playwright/test": "1.62.1",

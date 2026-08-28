@@ -6,7 +6,7 @@ import { z } from "zod";
  * three screens into the demo.
  */
 const ServerEnvSchema = z.object({
-  APP_NAME: z.string().default("REAL / REMAX HomeToken"),
+  APP_NAME: z.string().default("REAL / REMAX HomeFax"),
   NODE_ENV: z
     .enum(["development", "test", "production"])
     .default("development"),
@@ -20,6 +20,12 @@ const ServerEnvSchema = z.object({
   WEB_ORIGIN: z.string().default("http://localhost:3000"),
   API_BASE_URL: z.string().default("http://localhost:4000"),
 
+  /**
+   * Vercel's Supabase integration injects POSTGRES_URL rather than
+   * DATABASE_URL, so either is accepted. That lets the platform wire the
+   * credential in directly and keeps the connection string out of anyone's
+   * clipboard.
+   */
   DATABASE_URL: z.string().min(1, "DATABASE_URL is required"),
 
   AUTH_JWT_SECRET: z
@@ -32,7 +38,7 @@ const ServerEnvSchema = z.object({
   ANTHROPIC_API_KEY: z.string().optional(),
   ANTHROPIC_MODEL: z.string().default("claude-sonnet-5"),
 
-  STORAGE_DRIVER: z.enum(["local"]).default("local"),
+  STORAGE_DRIVER: z.enum(["local", "database"]).default("local"),
   LOCAL_STORAGE_PATH: z.string().default("./storage/demo-uploads"),
 });
 
@@ -42,7 +48,12 @@ let cached: ServerEnv | null = null;
 
 export function loadServerEnv(source: NodeJS.ProcessEnv = process.env): ServerEnv {
   if (cached) return cached;
-  const parsed = ServerEnvSchema.safeParse(source);
+  const normalized: NodeJS.ProcessEnv = {
+    ...source,
+    DATABASE_URL:
+      source.DATABASE_URL ?? source.POSTGRES_URL ?? source.POSTGRES_PRISMA_URL,
+  };
+  const parsed = ServerEnvSchema.safeParse(normalized);
   if (!parsed.success) {
     const lines = parsed.error.issues.map(
       (i) => `  ${i.path.join(".") || "(root)"}: ${i.message}`,
@@ -66,6 +77,6 @@ export function aiEnabled(env: ServerEnv): boolean {
  * Public config, safe to ship to the browser. Nothing secret may be added here.
  */
 export const publicConfig = {
-  appName: "REAL / REMAX HomeToken",
+  appName: "REAL / REMAX HomeFax",
   tagline: "The Digital Identity of Real Estate",
 } as const;

@@ -1,10 +1,10 @@
-import type { TransferRequest, TransferResult } from "@hometoken/contracts";
+import type { TransferRequest, TransferResult } from "@homefax/contracts";
 import {
   ownershipPeriods,
   propertyEvents,
   tokenTransfers,
   type PropertyRow,
-} from "@hometoken/db";
+} from "@homefax/db";
 import { desc, eq, sql } from "drizzle-orm";
 import type { AppContext } from "../lib/context.js";
 import { badRequest } from "../lib/errors.js";
@@ -48,7 +48,7 @@ export async function transferToOwner(
         propertyId: property.id,
         eventType: "TRANSFER",
         occurredAt: date,
-        title: "HomeToken transferred to homeowner",
+        title: "HomeFax transferred to homeowner",
         description:
           "The property record was handed to the homeowner, who now approves what enters it. Property history retained in full. This is not a legal title transfer and no deed was recorded.",
         verificationLevel: "PROFESSIONAL_VERIFIED",
