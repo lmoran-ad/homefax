@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" role="img" aria-label="HomeFax">
+  <!--
+    The same mark the app header carries, drawn for 16px: a red chevron roof
+    over an outlined house with one ledger line through it — property plus
+    record. Strokes are heavier and the ledger line wider than in the header
+    glyph, because at favicon size the original weights close up into a blur.
+  -->
+  <rect width="32" height="32" rx="7" fill="#12395f"/>
+  <path d="M5.5 14.6 16 6.6l10.5 8" fill="none" stroke="#e4002b" stroke-width="3.6"
+        stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M8.9 16.3v9.1h14.2v-9.1" fill="none" stroke="#ffffff" stroke-width="3"
+        stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M13 20.9h6" stroke="#ffffff" stroke-width="2.6" stroke-linecap="round"/>
+</svg>

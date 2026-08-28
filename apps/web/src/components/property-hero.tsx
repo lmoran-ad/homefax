@@ -6,6 +6,7 @@ import type { PropertyDetail, Role } from "@homefax/contracts";
 import { PhotoPlaceholder } from "./brand";
 import { Button, ButtonLink } from "./buttons";
 import { useToast } from "./feedback";
+import { SaveButton } from "./save-button";
 import { Mono } from "./ui";
 import { request } from "@/lib/client";
 import { formatMoney } from "@/lib/format";
@@ -21,10 +22,7 @@ export function PropertyHero({
   saved: boolean;
   canContribute: boolean;
 }) {
-  const router = useRouter();
-  const { toast } = useToast();
   const [copied, setCopied] = useState(false);
-  const [isSaved, setIsSaved] = useState(saved);
 
   const facts = property.facts;
   const factLine = [
@@ -41,19 +39,6 @@ export function PropertyHero({
     await navigator.clipboard.writeText(property.tokenId).catch(() => undefined);
     setCopied(true);
     setTimeout(() => setCopied(false), 1800);
-  }
-
-  async function toggleSave() {
-    const next = !isSaved;
-    setIsSaved(next);
-    try {
-      await request(`/properties/${property.tokenId}/save`, { method: "POST" });
-      toast(next ? "Saved." : "Removed from saved.");
-      router.refresh();
-    } catch {
-      setIsSaved(!next);
-      toast("Could not update your saved list.");
-    }
   }
 
   return (
@@ -73,15 +58,7 @@ export function PropertyHero({
           </h1>
           {/* Saving is a bookmark and an agent-only affordance. */}
           {role === "agent" ? (
-            <button
-              type="button"
-              onClick={() => void toggleSave()}
-              data-testid="save-toggle"
-              data-saved={isSaved}
-              className="shrink-0 cursor-pointer rounded-[8px] border border-line bg-white px-[12px] py-[7px] text-[13px] font-bold text-body hover:border-navy hover:text-navy"
-            >
-              {isSaved ? "★ Saved" : "☆ Save"}
-            </button>
+            <SaveButton tokenId={property.tokenId} saved={saved} />
           ) : null}
         </div>
 
