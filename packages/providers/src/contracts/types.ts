@@ -78,8 +78,17 @@ export type PermitRecord = {
 };
 
 export interface PermitProvider {
-  /** Real source later: jurisdiction permit portals, where published. */
-  getPermitHistory(input: { parcelId: string }): Promise<PermitRecord[]>;
+  /**
+   * Live source: a jurisdiction's permit portal, where one is published.
+   *
+   * The address is optional because the fixture is keyed by parcel, but real
+   * permit datasets are addressed and frequently carry no parcel identifier at
+   * all — so a live provider needs the address to find anything.
+   */
+  getPermitHistory(input: {
+    parcelId: string;
+    address?: string;
+  }): Promise<PermitRecord[]>;
 }
 
 export interface DeedProvider {

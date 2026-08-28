@@ -3,6 +3,15 @@ import { FixtureLicenseProvider } from "./fixture/license-provider";
 import { FixtureMlsProvider } from "./fixture/mls-provider";
 import { FixtureParcelProvider } from "./fixture/parcel-provider";
 import { FixturePermitProvider } from "./fixture/permit-provider";
+import { ArcgisParcelProvider } from "./live/arcgis-parcel-provider";
+import { SocrataPermitProvider } from "./live/socrata-permit-provider";
+import {
+  DENVER_PARCELS,
+  DENVER_PERMITS,
+  withOverrides,
+  type ParcelSource,
+  type PermitSource,
+} from "./live/sources";
 import { LocalStorageProvider } from "./storage/local-storage-provider";
 import type {
   DeedProvider,
@@ -14,7 +23,10 @@ import type {
 } from "./contracts/types";
 
 export * from "./contracts/types";
-export { LocalStorageProvider };
+export { LocalStorageProvider, ArcgisParcelProvider, SocrataPermitProvider };
+export { DENVER_PARCELS, DENVER_PERMITS, withOverrides } from "./live/sources";
+export type { ParcelSource, PermitSource } from "./live/sources";
+export { SourceError } from "./live/http";
 
 /**
  * Factories are the only supported way to obtain a provider. UI and domain
@@ -29,8 +41,18 @@ let deed: DeedProvider | null = null;
 let license: LicenseProvider | null = null;
 let storage: StorageProvider | null = null;
 
+/**
+ * `PARCEL_SOURCE=denver` reads real parcels from the county's ArcGIS layer,
+ * with the fixture behind it: a portal that is down, slow or renamed falls
+ * through rather than taking a page with it. Unset — the default — is the
+ * fixture alone, which is what keeps the seeded demo and the e2e suite
+ * deterministic.
+ */
 export function getParcelProvider(): ParcelProvider {
-  parcel ??= new FixtureParcelProvider();
+  if (parcel) return parcel;
+  const fixture = new FixtureParcelProvider();
+  const live = liveParcelSource();
+  parcel = live ? new ArcgisParcelProvider(live, fixture) : fixture;
   return parcel;
 }
 
@@ -39,10 +61,68 @@ export function getMlsProvider(): MlsProvider {
   return mls;
 }
 
+/** `PERMIT_SOURCE=denver`, same arrangement as parcels. */
 export function getPermitProvider(): PermitProvider {
-  permit ??= new FixturePermitProvider();
+  if (permit) return permit;
+  const fixture = new FixturePermitProvider();
+  const live = livePermitSource();
+  permit = live ? new SocrataPermitProvider(live, fixture) : fixture;
   return permit;
 }
+
+/**
+ * What each seam is actually wired to, and anything wrong with how it was
+ * configured. Read by the source diagnostics route — a live integration whose
+ * configuration cannot be inspected from outside is one you debug by guessing.
+ */
+export function describeSources(): {
+  parcels: { driver: string; source: string | null; problems: string[] };
+  permits: { driver: string; source: string | null; problems: string[] };
+} {
+  const parcelSource = liveParcelSourceWithProblems();
+  const permitSource = livePermitSourceWithProblems();
+  return {
+    parcels: {
+      driver: parcelSource.source ? "arcgis" : "fixture",
+      source: parcelSource.source?.url ?? null,
+      problems: parcelSource.problems,
+    },
+    permits: {
+      driver: permitSource.source ? "socrata" : "fixture",
+      source: permitSource.source
+        ? `https://${permitSource.source.domain}/resource/${permitSource.source.dataset}.json`
+        : null,
+      problems: permitSource.problems,
+    },
+  };
+}
+
+function liveParcelSourceWithProblems(): {
+  source: ParcelSource | null;
+  problems: string[];
+} {
+  if ((process.env.PARCEL_SOURCE ?? "").toLowerCase() !== "denver") {
+    return { source: null, problems: [] };
+  }
+  const { source, problems } = withOverrides(DENVER_PARCELS, "PARCEL_SOURCE");
+  return { source, problems };
+}
+
+function livePermitSourceWithProblems(): {
+  source: PermitSource | null;
+  problems: string[];
+} {
+  if ((process.env.PERMIT_SOURCE ?? "").toLowerCase() !== "denver") {
+    return { source: null, problems: [] };
+  }
+  const { source, problems } = withOverrides(DENVER_PERMITS, "PERMIT_SOURCE");
+  return { source, problems };
+}
+
+const liveParcelSource = (): ParcelSource | null =>
+  liveParcelSourceWithProblems().source;
+const livePermitSource = (): PermitSource | null =>
+  livePermitSourceWithProblems().source;
 
 export function getDeedProvider(): DeedProvider {
   deed ??= new FixtureDeedProvider();

@@ -18,22 +18,40 @@
     "API_PORT",
     "STORAGE_DRIVER",
     "LOCAL_STORAGE_PATH",
-    "VERCEL"
+    "VERCEL",
+    "PARCEL_SOURCE",
+    "PARCEL_SOURCE_URL",
+    "PARCEL_SOURCE_FIELDS",
+    "PERMIT_SOURCE",
+    "PERMIT_SOURCE_DOMAIN",
+    "PERMIT_SOURCE_DATASET",
+    "PERMIT_SOURCE_FIELDS",
+    "SOCRATA_APP_TOKEN"
   ],
   "tasks": {
     "build": {
-      "dependsOn": ["^build"],
-      "outputs": ["dist/**", ".next/**", "!.next/cache/**"]
+      "dependsOn": [
+        "^build"
+      ],
+      "outputs": [
+        "dist/**",
+        ".next/**",
+        "!.next/cache/**"
+      ]
     },
     "dev": {
       "cache": false,
       "persistent": true
     },
     "typecheck": {
-      "dependsOn": ["^build"]
+      "dependsOn": [
+        "^build"
+      ]
     },
     "test": {
-      "dependsOn": ["^build"]
+      "dependsOn": [
+        "^build"
+      ]
     }
   }
 }

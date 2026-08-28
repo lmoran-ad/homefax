@@ -149,6 +149,44 @@ export function registerPropertyRoutes(
       });
     }
 
+    // Permits are the one part of a brand-new record that is not empty. The
+    // jurisdiction issued them, dated them and attested to them, so they land
+    // as SOURCE_VERIFIED alongside the assessor's own events — the same
+    // standing a contributed record has to be reviewed into.
+    //
+    // A permit lookup failing must not fail the provisioning: the record is
+    // already written, and a portal being down is not a reason to refuse a
+    // parcel. The provider falls back on its own, and anything past that is
+    // logged and left.
+    let permitCount = 0;
+    try {
+      const permits = await ctx.permits.getPermitHistory({
+        parcelId: parcel.parcelId,
+        address: parcel.address,
+      });
+      for (const permit of permits) {
+        await ctx.db.insert(propertyEvents).values({
+          publicId: `${parcel.tokenId}-PERMIT-${permit.permitNumber}`,
+          propertyId: row.id,
+          eventType:
+            permit.status === "FINALED" ? "PERMIT_FINALIZED" : "PERMIT_ISSUED",
+          occurredAt: permit.issuedAt,
+          title:
+            permit.status === "FINALED"
+              ? `Permit finaled · ${permit.permitNumber}`
+              : `Permit issued · ${permit.permitNumber}`,
+          description: permit.scope || null,
+          verificationLevel: "SOURCE_VERIFIED",
+          visibility: "PUBLIC",
+          metadata: { summary: `Permit ${permit.permitNumber}` },
+          eventHash: "pending",
+        });
+        permitCount += 1;
+      }
+    } catch (error) {
+      request.log.warn({ err: error }, "permit history unavailable while provisioning");
+    }
+
     // Every system starts UNKNOWN, which is the truthful state and lands the
     // record at low Home Health confidence rather than a flattering default.
     const systemDefs: [string, string][] = [
@@ -190,7 +228,7 @@ export function registerPropertyRoutes(
     await refreshHealthScore(ctx, row.id);
 
     const [summary] = await listSummaries(ctx, [row.tokenId]);
-    return { property: summary, created: true };
+    return { property: summary, created: true, permitsImported: permitCount };
   });
 
   app.get("/properties/:tokenId", async (request) => {

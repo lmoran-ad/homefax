@@ -101,6 +101,51 @@ Every element the suite touches carries a `data-testid`. They are catalogued in
 `apps/web/src/lib/testids.ts` and are a contract: copy and layout may change
 freely, the ids may not.
 
+## Live public data
+
+Every provider is fixture-backed by default. Two of them can read real public
+data instead:
+
+| Variable | Value | Reads |
+| --- | --- | --- |
+| `PARCEL_SOURCE` | `denver` | Assessor parcels from the county's ArcGIS FeatureServer |
+| `PERMIT_SOURCE` | `denver` | Building permits from a Socrata open-data portal |
+
+With `PARCEL_SOURCE` set, **Provision from county records** on the claim screen
+stops synthesizing a parcel and pulls the real one — and with `PERMIT_SOURCE`
+set, the permits that jurisdiction has issued for that address land on the
+timeline as `SOURCE_VERIFIED` events, hashed into the chain like any other.
+A reviewer can then type an address they know and check the record against a
+house they can go and stand in front of.
+
+Three things make that safe to leave on:
+
+- **The fixture stays behind each one.** A portal that is down, slow or renamed
+  falls through instead of taking a page with it, and a permit lookup that
+  fails never fails the provisioning.
+- **Nothing is invented.** An attribute the county does not publish stays zero
+  rather than being filled with something plausible, and the provisioning event
+  names which fields the assessor actually supplied.
+- **Unset is the default**, so the seeded demo and the e2e suite stay
+  deterministic.
+
+Column names differ in every jurisdiction, and the ones in
+`packages/providers/src/live/sources.ts` are a starting guess. To find the real
+ones, in demo mode:
+
+```
+GET /api/admin/sources
+```
+
+It probes each configured source and returns the layer's column list with one
+sample row. Correct a mapping either in that file, or without a rebuild:
+
+```
+PARCEL_SOURCE_FIELDS={"address":"SITUS_ADDRESS","yearBuilt":"CCYRBLT"}
+```
+
+`SOCRATA_APP_TOKEN` is optional and free; it lifts the anonymous rate limit.
+
 ## AI
 
 Set `ANTHROPIC_API_KEY` to enable live extraction and Ask This Home. Without

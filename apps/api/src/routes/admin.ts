@@ -19,6 +19,11 @@ import {
   SHOWCASE_TOKEN_ID,
 } from "@homefax/fixtures";
 import { buildChain, type ChainableEvent } from "@homefax/ledger";
+import {
+  ArcgisParcelProvider,
+  describeSources,
+  SocrataPermitProvider,
+} from "@homefax/providers";
 import { sql } from "drizzle-orm";
 import type { FastifyInstance } from "fastify";
 import { timingSafeEqual } from "node:crypto";
@@ -266,7 +271,56 @@ export function registerAdminRoutes(app: FastifyInstance, ctx: AppContext): void
     };
   });
 
-  /** Cheap check that the deployment can reach its database. */
+  /**
+   * What the live data sources are actually returning.
+   *
+   * A county portal cannot be developed against blind: every jurisdiction
+   * names its columns differently, and the only way to learn the real names is
+   * to read a real response. This probes each configured source and returns
+   * the column list and one sample row, so a wrong mapping is something you
+   * can see and correct rather than infer from an empty record.
+   *
+   * It is public data, queried without credentials, and the same row is
+   * visible to anyone with the portal's URL — so returning it here discloses
+   * nothing that was not already open. The route is still gated behind
+   * DEMO_MODE, because probing outbound endpoints on demand is not something a
+   * production deployment should offer to strangers.
+   */
+  app.get("/admin/sources", async () => {
+    if (!ctx.env.DEMO_MODE) {
+      throw forbidden("Source diagnostics are available in demo mode only");
+    }
+
+    const described = describeSources();
+
+    const probe = async (
+      provider: { sample: () => Promise<{ fields: string[]; row: Record<string, unknown> | null }> } | null,
+    ) => {
+      if (!provider) return null;
+      const startedAt = Date.now();
+      try {
+        const { fields, row } = await provider.sample();
+        return { ok: true as const, latencyMs: Date.now() - startedAt, fields, row };
+      } catch (error) {
+        return {
+          ok: false as const,
+          latencyMs: Date.now() - startedAt,
+          reason: error instanceof Error ? error.message : String(error),
+        };
+      }
+    };
+
+    const [parcels, permits] = await Promise.all([
+      probe(ctx.parcels instanceof ArcgisParcelProvider ? ctx.parcels : null),
+      probe(ctx.permits instanceof SocrataPermitProvider ? ctx.permits : null),
+    ]);
+
+    return {
+      parcels: { ...described.parcels, probe: parcels },
+      permits: { ...described.permits, probe: permits },
+    };
+  });
+
   /**
    * Says whether this instance can actually serve a page, and if not, why.
    *
