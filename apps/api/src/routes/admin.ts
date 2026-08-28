@@ -409,6 +409,13 @@ export function registerAdminRoutes(app: FastifyInstance, ctx: AppContext): void
           ...permit,
           system: classifyPermitSystem(permit.scope),
         })),
+        // Each half of the lookup on its own, with the request that was made.
+        // An empty result otherwise cannot distinguish an address that did not
+        // match from a house that has never had a permit pulled.
+        explain:
+          ctx.permits instanceof ArcgisPermitProvider
+            ? await ctx.permits.explainLookup({ parcelId, address })
+            : null,
       };
     } catch (error) {
       return {

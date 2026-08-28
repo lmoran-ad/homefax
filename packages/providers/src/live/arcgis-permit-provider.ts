@@ -56,6 +56,48 @@ export class ArcgisPermitProvider implements PermitProvider {
   }
 
   /**
+   * Runs each half of the lookup on its own and reports both.
+   *
+   * A combined query returning nothing cannot say whether the address failed
+   * to match, the parcel identifier failed to match, or the house simply has
+   * no permits — and those call for three different fixes. Running them
+   * separately, and handing back the request that was made, turns the next
+   * question into one somebody can answer by opening a URL.
+   */
+  async explainLookup(input: { parcelId: string; address?: string }): Promise<{
+    byAddress: { where: string; url: string; found: number; error?: string };
+    byParcelId: { where: string; url: string; found: number; error?: string } | null;
+  }> {
+    const f = this.source.fields;
+
+    const run = async (where: string) => {
+      const url = this.layer.urlFor(where, 50);
+      try {
+        const payload = await this.layer.query(where, 50);
+        return { where, url, found: payload.features?.length ?? 0 };
+      } catch (error) {
+        return {
+          where,
+          url,
+          found: 0,
+          error: error instanceof Error ? error.message : String(error),
+        };
+      }
+    };
+
+    const street = normalizeAddress(input.address ?? "");
+    const byAddress = await run(
+      `UPPER(${f.address}) LIKE '${sqlLiteral(street)}%'`,
+    );
+    const byParcelId =
+      f.parcelId && input.parcelId
+        ? await run(`${f.parcelId} = '${sqlLiteral(input.parcelId)}'`)
+        : null;
+
+    return { byAddress, byParcelId };
+  }
+
+  /**
    * Addresses with the most permits on file, most recent first.
    *
    * A provisioned record is only as interesting as the history behind it, and
