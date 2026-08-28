@@ -1,0 +1,20 @@
+services:
+  postgres:
+    image: postgres:16
+    container_name: hometoken-postgres
+    environment:
+      POSTGRES_DB: hometoken
+      POSTGRES_USER: hometoken
+      POSTGRES_PASSWORD: hometoken
+    ports:
+      - "5432:5432"
+    volumes:
+      - hometoken_postgres:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U hometoken -d hometoken"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+volumes:
+  hometoken_postgres:

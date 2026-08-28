@@ -1,0 +1,28 @@
+{
+  "name": "hometoken",
+  "private": true,
+  "packageManager": "pnpm@10.33.0",
+  "engines": {
+    "node": ">=20.11"
+  },
+  "scripts": {
+    "dev": "turbo run dev --parallel",
+    "build": "turbo run build",
+    "lint": "turbo run lint",
+    "typecheck": "turbo run typecheck",
+    "test": "turbo run test",
+    "test:e2e": "playwright test",
+    "db:up": "docker compose up -d postgres",
+    "db:down": "docker compose down",
+    "db:migrate": "pnpm --filter @hometoken/db migrate",
+    "db:seed": "pnpm --filter @hometoken/db seed",
+    "db:reset": "pnpm --filter @hometoken/db reset"
+  },
+  "devDependencies": {
+    "@playwright/test": "1.62.1",
+    "@types/node": "22.13.5",
+    "turbo": "2.10.12",
+    "typescript": "5.7.3",
+    "vitest": "4.1.11"
+  }
+}
