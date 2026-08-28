@@ -62,6 +62,25 @@ export function HealthDonut({ health }: { health: HealthScore }) {
           {health.totalSystems} known
         </span>
       </div>
+
+      {/*
+       * A record with nothing in it scores exactly 50 — every system unknown,
+       * every weight halved. That is the correct answer and it looks like a
+       * broken one, so it says which it is. Public data can date work on a
+       * house; it rarely says what condition anything is in, and the gap
+       * between those two is the case this product is making.
+       */}
+      {health.knownSystems === 0 ? (
+        <p
+          data-testid="health-nothing-known"
+          className="mt-[12px] mb-0 max-w-[520px] text-[12.5px] leading-[1.55] text-faint"
+        >
+          Nothing is recorded about this home's systems yet, so every one counts
+          as unknown and the score sits at the midpoint. This is what a record
+          looks like before anyone has contributed to it — not a low score, an
+          empty one.
+        </p>
+      ) : null}
     </div>
   );
 }

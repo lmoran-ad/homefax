@@ -111,12 +111,18 @@ export const DENVER_PARCELS: ParcelSource = {
  * ArcGIS URL. Residential-only is the right scope here: a HomeFax is about a
  * house, and a commercial tenant finish two blocks away is noise.
  *
- * On its own this layer cannot grade a system. Its only work descriptor is a
- * coarse category — "New Building", "Alteration/Tenant Finish",
- * "Repair/Replace" — which says a permit happened without saying what it was
- * for. A jurisdiction issues roofing, mechanical, plumbing and electrical
- * permits as their own datasets, and those are the ones that name a system.
- * Add them to DENVER_PERMIT_SOURCES and they are read alongside this one.
+ * This layer cannot grade a system, and no other Denver layer can either. Its
+ * only work descriptor is a coarse category — "New Building",
+ * "Alteration/Tenant Finish", "Repair/Replace", "Phased Construction" — which
+ * records that a permit happened without saying what it was for. The city
+ * publishes exactly three permit datasets: this one, its commercial twin, and
+ * demolition. There is no roofing, mechanical, plumbing or electrical layer,
+ * so permits here date work on a house without ever saying what condition its
+ * systems are in.
+ *
+ * That is a fact about the data rather than a gap to code around. A
+ * jurisdiction that does publish trade permits maps onto the same descriptor
+ * and would grade systems directly.
  */
 export const DENVER_PERMITS: PermitSource = {
   id: "denver-permits",
