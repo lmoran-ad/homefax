@@ -1,11 +1,11 @@
 import type { FastifyInstance } from "fastify";
-import type { AppContext } from "../lib/context.js";
-import { registerAdminRoutes } from "./admin.js";
-import { registerAuthRoutes } from "./auth.js";
-import { registerBillingRoutes } from "./billing.js";
-import { registerDashboardRoutes } from "./dashboard.js";
-import { registerMarketplaceRoutes } from "./marketplace.js";
-import { registerPropertyRoutes } from "./properties.js";
+import type { AppContext } from "../lib/context";
+import { registerAdminRoutes } from "./admin";
+import { registerAuthRoutes } from "./auth";
+import { registerBillingRoutes } from "./billing";
+import { registerDashboardRoutes } from "./dashboard";
+import { registerMarketplaceRoutes } from "./marketplace";
+import { registerPropertyRoutes } from "./properties";
 
 export function registerRoutes(app: FastifyInstance, ctx: AppContext): void {
   registerAuthRoutes(app, ctx);

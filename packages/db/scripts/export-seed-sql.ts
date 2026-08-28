@@ -9,7 +9,7 @@ import {
   fixtureContractors,
   fixtureProperties,
   SHOWCASE_TOKEN_ID,
-} from "../src/seed/fixtures/index.js";
+} from "@homefax/fixtures";
 
 /**
  * Emits the seed as plain SQL.

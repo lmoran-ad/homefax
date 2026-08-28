@@ -10,7 +10,7 @@ import {
   signIn,
   UNCLAIMED,
   type Harness,
-} from "./harness.js";
+} from "./harness";
 
 let harness: Harness;
 let app: FastifyInstance;

@@ -1,9 +1,9 @@
 import { SESSION_COOKIE, verifySession } from "@homefax/auth";
 import type { FastifyInstance, FastifyRequest } from "fastify";
 import fp from "fastify-plugin";
-import type { AppContext } from "../lib/context.js";
-import { AppError, unauthorized } from "../lib/errors.js";
-import { findProfileById, type SessionUserRecord } from "../services/auth-service.js";
+import type { AppContext } from "../lib/context";
+import { AppError, unauthorized } from "../lib/errors";
+import { findProfileById, type SessionUserRecord } from "../services/auth-service";
 
 declare module "fastify" {
   interface FastifyRequest {

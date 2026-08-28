@@ -12,6 +12,9 @@ coverage/
 
 storage/demo-uploads/*
 !storage/demo-uploads/.gitkeep
+# Anything a stray relative path created before the workspace anchoring landed.
+apps/*/storage/
+packages/*/storage/
 
 playwright-report/
 test-results/

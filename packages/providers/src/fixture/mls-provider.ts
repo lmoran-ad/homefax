@@ -1,5 +1,5 @@
-import { fixtureProperties } from "@homefax/db/fixtures";
-import type { MlsListing, MlsProvider } from "../contracts/types.js";
+import { fixtureProperties } from "@homefax/fixtures";
+import type { MlsListing, MlsProvider } from "../contracts/types";
 
 /** The listing agent of record for every seeded listing, for the demo. */
 const LISTING_AGENT_ID = "REMAX-CO-4471";

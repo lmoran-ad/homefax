@@ -23,10 +23,17 @@ export async function request<T>(
   path: string,
   options: { method?: string; body?: unknown } = {},
 ): Promise<T> {
+  // No body, no content type. Several of these calls are bodiless POSTs —
+  // accept a job, sign out — and declaring JSON on a request carrying nothing
+  // is what the parser on the other end chokes on.
   const response = await fetch(`/api${path}`, {
     method: options.method ?? "GET",
-    headers: { "content-type": "application/json" },
-    body: options.body === undefined ? undefined : JSON.stringify(options.body),
+    ...(options.body === undefined
+      ? {}
+      : {
+          headers: { "content-type": "application/json" },
+          body: JSON.stringify(options.body),
+        }),
   });
 
   const payload: unknown = await response.json().catch(() => null);

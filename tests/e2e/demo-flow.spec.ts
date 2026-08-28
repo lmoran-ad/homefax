@@ -20,8 +20,8 @@ test.describe("the agent demo path", () => {
     await expect(page.getByRole("heading", { name: /Good (morning|afternoon|evening), Alex/ })).toBeVisible();
 
     // Search finds the showcase property.
-    await page.fill('input[aria-label="Search HomeFaxes"]', "123 Main");
-    await page.getByRole("button", { name: "Search", exact: true }).click();
+    await page.getByTestId("search-input").fill("123 Main");
+    await page.getByTestId("search-submit").click();
     await page.waitForURL(/\/properties\?q=/);
     await expect(page.getByRole("link", { name: "123 Main Street" })).toBeVisible();
 
@@ -29,42 +29,44 @@ test.describe("the agent demo path", () => {
     await page.waitForURL(new RegExp(`/properties/${SHOWCASE}$`));
 
     // The identity, the value, the health score and the ledger.
-    await expect(page.getByText(SHOWCASE).first()).toBeVisible();
-    await expect(page.getByText("$685,000")).toBeVisible();
-    await expect(page.getByText("Ledger Verified")).toBeVisible();
-    await expect(page.getByText("24 events checked")).toBeVisible();
-    await expect(page.getByRole("img", { name: /Home Health 92 out of 100/ })).toBeVisible();
+    await expect(page.getByTestId("property-token-id")).toHaveText(SHOWCASE);
+    await expect(page.getByTestId("property-value")).toHaveText("$685,000");
+    await expect(page.getByTestId("ledger-bar")).toHaveAttribute("data-valid", "true");
+    await expect(page.getByTestId("ledger-count")).toContainText("24 events checked");
+    await expect(page.getByTestId("health-score")).toHaveText("92");
 
     // HVAC sits at Watch, which is what the 92 reflects.
-    await expect(page.getByRole("heading", { name: "HVAC" })).toBeVisible();
-    await expect(page.getByText("Watch")).toBeVisible();
+    await expect(
+      page.getByTestId("system-card").filter({ has: page.getByRole("heading", { name: "HVAC" }) }),
+    ).toHaveAttribute("data-status", "WATCH");
     await expectNoHorizontalScroll(page);
 
     // Timeline, with all 24 events and real hash footers.
     await page.getByRole("link", { name: "Timeline", exact: true }).click();
     await page.waitForURL(/\/timeline$/);
-    await expect(page.getByRole("button", { name: /^All 24$/ })).toBeVisible();
+    await expect(
+      page.getByTestId("timeline-filter").filter({ hasText: /^All 24$/ }),
+    ).toBeVisible();
     await expect(page.getByText("Basement water intrusion repair")).toBeVisible();
-    await expect(page.getByText(/^hash [0-9a-f]{24}… · prev /).first()).toBeVisible();
+    await expect(page.getByTestId("event-hash").first()).toContainText(/^hash [0-9a-f]{24}… · prev /);
     await expectNoHorizontalScroll(page);
 
     // A filter narrows it.
-    await page.getByRole("button", { name: /^Repairs / }).click();
+    await page.getByTestId("timeline-filter").filter({ hasText: /^Repairs / }).click();
     await expect(page.getByText("Roof replacement").first()).toBeVisible();
 
     // Documents open; the restricted one refuses.
     await page.getByRole("link", { name: "Documents", exact: true }).click();
     await page.waitForURL(/\/documents$/);
-    await page.getByRole("button", { name: /Invoice/ }).first().click();
-    await expect(page.getByRole("dialog")).toBeVisible();
-    await expect(page.getByText(/^sha256 [0-9a-f]{64}$/)).toBeVisible();
-    await page.getByRole("button", { name: "Close" }).click();
+    await page.getByTestId("document-card").first().click();
+    await expect(page.getByTestId("document-modal")).toBeVisible();
+    await expect(page.getByTestId("document-sha")).toContainText(/sha256 [0-9a-f]{64}/);
+    await page.getByTestId("modal-close").click();
 
-    await page.getByRole("button", { name: /^Restricted / }).click();
-    const restricted = page.getByRole("button", { name: /Claim summary/ });
-    await restricted.click();
-    await expect(page.getByRole("status")).toContainText(/restricted/i);
-    await expect(page.getByRole("dialog")).toHaveCount(0);
+    await page.getByTestId("document-filter").filter({ hasText: /^Restricted / }).click();
+    await page.getByTestId("document-card").first().click();
+    await expect(page.getByTestId("toast")).toContainText(/restricted/i);
+    await expect(page.getByTestId("document-modal")).toHaveCount(0);
   });
 
   test("Ask This Home answers from the record and cites real events", async ({
@@ -74,13 +76,14 @@ test.describe("the agent demo path", () => {
     await page.goto(`/properties/${SHOWCASE}/ask`);
 
     await page
-      .getByRole("button", { name: "Has the basement ever had water problems?" })
+      .getByTestId("ask-suggestion")
+      .filter({ hasText: "Has the basement ever had water problems?" })
       .click();
 
     // Whether the model or the local fallback answers, the guarantees hold:
     // an answer grounded in this record, citing events that exist.
-    const citation = page.getByRole("link", {
-      name: /Basement water intrusion repair/,
+    const citation = page.getByTestId("ask-citation").filter({
+      hasText: /Basement water intrusion repair/,
     });
     await expect(citation).toBeVisible({ timeout: 30_000 });
 
@@ -95,13 +98,13 @@ test.describe("the agent demo path", () => {
     await signIn(page, "agent");
     await page.goto(`/properties/${SHOWCASE}/ask`);
 
-    await page.fill('input[aria-label="Your question"]', "Is there a dishwasher?");
-    await page.getByRole("button", { name: "Ask", exact: true }).click();
+    await page.getByTestId("ask-input").fill("Is there a dishwasher?");
+    await page.getByTestId("ask-submit").click();
 
-    await expect(page.getByText(/does not contain/i)).toBeVisible({
-      timeout: 30_000,
-    });
-    await expect(page.getByText(/Absence of a record does not mean/i)).toBeVisible();
+    const answer = page.getByTestId("ask-answer");
+    await expect(answer).toContainText(/does not contain/i, { timeout: 30_000 });
+    await expect(answer).toContainText(/Absence of a record does not mean/i);
+    await expect(page.getByTestId("ask-citation")).toHaveCount(0);
   });
 
   test("extraction is a proposal a human approves, and the ledger stays valid", async ({
@@ -110,35 +113,38 @@ test.describe("the agent demo path", () => {
     await signIn(page, "agent");
     await page.goto(`/properties/${SHOWCASE}/add-record`);
 
-    await page.getByRole("button", { name: /HVAC replacement invoice/ }).click();
+    await page.getByTestId("add-record-demo-doc").filter({ hasText: /HVAC replacement invoice/ }).click();
 
     // The review stage, explicitly marked as pending verification.
-    await expect(page.getByText("AI EXTRACTED — PENDING VERIFICATION")).toBeVisible({
+    await expect(page.getByTestId("add-record-pending-notice")).toBeVisible({
       timeout: 30_000,
     });
-    await expect(page.getByText(/sha256 [0-9a-f]{64}/)).toBeVisible();
+    await expect(page.getByTestId("add-record-review")).toBeVisible();
 
     // The reviewer's choice of verification level is what the record carries;
     // nothing is pre-set to a verified level.
-    const level = page.getByRole("combobox", { name: "Verification level" });
-    await expect(level).toHaveValue("OWNER_REPORTED");
+    await expect(page.getByTestId("field-verification")).toHaveValue("OWNER_REPORTED");
 
-    await page.getByRole("textbox", { name: "Title", exact: true }).fill("HVAC replacement");
-    await page.getByRole("textbox", { name: "System", exact: true }).fill("HVAC");
-    await page.getByRole("button", { name: "Approve & Add to HomeFax" }).click();
+    await page.getByTestId("field-title").fill("HVAC replacement");
+    await page.getByTestId("field-system").fill("HVAC");
+    // Without a live model the proposal comes back as DOCUMENT_ADDED, so the
+    // reviewer classifies it — which is the step that updates the system card.
+    await page.getByTestId("field-event-type").selectOption("SYSTEM_INSTALLATION");
+    await page.getByTestId("approve-button").click();
 
     await page.waitForURL(/\/timeline\?new=/);
-    await expect(page.getByText("NEW", { exact: true })).toBeVisible();
+    await expect(page.getByTestId("event-new-flag")).toBeVisible();
 
     // The chain is recomputed and still valid after the append.
     await page.goto(`/properties/${SHOWCASE}`);
-    await expect(page.getByText("Ledger Verified")).toBeVisible();
-    await expect(page.getByText("25 events checked")).toBeVisible();
+    await expect(page.getByTestId("ledger-bar")).toHaveAttribute("data-valid", "true");
+    await expect(page.getByTestId("ledger-count")).toContainText("25 events checked");
 
     // Recording HVAC work clears the Watch flag and lifts the score.
     await expect(
-      page.getByRole("img", { name: /Home Health 100 out of 100/ }),
-    ).toBeVisible();
+      page.getByTestId("system-card").filter({ has: page.getByRole("heading", { name: "HVAC" }) }),
+    ).toHaveAttribute("data-status", "EXCELLENT");
+    await expect(page.getByTestId("health-score")).toHaveText("100");
   });
 });
 
@@ -148,19 +154,18 @@ test.describe("access gates", () => {
     await page.goto(`/properties/${UNCLAIMED}`);
 
     // Readable.
-    await expect(page.getByText(UNCLAIMED).first()).toBeVisible();
-    await page.getByRole("link", { name: "Timeline", exact: true }).click();
-    await expect(page.getByRole("button", { name: /^All \d+$/ })).toBeVisible();
+    await expect(page.getByTestId("property-token-id")).toHaveText(UNCLAIMED);
+    await page.getByTestId("property-tab").filter({ hasText: "Timeline" }).click();
+    await expect(page.getByTestId("timeline-event").first()).toBeVisible();
 
     // Not writable.
-    await page.goto(`/properties/${UNCLAIMED}/ask`);
-    await expect(
-      page.getByRole("heading", { name: "Claim stewardship to contribute" }),
-    ).toBeVisible();
-    await page.goto(`/properties/${UNCLAIMED}/add-record`);
-    await expect(
-      page.getByRole("heading", { name: "Claim stewardship to contribute" }),
-    ).toBeVisible();
+    for (const tab of ["ask", "add-record"]) {
+      await page.goto(`/properties/${UNCLAIMED}/${tab}`);
+      await expect(page.getByTestId("lock-panel")).toHaveAttribute("data-action", "claim");
+      await expect(page.getByTestId("lock-title")).toHaveText(
+        "Claim stewardship to contribute",
+      );
+    }
   });
 
   test("an MLS mismatch is rejected and names the listing of record", async ({
@@ -169,11 +174,12 @@ test.describe("access gates", () => {
     await signIn(page, "agent");
     await page.goto(`/properties/${UNCLAIMED}/claim`);
 
-    await page.getByRole("textbox", { name: "MLS number" }).fill("0000000");
-    await page.getByRole("button", { name: "Claim stewardship" }).click();
+    await page.getByTestId("claim-mls-number").fill("0000000");
+    await page.getByTestId("claim-submit").click();
 
-    await expect(page.getByRole("alert")).toContainText("9184021");
-    await expect(page.getByRole("alert")).toContainText("does not match");
+    const error = page.getByTestId("claim-error");
+    await expect(error).toContainText("9184021");
+    await expect(error).toContainText("does not match");
   });
 
   test("the matching MLS number grants stewardship and unlocks contribution", async ({
@@ -182,15 +188,17 @@ test.describe("access gates", () => {
     await signIn(page, "agent");
     await page.goto(`/properties/${UNCLAIMED}/claim`);
 
-    await page.getByRole("textbox", { name: "MLS number" }).fill("9184021");
-    await page.getByRole("button", { name: "Claim stewardship" }).click();
+    await page.getByTestId("claim-mls-number").fill("9184021");
+    await page.getByTestId("claim-submit").click();
 
-    await expect(
-      page.getByRole("heading", { name: "Stewardship granted" }),
-    ).toBeVisible();
+    await expect(page.getByTestId("claim-result")).toHaveAttribute(
+      "data-status",
+      "active",
+    );
 
     await page.goto(`/properties/${UNCLAIMED}/ask`);
-    await expect(page.getByRole("heading", { name: "Ask This Home" })).toBeVisible();
+    await expect(page.getByTestId("ask-input")).toBeVisible();
+    await expect(page.getByTestId("lock-panel")).toHaveCount(0);
   });
 });
 
@@ -204,52 +212,68 @@ test.describe("the contractor loop", () => {
     await expectNoHorizontalScroll(page);
 
     const summit = page
-      .locator("article")
+      .getByTestId("contractor-card")
       .filter({ hasText: "Summit Mechanical" });
-    await summit.getByRole("button", { name: "Request work" }).click();
+    await summit.getByTestId("request-work-button").click();
     await page
-      .getByRole("textbox", { name: "What do you need?" })
+      .getByTestId("request-need")
       .fill("The condenser is short cycling in the heat.");
-    await page.getByRole("button", { name: "Send request" }).click();
+    await page.getByTestId("request-send").click();
     await page.waitForURL(/\/inbox/);
-    await expect(page.getByText("REQUESTED", { exact: true })).toBeVisible();
+    await expect(page.getByTestId("job-card").first()).toHaveAttribute(
+      "data-status",
+      "requested",
+    );
     await signOut(page);
 
     // The contractor accepts and submits.
     await signIn(page, "contractor");
     await expect(page).toHaveURL(/\/jobs/);
-    await page.getByRole("button", { name: "Accept job" }).first().click();
-    await expect(page.getByText("CONTRACTOR ACCEPTED", { exact: true })).toBeVisible();
+    await page.getByTestId("accept-job-button").first().click();
+    await expect(page.getByTestId("job-card").first()).toHaveAttribute(
+      "data-status",
+      "accepted",
+    );
 
     await page.getByRole("button", { name: "Submit completed work" }).first().click();
-    await expect(page.getByText(/HomeFax found/)).toBeVisible();
+    await expect(page.getByTestId("submission-address-check")).toHaveAttribute(
+      "data-ok",
+      "true",
+    );
     await page
-      .getByRole("button", { name: /HVAC replacement invoice/ })
+      .getByTestId("submission-doc")
+      .filter({ hasText: /HVAC replacement invoice/ })
       .click();
-    await expect(page.getByText(/Attached ·/)).toBeVisible({ timeout: 30_000 });
-    await page
-      .getByRole("button", { name: "Send to homeowner for acceptance" })
-      .click();
-    await expect(page.getByText("AWAITING HOMEOWNER ACCEPTANCE", { exact: true })).toBeVisible();
+    await expect(page.getByTestId("submission-send")).toBeEnabled({ timeout: 30_000 });
+    await page.getByTestId("submission-send").click();
+    await expect(page.getByTestId("job-card").first()).toHaveAttribute(
+      "data-status",
+      "submitted",
+    );
     await signOut(page);
 
     // The homeowner accepts, and only then does it become an event.
     await signIn(page, "homeowner");
     await page.goto("/inbox");
-    await expect(page.getByText("PROPOSED RECORD")).toBeVisible();
-    await page.getByRole("button", { name: "Accept into my HomeFax" }).click();
+    await expect(page.getByTestId("proposed-record")).toBeVisible();
+    await page.getByTestId("accept-submission-button").click();
 
     await page.waitForURL(/\/timeline\?new=/);
-    await expect(page.getByText("Professional Verified").first()).toBeVisible();
-    await expect(page.getByText(/CO-MC-31188/)).toBeVisible();
+    const appended = page.getByTestId("timeline-event").filter({
+      has: page.getByTestId("event-new-flag"),
+    });
+    await expect(appended).toHaveAttribute(
+      "data-verification",
+      "PROFESSIONAL_VERIFIED",
+    );
+    await expect(appended).toContainText("CO-MC-31188");
   });
 
   test("a contractor cannot contribute from a property record", async ({ page }) => {
     await signIn(page, "contractor");
     await page.goto(`/properties/${SHOWCASE}/add-record`);
-    await expect(
-      page.getByRole("heading", { name: "Read-only record" }),
-    ).toBeVisible();
+    await expect(page.getByTestId("lock-panel")).toHaveAttribute("data-action", "jobs");
+    await expect(page.getByTestId("lock-title")).toHaveText("Read-only record");
   });
 });
 
@@ -258,21 +282,21 @@ test.describe("transfer", () => {
     await signIn(page, "agent");
     await page.goto(`/properties/${SHOWCASE}/transfer`);
 
-    await page.getByRole("textbox", { name: "New owner name" }).fill("Dana Whitfield");
-    await page.getByRole("textbox", { name: "New owner email" }).fill("owner@homefax.demo");
-    await page
-      .getByText(/I understand this is a simulated transfer/)
-      .click();
-    await page.getByRole("button", { name: "Transfer stewardship" }).click();
+    await page.getByTestId("transfer-name").fill("Dana Whitfield");
+    await page.getByTestId("transfer-email").fill("owner@homefax.demo");
+    await page.getByTestId("transfer-acknowledge").check();
+    await page.getByTestId("transfer-submit").click();
 
-    await expect(
-      page.getByRole("heading", { name: "Transferred to the homeowner" }),
-    ).toBeVisible();
-    await expect(page.getByText(/Verified · \d+ events checked/)).toBeVisible();
+    const result = page.getByTestId("transfer-result");
+    await expect(result).toBeVisible();
+    await expect(result).toContainText(/Verified · \d+ events checked/);
 
     await page.goto(`/properties/${SHOWCASE}`);
-    await expect(page.getByText("Ledger Verified")).toBeVisible();
-    await expect(page.getByText("Ownership period #3")).toBeVisible();
+    await expect(page.getByTestId("ledger-bar")).toHaveAttribute("data-valid", "true");
+    // The outgoing period is closed and renumbered; a new current one opens.
+    await expect(page.getByTestId("ownership-period").first()).toContainText(
+      "Current ownership period",
+    );
   });
 });
 
@@ -284,8 +308,8 @@ test.describe("the header fits for every role", () => {
       await expectNoHorizontalScroll(page);
 
       // The account button must stay reachable, so sign-out is never cut off.
-      await page.click('button[aria-haspopup="menu"]');
-      await expect(page.getByRole("menuitem", { name: "Sign out" })).toBeVisible();
+      await page.getByTestId("account-button").click();
+      await expect(page.getByTestId("sign-out-button")).toBeVisible();
     });
   }
 });

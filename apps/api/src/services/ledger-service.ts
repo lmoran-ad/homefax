@@ -2,8 +2,8 @@ import type { LedgerState } from "@homefax/contracts";
 import { propertyEvents, type Database } from "@homefax/db";
 import { buildChain, verifyLedger, type ChainableEvent } from "@homefax/ledger";
 import { asc, eq } from "drizzle-orm";
-import type { AppContext } from "../lib/context.js";
-import { nowLabel } from "../lib/format.js";
+import type { AppContext } from "../lib/context";
+import { nowLabel } from "../lib/format";
 
 type EventRow = typeof propertyEvents.$inferSelect;
 

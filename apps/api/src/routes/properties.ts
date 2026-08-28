@@ -17,15 +17,15 @@ import {
 import { and, eq } from "drizzle-orm";
 import type { FastifyInstance } from "fastify";
 import { z } from "zod";
-import type { AppContext } from "../lib/context.js";
-import { badRequest, forbidden, paymentRequired } from "../lib/errors.js";
-import { formatDate, formatMoney, today } from "../lib/format.js";
+import type { AppContext } from "../lib/context";
+import { badRequest, forbidden, paymentRequired } from "../lib/errors";
+import { formatDate, formatMoney, today } from "../lib/format";
 import {
   askQuota,
   askUsed,
   consumeAskQuestion,
   PAYWALLS,
-} from "../services/billing-service.js";
+} from "../services/billing-service";
 import {
   claimStateFor,
   contributeState,
@@ -38,16 +38,16 @@ import {
   submitOwnerClaim,
   toClaim,
   toHomeClaim,
-} from "../services/claim-service.js";
+} from "../services/claim-service";
 import {
   AgentClaimRequestSchema,
   OwnerClaimRequestSchema,
 } from "@homefax/contracts";
-import { readDocumentBody } from "../services/document-service.js";
-import { appendEvent } from "../services/event-service.js";
-import { extract, markApproved } from "../services/extraction-service.js";
-import { verifyPropertyLedger } from "../services/ledger-service.js";
-import { answerQuestion } from "../services/ask-home-service.js";
+import { readDocumentBody } from "../services/document-service";
+import { appendEvent } from "../services/event-service";
+import { extract, markApproved } from "../services/extraction-service";
+import { recomputeChain, verifyPropertyLedger } from "../services/ledger-service";
+import { answerQuestion } from "../services/ask-home-service";
 import {
   findByAddress,
   findPropertyRow,
@@ -57,8 +57,8 @@ import {
   searchProperties,
   toSummary,
   type Viewer,
-} from "../services/property-service.js";
-import { transferToOwner } from "../services/transfer-service.js";
+} from "../services/property-service";
+import { transferToOwner } from "../services/transfer-service";
 
 const TokenParams = z.object({ tokenId: z.string().min(3) });
 
@@ -185,7 +185,6 @@ export function registerPropertyRoutes(
     });
 
     await ctx.db.transaction(async (tx) => {
-      const { recomputeChain } = await import("../services/ledger-service.js");
       await recomputeChain(tx, row.id);
     });
     await refreshHealthScore(ctx, row.id);

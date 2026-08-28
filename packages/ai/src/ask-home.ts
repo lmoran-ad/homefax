@@ -1,6 +1,6 @@
 import { HomeAnswerSchema, type HomeAnswer } from "@homefax/contracts";
-import { complete, extractJson, type AiConfig } from "./client.js";
-import { ASK_HOME_SYSTEM_PROMPT } from "./prompts.js";
+import { complete, extractJson, type AiConfig } from "./client";
+import { ASK_HOME_SYSTEM_PROMPT } from "./prompts";
 
 export type AskInput = {
   /** The compact record context. Only this property's data may be in here. */

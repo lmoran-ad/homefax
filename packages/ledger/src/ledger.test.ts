@@ -9,7 +9,7 @@ import {
   verifyLedger,
   type ChainableEvent,
   type StoredLedgerEvent,
-} from "./index.js";
+} from "./index";
 
 const event = (
   id: string,

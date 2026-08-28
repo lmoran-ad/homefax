@@ -9,9 +9,9 @@ import type {
 } from "@homefax/contracts";
 import { profiles, type ProfileRow } from "@homefax/db";
 import { eq } from "drizzle-orm";
-import type { AppContext } from "../lib/context.js";
-import { PLAN_NAMES, PLAN_PRICES } from "./auth-service.js";
-import { addDays, formatDate, today } from "../lib/format.js";
+import type { AppContext } from "../lib/context";
+import { PLAN_NAMES, PLAN_PRICES } from "./auth-service";
+import { addDays, formatDate, today } from "../lib/format";
 
 /** Free-tier Ask This Home allowance. Paid plans are uncapped. */
 export const FREE_ASK_QUOTA = 3;

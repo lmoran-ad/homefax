@@ -11,8 +11,8 @@ import {
   type ContractorRow,
 } from "@homefax/db";
 import { asc, eq, ilike, or, sql } from "drizzle-orm";
-import type { AppContext } from "../lib/context.js";
-import { notFound } from "../lib/errors.js";
+import type { AppContext } from "../lib/context";
+import { notFound } from "../lib/errors";
 
 export function toContractor(row: ContractorRow): Contractor {
   return {

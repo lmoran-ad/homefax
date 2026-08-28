@@ -10,8 +10,8 @@ import {
   uniqueIndex,
   uuid,
 } from "drizzle-orm/pg-core";
-import { properties } from "./properties.js";
-import { propertyEvents } from "./property-events.js";
+import { properties } from "./properties";
+import { propertyEvents } from "./property-events";
 
 export const propertySystems = pgTable(
   "property_systems",

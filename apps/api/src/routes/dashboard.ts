@@ -1,13 +1,13 @@
 import type { FastifyInstance } from "fastify";
-import type { AppContext } from "../lib/context.js";
-import { forbidden } from "../lib/errors.js";
+import type { AppContext } from "../lib/context";
+import { forbidden } from "../lib/errors";
 import {
   listAgentBook,
   listOwnerHomes,
-} from "../services/claim-service.js";
-import { eventCounts, searchProperties, toSummary } from "../services/property-service.js";
-import { jobStats, listJobsForContractor } from "../services/job-service.js";
-import { findContractorRow } from "../services/contractor-service.js";
+} from "../services/claim-service";
+import { eventCounts, searchProperties, toSummary } from "../services/property-service";
+import { jobStats, listJobsForContractor } from "../services/job-service";
+import { findContractorRow } from "../services/contractor-service";
 
 export function registerDashboardRoutes(
   app: FastifyInstance,

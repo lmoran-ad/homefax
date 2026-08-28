@@ -1,9 +1,9 @@
-import { fixtureProperties } from "@homefax/db/fixtures";
+import { fixtureProperties } from "@homefax/fixtures";
 import type {
   ParcelProvider,
   ParcelRecord,
   ProvisionedParcel,
-} from "../contracts/types.js";
+} from "../contracts/types";
 
 const toRecord = (p: (typeof fixtureProperties)[number]): ParcelRecord => ({
   tokenId: p.tokenId,

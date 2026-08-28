@@ -13,11 +13,11 @@ import {
   type PropertyRow,
 } from "@homefax/db";
 import { and, eq, sql } from "drizzle-orm";
-import type { AppContext } from "../lib/context.js";
-import { badRequest } from "../lib/errors.js";
-import { formatDate, formatMoney } from "../lib/format.js";
-import { recomputeChain } from "./ledger-service.js";
-import { refreshHealthScore } from "./property-service.js";
+import type { AppContext } from "../lib/context";
+import { badRequest } from "../lib/errors";
+import { formatDate, formatMoney } from "../lib/format";
+import { recomputeChain } from "./ledger-service";
+import { refreshHealthScore } from "./property-service";
 
 /**
  * Maps a free-text system name onto a tracked system key. Contractors and

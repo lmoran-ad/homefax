@@ -14,15 +14,19 @@ export async function signIn(
   role: keyof typeof ACCOUNTS,
 ): Promise<void> {
   await page.goto("/login");
-  await page.fill('input[type="email"]', ACCOUNTS[role]);
-  await page.fill('input[type="password"]', "demo-password");
-  await page.click('button[type="submit"]');
+  await page.getByTestId("login-email").fill(ACCOUNTS[role]);
+  await page.getByTestId("login-password").fill("demo-password");
+  await page.getByTestId("login-submit").click();
   await page.waitForURL((url) => !url.pathname.startsWith("/login"));
+
+  // The URL changes before the landing page has rendered. Waiting for the app
+  // shell means the next step is acting on the signed-in page.
+  await page.getByTestId("account-button").waitFor({ state: "visible" });
 }
 
 export async function signOut(page: Page): Promise<void> {
-  await page.click('button[aria-haspopup="menu"]');
-  await page.getByRole("menuitem", { name: "Sign out" }).click();
+  await page.getByTestId("account-button").click();
+  await page.getByTestId("sign-out-button").click();
   await page.waitForURL(/\/login/);
 }
 

@@ -1,109 +1,61 @@
 import { NextResponse, type NextRequest } from "next/server";
+import { dispatch } from "@/lib/dispatch";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
 /**
- * Serves the API.
+ * The browser's entry point to the API.
  *
- * Two modes, one route:
- *
- *  - `API_BASE_URL` set → proxy to the standalone Fastify service. This is the
- *    local development setup, where `pnpm dev` runs web and api separately.
- *  - unset → run the Fastify app in-process and dispatch through
- *    `app.inject()`. Vercel has nowhere to run a long-lived server, and this
- *    keeps every route, plugin, schema and error handler exactly as written
- *    rather than reimplementing them as Next handlers. `inject` is Fastify's
- *    own request dispatcher; no socket is involved.
- *
- * Either way the browser only ever talks to its own origin, so the session
- * cookie needs no CORS or SameSite negotiation.
+ * Everything the client does goes through this same-origin route, so the
+ * session cookie rides along with no CORS or SameSite negotiation and the API
+ * never needs to be reachable from a browser. Where the request actually goes
+ * — a separate Fastify service, or Fastify running in-process — is decided by
+ * `dispatch`.
  */
-const API_BASE = process.env.API_BASE_URL;
 
-type FastifyLike = {
-  ready: () => Promise<unknown>;
-  inject: (options: {
-    method: string;
-    url: string;
-    headers: Record<string, string>;
-    payload?: string;
-  }) => Promise<{
-    statusCode: number;
-    headers: Record<string, unknown>;
-    body: string;
-  }>;
-};
-
-// Cached across invocations so a warm lambda does not rebuild the app or
-// reopen the connection pool on every request.
-let appPromise: Promise<FastifyLike> | null = null;
-
-async function getApp(): Promise<FastifyLike> {
-  appPromise ??= (async () => {
-    const { buildApp } = await import("@homefax/api/app");
-    const app = (await buildApp()) as unknown as FastifyLike;
-    await app.ready();
-    return app;
-  })();
-  return appPromise;
-}
+/**
+ * An allowlist rather than a blind copy: forwarding every inbound header would
+ * pass along hop-by-hop headers and whatever else a client chose to send, and
+ * the API only ever reads these.
+ */
+const FORWARDED_HEADERS = ["cookie", "content-type", "x-seed-secret"] as const;
 
 function passthroughHeaders(request: NextRequest): Record<string, string> {
   const headers: Record<string, string> = {};
-  const cookie = request.headers.get("cookie");
-  if (cookie) headers.cookie = cookie;
-  const contentType = request.headers.get("content-type");
-  if (contentType) headers["content-type"] = contentType;
+  for (const name of FORWARDED_HEADERS) {
+    const value = request.headers.get(name);
+    if (value) headers[name] = value;
+  }
   return headers;
 }
 
-function applySetCookie(response: NextResponse, value: unknown): void {
-  if (!value) return;
-  for (const cookie of Array.isArray(value) ? value : [value]) {
-    response.headers.append("set-cookie", String(cookie));
-  }
-}
-
 async function handle(request: NextRequest, path: string[]): Promise<Response> {
-  const suffix = `/api/${path.join("/")}${request.nextUrl.search}`;
-  const hasBody = request.method !== "GET" && request.method !== "HEAD";
-  const body = hasBody ? await request.text() : undefined;
+  const canHaveBody = request.method !== "GET" && request.method !== "HEAD";
+  const text = canHaveBody ? await request.text() : "";
 
-  if (API_BASE) {
-    const upstream = await fetch(`${API_BASE}${suffix}`, {
-      method: request.method,
-      headers: passthroughHeaders(request),
-      body,
-      redirect: "manual",
-    });
-    const response = new NextResponse(await upstream.text(), {
-      status: upstream.status,
-      headers: {
-        "content-type": upstream.headers.get("content-type") ?? "application/json",
-      },
-    });
-    for (const cookie of upstream.headers.getSetCookie()) {
-      response.headers.append("set-cookie", cookie);
-    }
-    return response;
-  }
+  // An empty string is not a body. Plenty of the API's POSTs take no payload
+  // at all — accept a job, sign out — and the browser still announces a JSON
+  // content type with them. Forwarding "" alongside that header makes the JSON
+  // parser reject a request that was perfectly well formed, so the content
+  // type goes with the body it was describing.
+  const headers = passthroughHeaders(request);
+  if (text === "") delete headers["content-type"];
 
-  const app = await getApp();
-  const injected = await app.inject({
+  const result = await dispatch({
     method: request.method,
-    url: suffix,
-    headers: passthroughHeaders(request),
-    ...(body === undefined ? {} : { payload: body }),
+    path: `/${path.join("/")}${request.nextUrl.search}`,
+    headers,
+    body: text === "" ? undefined : text,
   });
 
-  const response = new NextResponse(injected.body, {
-    status: injected.statusCode,
-    headers: {
-      "content-type": String(injected.headers["content-type"] ?? "application/json"),
-    },
+  const response = new NextResponse(result.body, {
+    status: result.status,
+    headers: { "content-type": result.contentType },
   });
-  applySetCookie(response, injected.headers["set-cookie"]);
+  for (const cookie of result.setCookie) {
+    response.headers.append("set-cookie", cookie);
+  }
   return response;
 }
 

@@ -15,13 +15,13 @@ import {
   type PropertyRow,
 } from "@homefax/db";
 import { desc, eq, sql } from "drizzle-orm";
-import type { AppContext } from "../lib/context.js";
-import { badRequest, forbidden, notFound } from "../lib/errors.js";
-import { today } from "../lib/format.js";
-import type { SessionUserRecord } from "./auth-service.js";
-import { appendEvent } from "./event-service.js";
-import { findByAddress } from "./property-service.js";
-import { markApproved } from "./extraction-service.js";
+import type { AppContext } from "../lib/context";
+import { badRequest, forbidden, notFound } from "../lib/errors";
+import { today } from "../lib/format";
+import type { SessionUserRecord } from "./auth-service";
+import { appendEvent } from "./event-service";
+import { findByAddress } from "./property-service";
+import { markApproved } from "./extraction-service";
 
 function toJob(row: JobRow, property: PropertyRow, contractor: ContractorRow): Job {
   return {

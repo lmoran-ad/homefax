@@ -11,17 +11,17 @@ import {
   type DemoAccount,
   type Role,
 } from "@homefax/contracts";
-import { fixtureAccounts } from "@homefax/db/fixtures";
+import { fixtureAccounts } from "@homefax/fixtures";
 import type { FastifyInstance } from "fastify";
-import type { AppContext } from "../lib/context.js";
-import { unauthorized } from "../lib/errors.js";
+import type { AppContext } from "../lib/context";
+import { unauthorized } from "../lib/errors";
 import {
   authenticate,
   changePassword,
   toSessionUser,
   updateProfile,
-} from "../services/auth-service.js";
-import { subscriptionFor } from "../services/billing-service.js";
+} from "../services/auth-service";
+import { subscriptionFor } from "../services/billing-service";
 
 const demoAccounts: DemoAccount[] = fixtureAccounts.map((a) => ({
   name: a.name,

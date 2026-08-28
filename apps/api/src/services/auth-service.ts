@@ -2,8 +2,8 @@ import type { Plan, Role, SessionUser } from "@homefax/contracts";
 import { hashPassword, verifyPassword } from "@homefax/auth";
 import { profiles, type ProfileRow } from "@homefax/db";
 import { eq, sql } from "drizzle-orm";
-import type { AppContext } from "../lib/context.js";
-import { badRequest, unauthorized } from "../lib/errors.js";
+import type { AppContext } from "../lib/context";
+import { badRequest, unauthorized } from "../lib/errors";
 
 export type SessionUserRecord = ProfileRow;
 

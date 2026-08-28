@@ -1,4 +1,4 @@
-import { buildChain, type ChainableEvent } from "./hash.js";
+import { buildChain, type ChainableEvent } from "./hash";
 
 /** An event as stored, carrying the hashes recorded when it was appended. */
 export type StoredLedgerEvent = ChainableEvent & {

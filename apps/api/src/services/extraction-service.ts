@@ -6,11 +6,11 @@ import {
 } from "@homefax/ai";
 import type { ExtractionResponse } from "@homefax/contracts";
 import { aiExtractionJobs, type PropertyRow } from "@homefax/db";
-import { allDemoDocuments } from "@homefax/db/fixtures";
+import { allDemoDocuments } from "@homefax/fixtures";
 import { eq } from "drizzle-orm";
-import type { AppContext } from "../lib/context.js";
-import { badRequest } from "../lib/errors.js";
-import { storeDocument } from "./document-service.js";
+import type { AppContext } from "../lib/context";
+import { badRequest } from "../lib/errors";
+import { storeDocument } from "./document-service";
 
 export function findDemoDocument(key: string) {
   return allDemoDocuments.find((d) => d.key === key) ?? null;

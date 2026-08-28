@@ -1,10 +1,9 @@
-import { FixtureDeedProvider } from "./fixture/deed-provider.js";
-import { FixtureLicenseProvider } from "./fixture/license-provider.js";
-import { FixtureMlsProvider } from "./fixture/mls-provider.js";
-import { FixtureParcelProvider } from "./fixture/parcel-provider.js";
-import { FixturePermitProvider } from "./fixture/permit-provider.js";
-import { DatabaseStorageProvider } from "./storage/database-storage-provider.js";
-import { LocalStorageProvider } from "./storage/local-storage-provider.js";
+import { FixtureDeedProvider } from "./fixture/deed-provider";
+import { FixtureLicenseProvider } from "./fixture/license-provider";
+import { FixtureMlsProvider } from "./fixture/mls-provider";
+import { FixtureParcelProvider } from "./fixture/parcel-provider";
+import { FixturePermitProvider } from "./fixture/permit-provider";
+import { LocalStorageProvider } from "./storage/local-storage-provider";
 import type {
   DeedProvider,
   LicenseProvider,
@@ -12,10 +11,10 @@ import type {
   ParcelProvider,
   PermitProvider,
   StorageProvider,
-} from "./contracts/types.js";
+} from "./contracts/types";
 
-export * from "./contracts/types.js";
-export { LocalStorageProvider, DatabaseStorageProvider };
+export * from "./contracts/types";
+export { LocalStorageProvider };
 
 /**
  * Factories are the only supported way to obtain a provider. UI and domain
@@ -56,20 +55,23 @@ export function getLicenseProvider(): LicenseProvider {
 }
 
 /**
- * `STORAGE_DRIVER=database` puts document bytes in PostgreSQL, which is what a
- * serverless deployment needs: there is no durable local disk there, so a file
- * written by one invocation is not present for the next. Local development
- * keeps the filesystem driver.
+ * The filesystem store, unless something has installed another one.
+ *
+ * The database-backed store lives in `@homefax/db` — it needs the connection
+ * and the schema, and reaching for those from here would make the two packages
+ * depend on each other. `installStorageProvider` there picks the driver and
+ * registers it before anything asks for one.
  */
 export function getStorageProvider(rootPath?: string): StorageProvider {
-  if (storage) return storage;
-  storage =
-    process.env.STORAGE_DRIVER === "database"
-      ? new DatabaseStorageProvider()
-      : new LocalStorageProvider(
-          rootPath ?? process.env.LOCAL_STORAGE_PATH ?? "./storage/demo-uploads",
-        );
+  storage ??= new LocalStorageProvider(
+    rootPath ?? process.env.LOCAL_STORAGE_PATH ?? "./storage/demo-uploads",
+  );
   return storage;
+}
+
+/** Whether a store has already been chosen, so installing one cannot clobber it. */
+export function hasStorageProvider(): boolean {
+  return storage !== null;
 }
 
 /** Test seam: swap any provider for a double. */

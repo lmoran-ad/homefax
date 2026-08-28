@@ -21,10 +21,10 @@ import {
   type PropertyRow,
 } from "@homefax/db";
 import { and, desc, eq, sql } from "drizzle-orm";
-import type { AppContext } from "../lib/context.js";
-import { claimRejected, forbidden } from "../lib/errors.js";
-import { addDays, daysUntil, formatDate, isPast, today } from "../lib/format.js";
-import type { SessionUserRecord } from "./auth-service.js";
+import type { AppContext } from "../lib/context";
+import { claimRejected, forbidden } from "../lib/errors";
+import { addDays, daysUntil, formatDate, isPast, today } from "../lib/format";
+import type { SessionUserRecord } from "./auth-service";
 
 const AGENT_CLAIM_DAYS = { mls: 90, seller: 90, title: 30 } as const;
 

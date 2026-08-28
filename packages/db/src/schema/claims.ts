@@ -8,8 +8,8 @@ import {
   uniqueIndex,
   uuid,
 } from "drizzle-orm/pg-core";
-import { profiles } from "./profiles.js";
-import { properties } from "./properties.js";
+import { profiles } from "./profiles";
+import { properties } from "./properties";
 
 /**
  * Agent stewardship. Time-boxed and non-exclusive by design: a claim expires

@@ -7,10 +7,10 @@ import {
   timestamp,
   uuid,
 } from "drizzle-orm/pg-core";
-import { profiles } from "./profiles.js";
-import { properties } from "./properties.js";
-import { propertyDocuments } from "./property-documents.js";
-import { propertyEvents } from "./property-events.js";
+import { profiles } from "./profiles";
+import { properties } from "./properties";
+import { propertyDocuments } from "./property-documents";
+import { propertyEvents } from "./property-events";
 
 /**
  * An extraction is a proposal and nothing more. It reaches APPROVED only when

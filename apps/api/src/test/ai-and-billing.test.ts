@@ -8,7 +8,7 @@ import {
   SHOWCASE,
   signIn,
   type Harness,
-} from "./harness.js";
+} from "./harness";
 
 let harness: Harness;
 let app: FastifyInstance;

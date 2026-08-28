@@ -4,11 +4,11 @@ import {
   SubmitWorkSchema,
   UpdateContractorProfileSchema,
 } from "@homefax/contracts";
-import { contractorDocumentsForTrade } from "@homefax/db/fixtures";
+import { contractorDocumentsForTrade } from "@homefax/fixtures";
 import type { FastifyInstance } from "fastify";
 import { z } from "zod";
-import type { AppContext } from "../lib/context.js";
-import { badRequest, forbidden } from "../lib/errors.js";
+import type { AppContext } from "../lib/context";
+import { badRequest, forbidden } from "../lib/errors";
 import {
   contractorProfile,
   findContractorRow,
@@ -17,7 +17,7 @@ import {
   tradeCounts,
   updateContractorProfile,
   verificationChecklist,
-} from "../services/contractor-service.js";
+} from "../services/contractor-service";
 import {
   acceptJob,
   acceptSubmission,
@@ -27,9 +27,9 @@ import {
   listJobsForHomeowner,
   requestWork,
   submitWork,
-} from "../services/job-service.js";
-import { findByAddress } from "../services/property-service.js";
-import { extract } from "../services/extraction-service.js";
+} from "../services/job-service";
+import { findByAddress } from "../services/property-service";
+import { extract } from "../services/extraction-service";
 import { profiles } from "@homefax/db";
 import { eq } from "drizzle-orm";
 

@@ -1,6 +1,6 @@
-import "./load-env.js";
+import "./load-env";
 import { sql } from "drizzle-orm";
-import { closeDb, getDb } from "./client.js";
+import { closeDb, getDb } from "./client";
 
 /**
  * Drops and recreates the public schema. Development only — it is wired to

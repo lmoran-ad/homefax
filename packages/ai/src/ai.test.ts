@@ -3,8 +3,8 @@ import {
   ExtractedPropertyEventSchema,
   HomeAnswerSchema,
 } from "@homefax/contracts";
-import { extractJson, isConfigured } from "./client.js";
-import { manualProposal } from "./extract-document.js";
+import { extractJson, isConfigured } from "./client";
+import { manualProposal } from "./extract-document";
 
 describe("extractJson", () => {
   it("parses a bare object", () => {

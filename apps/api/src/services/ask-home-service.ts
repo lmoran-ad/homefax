@@ -4,7 +4,7 @@ import type {
   PropertyDetail,
   VerificationLevel,
 } from "@homefax/contracts";
-import { formatDate, formatMoney } from "../lib/format.js";
+import { formatDate, formatMoney } from "../lib/format";
 
 const VERIFICATION_LABELS: Record<VerificationLevel, string> = {
   SOURCE_VERIFIED: "Source Verified",

@@ -6,9 +6,9 @@ import {
   type PropertyRow,
 } from "@homefax/db";
 import { and, eq } from "drizzle-orm";
-import type { AppContext } from "../lib/context.js";
-import { AppError, notFound } from "../lib/errors.js";
-import { canReadDocumentBody, type Viewer } from "./property-service.js";
+import type { AppContext } from "../lib/context";
+import { AppError, notFound } from "../lib/errors";
+import { canReadDocumentBody, type Viewer } from "./property-service";
 
 const MAX_DOCUMENT_BYTES = 5 * 1024 * 1024;
 const ALLOWED_MIME = new Set(["text/plain", "application/pdf", "image/png", "image/jpeg"]);

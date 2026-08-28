@@ -10,7 +10,7 @@ import {
   propertyDocuments,
   propertyEvents,
   propertySystems,
-} from "../src/index.js";
+} from "../src/index";
 
 /**
  * Sanity check on a freshly seeded database: every ledger must validate, and

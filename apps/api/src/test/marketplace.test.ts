@@ -9,7 +9,7 @@ import {
   SHOWCASE,
   signIn,
   type Harness,
-} from "./harness.js";
+} from "./harness";
 
 let harness: Harness;
 let app: FastifyInstance;
@@ -288,6 +288,34 @@ describe("the contractor loop", () => {
     });
     expect(after.body.property.events.length).toBe(
       before.body.property.events.length,
+    );
+  });
+
+  it("accepts a bodiless POST that still declares a JSON content type", async () => {
+    // What `fetch` sends when it is handed a method and no body — the shape
+    // every bodiless call from the browser arrives in. Fastify's stock JSON
+    // parser calls that malformed, which surfaced as a 500 on Accept job and
+    // on sign-out while the record itself was perfectly fine.
+    const job = await requestWork();
+    const response = await app.inject({
+      method: "POST",
+      url: `/api/jobs/${job.id}/accept`,
+      headers: { cookie: contractor, "content-type": "application/json" },
+    });
+    expect(response.statusCode).toBe(200);
+    expect(response.json<{ job: Job }>().job.status).toBe("accepted");
+  });
+
+  it("reports a malformed JSON body as a bad request, not a server fault", async () => {
+    const response = await app.inject({
+      method: "POST",
+      url: "/api/jobs/requests",
+      headers: { cookie: owner, "content-type": "application/json" },
+      payload: "{not json",
+    });
+    expect(response.statusCode).toBe(400);
+    expect(response.json<{ error: { code: string } }>().error.code).toBe(
+      "BAD_REQUEST",
     );
   });
 

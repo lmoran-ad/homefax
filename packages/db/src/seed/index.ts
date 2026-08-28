@@ -1,11 +1,12 @@
 import "../load-env.js";
 import { mkdir, writeFile } from "node:fs/promises";
-import { dirname, isAbsolute, resolve } from "node:path";
+import { dirname, resolve } from "node:path";
+import { loadServerEnv } from "@homefax/config";
 import { calculateHealthScore } from "@homefax/contracts";
 import { buildChain, sha256, type ChainableEvent } from "@homefax/ledger";
 import { hashPassword } from "@homefax/auth";
-import { getStorageProvider } from "@homefax/providers";
-import { closeDb, getDb, type Database } from "../client.js";
+import { closeDb, getDb, type Database } from "../client";
+import { installStorageProvider } from "../storage/index";
 import {
   claims,
   contractors,
@@ -17,22 +18,19 @@ import {
   propertyEvents,
   propertySystems,
   savedProperties,
-} from "../schema/index.js";
+} from "../schema/index";
 import {
   fixtureAccounts,
   fixtureContractors,
   fixtureProperties,
   SEED_TODAY,
   SHOWCASE_TOKEN_ID,
-} from "./fixtures/index.js";
-import type { FixtureProperty } from "./fixtures/types.js";
+} from "@homefax/fixtures";
+import type { FixtureProperty } from "@homefax/fixtures";
 
-const STORAGE_ROOT = (() => {
-  const configured = process.env.LOCAL_STORAGE_PATH ?? "./storage/demo-uploads";
-  return isAbsolute(configured)
-    ? configured
-    : resolve(process.cwd(), configured);
-})();
+// Anchored to the workspace by loadServerEnv, so the seeder writes where the
+// running app reads rather than under whichever package pnpm started it in.
+const STORAGE_ROOT = loadServerEnv().LOCAL_STORAGE_PATH;
 
 /**
  * Writes a seeded document to storage and returns its real SHA-256. The seeder
@@ -51,7 +49,7 @@ async function storeDocument(
   const bytes = Buffer.from(text, "utf8");
 
   if (process.env.STORAGE_DRIVER === "database") {
-    const stored = await getStorageProvider().put({
+    const stored = await installStorageProvider(STORAGE_ROOT).put({
       key: storagePath,
       bytes,
       contentType: "text/plain",

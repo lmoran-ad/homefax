@@ -1,12 +1,11 @@
 import { loadServerEnv, type ServerEnv } from "@homefax/config";
-import { getDb, type Database } from "@homefax/db";
+import { getDb, installStorageProvider, type Database } from "@homefax/db";
 import {
   getDeedProvider,
   getLicenseProvider,
   getMlsProvider,
   getParcelProvider,
   getPermitProvider,
-  getStorageProvider,
   type DeedProvider,
   type LicenseProvider,
   type MlsProvider,
@@ -40,6 +39,6 @@ export function createContext(env: ServerEnv = loadServerEnv()): AppContext {
     permits: getPermitProvider(),
     deeds: getDeedProvider(),
     licenses: getLicenseProvider(),
-    storage: getStorageProvider(env.LOCAL_STORAGE_PATH),
+    storage: installStorageProvider(env.LOCAL_STORAGE_PATH),
   };
 }

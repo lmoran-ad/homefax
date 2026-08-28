@@ -1,4 +1,4 @@
-export { hashPassword, verifyPassword } from "./password.js";
+export { hashPassword, verifyPassword } from "./password";
 export {
   signSession,
   verifySession,
@@ -7,4 +7,4 @@ export {
   SHORT_SESSION_TTL_SECONDS,
   type SessionClaims,
   type VerifyResult,
-} from "./session.js";
+} from "./session";

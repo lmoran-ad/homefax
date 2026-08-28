@@ -19,9 +19,9 @@ import {
   type PropertyRow,
 } from "@homefax/db";
 import { and, asc, desc, eq, ilike, or, sql } from "drizzle-orm";
-import type { AppContext } from "../lib/context.js";
-import { propertyNotFound } from "../lib/errors.js";
-import { verifyPropertyLedger } from "./ledger-service.js";
+import type { AppContext } from "../lib/context";
+import { propertyNotFound } from "../lib/errors";
+import { verifyPropertyLedger } from "./ledger-service";
 
 export type Viewer = {
   /** Null for an unauthenticated caller, e.g. the public landing page. */

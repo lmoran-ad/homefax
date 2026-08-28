@@ -1,10 +1,11 @@
 import cookie from "@fastify/cookie";
 import cors from "@fastify/cors";
 import Fastify, { type FastifyInstance } from "fastify";
-import { createContext, type AppContext } from "./lib/context.js";
-import { authPlugin } from "./plugins/auth.js";
-import { errorHandlerPlugin } from "./plugins/error-handler.js";
-import { registerRoutes } from "./routes/index.js";
+import { createContext, type AppContext } from "./lib/context";
+import { badRequest } from "./lib/errors";
+import { authPlugin } from "./plugins/auth";
+import { errorHandlerPlugin } from "./plugins/error-handler";
+import { registerRoutes } from "./routes/index";
 
 export async function buildApp(
   ctx: AppContext = createContext(),
@@ -23,6 +24,28 @@ export async function buildApp(
     credentials: true,
   });
   await app.register(cookie, { secret: ctx.env.AUTH_JWT_SECRET });
+
+  // Fastify's built-in JSON parser rejects a request that declares JSON and
+  // carries nothing. A browser sends exactly that shape for the bodiless POSTs
+  // this API is full of — accept a job, sign out — so an empty body is treated
+  // as no body and the route's own schema decides whether that is allowed.
+  app.addContentTypeParser(
+    "application/json",
+    { parseAs: "string" },
+    (_request, body, done) => {
+      const text = String(body);
+      if (text.trim() === "") {
+        done(null, undefined);
+        return;
+      }
+      try {
+        done(null, JSON.parse(text));
+      } catch {
+        done(badRequest("That request body was not valid JSON"), undefined);
+      }
+    },
+  );
+
   await app.register(errorHandlerPlugin);
   await app.register(authPlugin, { ctx });
 

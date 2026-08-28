@@ -2,8 +2,8 @@ import {
   ExtractedPropertyEventSchema,
   type ExtractedPropertyEvent,
 } from "@homefax/contracts";
-import { complete, extractJson, type AiConfig } from "./client.js";
-import { EXTRACTION_SYSTEM_PROMPT } from "./prompts.js";
+import { complete, extractJson, type AiConfig } from "./client";
+import { EXTRACTION_SYSTEM_PROMPT } from "./prompts";
 
 export async function extractDocument(
   config: AiConfig,

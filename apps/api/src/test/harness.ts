@@ -7,8 +7,8 @@ import { loadServerEnv, resetServerEnv } from "@homefax/config";
 import { closeDb } from "@homefax/db";
 import { __setProviders, LocalStorageProvider } from "@homefax/providers";
 import type { FastifyInstance } from "fastify";
-import { buildApp } from "../app.js";
-import { createContext } from "../lib/context.js";
+import { buildApp } from "../app";
+import { createContext } from "../lib/context";
 
 const repoRoot = resolve(dirname(fileURLToPath(import.meta.url)), "../../../..");
 

@@ -3,7 +3,7 @@ export {
   canonicalizeEvent,
   GENESIS,
   type CanonicalLedgerEvent,
-} from "./canonicalize.js";
+} from "./canonicalize";
 export {
   sha256,
   computeEventHash,
@@ -11,9 +11,9 @@ export {
   sortForChain,
   type ChainableEvent,
   type ChainLink,
-} from "./hash.js";
+} from "./hash";
 export {
   verifyLedger,
   type StoredLedgerEvent,
   type LedgerVerification,
-} from "./verify.js";
+} from "./verify";

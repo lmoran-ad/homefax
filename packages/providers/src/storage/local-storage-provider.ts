@@ -1,7 +1,7 @@
 import { mkdir, readFile, rm, stat, writeFile } from "node:fs/promises";
 import { dirname, isAbsolute, join, normalize, resolve, sep } from "node:path";
 import { sha256 } from "@homefax/ledger";
-import type { StorageProvider, StoredObject } from "../contracts/types.js";
+import type { StorageProvider, StoredObject } from "../contracts/types";
 
 /**
  * Filesystem storage for the demo. The S3 implementation replaces this class

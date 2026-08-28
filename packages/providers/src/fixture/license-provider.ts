@@ -1,8 +1,8 @@
-import { fixtureContractors } from "@homefax/db/fixtures";
+import { fixtureContractors } from "@homefax/fixtures";
 import type {
   LicenseProvider,
   LicenseVerification,
-} from "../contracts/types.js";
+} from "../contracts/types";
 
 export class FixtureLicenseProvider implements LicenseProvider {
   /**

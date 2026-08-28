@@ -17,13 +17,13 @@ import {
   fixtureContractors,
   fixtureProperties,
   SHOWCASE_TOKEN_ID,
-} from "@homefax/db/fixtures";
+} from "@homefax/fixtures";
 import { buildChain, type ChainableEvent } from "@homefax/ledger";
 import { sql } from "drizzle-orm";
 import type { FastifyInstance } from "fastify";
 import { timingSafeEqual } from "node:crypto";
-import type { AppContext } from "../lib/context.js";
-import { AppError, forbidden } from "../lib/errors.js";
+import type { AppContext } from "../lib/context";
+import { AppError, forbidden } from "../lib/errors";
 
 /**
  * Loads the demo dataset into whatever database this instance is pointed at.

@@ -1,4 +1,27 @@
+import { existsSync } from "node:fs";
+import { dirname, isAbsolute, resolve } from "node:path";
 import { z } from "zod";
+
+/**
+ * The monorepo root, or the working directory when there is no workspace above
+ * it (a built deployment, for instance).
+ *
+ * `pnpm --filter` runs each script in its own package directory, so a relative
+ * storage path means three different folders depending on who is asking: the
+ * seeder writes under packages/db, the web app reads under apps/web, and the
+ * standalone API under apps/api. Documents then exist and are missing at the
+ * same time. Anchoring the path to the workspace gives every process the same
+ * answer.
+ */
+function workspaceRoot(): string {
+  let directory = process.cwd();
+  for (;;) {
+    if (existsSync(resolve(directory, "pnpm-workspace.yaml"))) return directory;
+    const parent = dirname(directory);
+    if (parent === directory) return process.cwd();
+    directory = parent;
+  }
+}
 
 /**
  * Server environment. Validated once, at process start, so a misconfigured
@@ -39,7 +62,10 @@ const ServerEnvSchema = z.object({
   ANTHROPIC_MODEL: z.string().default("claude-sonnet-5"),
 
   STORAGE_DRIVER: z.enum(["local", "database"]).default("local"),
-  LOCAL_STORAGE_PATH: z.string().default("./storage/demo-uploads"),
+  LOCAL_STORAGE_PATH: z
+    .string()
+    .default("./storage/demo-uploads")
+    .transform((path) => (isAbsolute(path) ? path : resolve(workspaceRoot(), path))),
 });
 
 export type ServerEnv = z.infer<typeof ServerEnvSchema>;

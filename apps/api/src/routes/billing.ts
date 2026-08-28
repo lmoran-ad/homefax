@@ -1,8 +1,8 @@
 import { UpgradeRequestSchema } from "@homefax/contracts";
-import { addRecordDemoDocuments } from "@homefax/db/fixtures";
+import { addRecordDemoDocuments } from "@homefax/fixtures";
 import type { FastifyInstance } from "fastify";
-import type { AppContext } from "../lib/context.js";
-import { toSessionUser } from "../services/auth-service.js";
+import type { AppContext } from "../lib/context";
+import { toSessionUser } from "../services/auth-service";
 import {
   cancelSubscription,
   PAYWALLS,
@@ -11,7 +11,7 @@ import {
   subscriptionFor,
   UNIT_ECONOMICS,
   UNIT_ECONOMICS_TOTAL,
-} from "../services/billing-service.js";
+} from "../services/billing-service";
 
 export function registerBillingRoutes(
   app: FastifyInstance,

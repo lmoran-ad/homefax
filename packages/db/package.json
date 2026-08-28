@@ -7,8 +7,7 @@
   "types": "./src/index.ts",
   "exports": {
     ".": "./src/index.ts",
-    "./schema": "./src/schema/index.ts",
-    "./fixtures": "./src/seed/fixtures/index.ts"
+    "./schema": "./src/schema/index.ts"
   },
   "scripts": {
     "typecheck": "tsc --noEmit",
@@ -24,6 +23,7 @@
     "@homefax/auth": "workspace:*",
     "@homefax/config": "workspace:*",
     "@homefax/contracts": "workspace:*",
+    "@homefax/fixtures": "workspace:*",
     "@homefax/ledger": "workspace:*",
     "@homefax/providers": "workspace:*",
     "drizzle-orm": "0.45.2",

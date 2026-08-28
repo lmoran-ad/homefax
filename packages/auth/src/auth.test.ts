@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
-import { hashPassword, verifyPassword } from "./password.js";
-import { signSession, verifySession } from "./session.js";
+import { hashPassword, verifyPassword } from "./password";
+import { signSession, verifySession } from "./session";
 
 const SECRET = "test-secret-value";
 

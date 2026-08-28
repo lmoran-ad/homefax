@@ -10,7 +10,7 @@ import {
   getParcelProvider,
   getPermitProvider,
   LocalStorageProvider,
-} from "./index.js";
+} from "./index";
 
 const SHOWCASE_PARCEL = "DEN-1234-567-89";
 

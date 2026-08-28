@@ -1,5 +1,5 @@
-import { fixtureProperties } from "@homefax/db/fixtures";
-import type { PermitProvider, PermitRecord } from "../contracts/types.js";
+import { fixtureProperties } from "@homefax/fixtures";
+import type { PermitProvider, PermitRecord } from "../contracts/types";
 
 const PERMIT_NUMBER = /\b([A-Z]\d{2}-\d{4,5})\b/;
 

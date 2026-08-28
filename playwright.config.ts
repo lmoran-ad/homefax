@@ -11,7 +11,10 @@ export default defineConfig({
   fullyParallel: false,
   workers: 1,
   retries: 0,
-  timeout: 90_000,
+  // The contractor loop signs four sessions in and out and walks six routes.
+  // Against `next dev` each new route is compiled on first request, so the
+  // budget has to cover compilation, not just the app's own work.
+  timeout: 240_000,
   expect: { timeout: 15_000 },
   reporter: process.env.CI ? "line" : "list",
   use: {

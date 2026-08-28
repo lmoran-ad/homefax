@@ -3,7 +3,7 @@ import {
   canonicalizeEvent,
   GENESIS,
   type CanonicalLedgerEvent,
-} from "./canonicalize.js";
+} from "./canonicalize";
 
 export function sha256(input: string | Uint8Array): string {
   return createHash("sha256").update(input).digest("hex");

@@ -14,9 +14,8 @@
   },
   "dependencies": {
     "@homefax/contracts": "workspace:*",
-    "@homefax/db": "workspace:*",
-    "@homefax/ledger": "workspace:*",
-    "drizzle-orm": "0.45.2"
+    "@homefax/fixtures": "workspace:*",
+    "@homefax/ledger": "workspace:*"
   },
   "devDependencies": {
     "@types/node": "22.13.5",

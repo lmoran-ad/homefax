@@ -8,7 +8,7 @@ import {
   uniqueIndex,
   uuid,
 } from "drizzle-orm/pg-core";
-import { properties } from "./properties.js";
+import { properties } from "./properties";
 
 /**
  * Deliberately has no owner-name column. Prior owners are never named in the

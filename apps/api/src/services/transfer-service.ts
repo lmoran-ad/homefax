@@ -6,11 +6,11 @@ import {
   type PropertyRow,
 } from "@homefax/db";
 import { desc, eq, sql } from "drizzle-orm";
-import type { AppContext } from "../lib/context.js";
-import { badRequest } from "../lib/errors.js";
-import { formatDate } from "../lib/format.js";
-import { recomputeChain, verifyPropertyLedger } from "./ledger-service.js";
-import type { SessionUserRecord } from "./auth-service.js";
+import type { AppContext } from "../lib/context";
+import { badRequest } from "../lib/errors";
+import { formatDate } from "../lib/format";
+import { recomputeChain, verifyPropertyLedger } from "./ledger-service";
+import type { SessionUserRecord } from "./auth-service";
 
 /**
  * Hands administration of the record to the homeowner.

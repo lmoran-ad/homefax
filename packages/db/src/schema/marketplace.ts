@@ -11,9 +11,9 @@ import {
   uniqueIndex,
   uuid,
 } from "drizzle-orm/pg-core";
-import { profiles } from "./profiles.js";
-import { properties } from "./properties.js";
-import { propertyEvents } from "./property-events.js";
+import { profiles } from "./profiles";
+import { properties } from "./properties";
+import { propertyEvents } from "./property-events";
 
 export const contractors = pgTable(
   "contractors",
