@@ -2,12 +2,15 @@ import type { ReactNode } from "react";
 import { redirect } from "next/navigation";
 import type { Job, PropertySummary, SessionUser } from "@homefax/contracts";
 import { AppHeader } from "@/components/app-header";
+import { ReadOnlyBanner } from "@/components/read-only-banner";
 import { apiFetchOptional } from "@/lib/api";
 
 export const dynamic = "force-dynamic";
 
 export default async function AppLayout({ children }: { children: ReactNode }) {
-  const session = await apiFetchOptional<{ user: SessionUser }>("/auth/me");
+  const session = await apiFetchOptional<{ user: SessionUser; readOnly?: boolean }>(
+    "/auth/me",
+  );
   if (!session) redirect("/login");
   const { user } = session;
 
@@ -31,6 +34,7 @@ export default async function AppLayout({ children }: { children: ReactNode }) {
   return (
     <div className="min-h-screen">
       <AppHeader user={user} counts={counts} />
+      {session.readOnly ? <ReadOnlyBanner /> : null}
       <main>{children}</main>
     </div>
   );

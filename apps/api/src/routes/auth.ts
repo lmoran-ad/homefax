@@ -77,6 +77,9 @@ export function registerAuthRoutes(app: FastifyInstance, ctx: AppContext): void 
     return {
       user: toSessionUser(request.user),
       subscription: subscriptionFor(request.user),
+      // The shell reads this to say so up front, rather than letting somebody
+      // discover it by having a button fail on them.
+      readOnly: ctx.env.READ_ONLY,
     };
   });
 

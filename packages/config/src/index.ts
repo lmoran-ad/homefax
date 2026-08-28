@@ -73,6 +73,21 @@ const ServerEnvSchema = z.object({
   ANTHROPIC_API_KEY: z.string().optional(),
   ANTHROPIC_MODEL: z.string().default("claude-sonnet-5"),
 
+  /**
+   * A shared demo is a shared database: one reviewer appending a record, or
+   * releasing a claim, changes what the next one sees. Read-only mode lets a
+   * link be handed out without that.
+   *
+   * It is a real restriction, not a UI one — the API refuses the write. That
+   * also means the contribution flows this product exists to show are off, so
+   * it is the right setting for a browse-only link and the wrong one for a
+   * live walkthrough.
+   */
+  READ_ONLY: z
+    .string()
+    .default("false")
+    .transform((v) => v === "true"),
+
   STORAGE_DRIVER: z.enum(["local", "database"]).default("local"),
   LOCAL_STORAGE_PATH: z
     .string()

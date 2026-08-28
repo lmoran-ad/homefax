@@ -101,6 +101,30 @@ Every element the suite touches carries a `data-testid`. They are catalogued in
 `apps/web/src/lib/testids.ts` and are a contract: copy and layout may change
 freely, the ids may not.
 
+## Sharing a demo link
+
+`READ_ONLY=true` refuses every write. Reading stays whole — records,
+timelines, documents, the ledger check and Ask This Home all work — but
+contributions, claims, the contractor loop and account changes are refused,
+and the app says so in a banner rather than letting a button fail on someone.
+
+Three things stay open, deliberately: signing in and out, because otherwise
+nobody reaches a page at all; Ask This Home, which is a POST only because a
+question does not fit in a query string and writes nothing; and the admin
+routes, which are already behind a secret and are how the dataset is restored
+— locking those would mean read-only mode removes the only way to undo
+whatever prompted turning it on.
+
+It is enforced in the API, not by hiding controls. A shared link reaches
+browsers this app does not control, and a restriction that lives in the
+interface is not a restriction.
+
+The trade is real: the contribution flows are the argument this product makes,
+so read-only is right for a link you post somewhere and wrong for a live
+walkthrough. With it off, the demo is shared mutable state — one reviewer can
+append a record, release a claim, or change the shared password. `POST
+/api/admin/seed` puts everything back.
+
 ## Live public data
 
 Every provider is fixture-backed by default. Two of them can read real public

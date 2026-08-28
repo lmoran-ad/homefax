@@ -26,7 +26,8 @@
     "PERMIT_SOURCE_DOMAIN",
     "PERMIT_SOURCE_DATASET",
     "PERMIT_SOURCE_FIELDS",
-    "SOCRATA_APP_TOKEN"
+    "SOCRATA_APP_TOKEN",
+    "READ_ONLY"
   ],
   "tasks": {
     "build": {

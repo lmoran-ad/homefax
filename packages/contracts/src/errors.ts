@@ -17,6 +17,7 @@ export const API_ERROR_CODES = [
   "UPLOAD_FAILED",
   "LEDGER_INVALID",
   "CONFLICT",
+  "READ_ONLY",
   "INTERNAL",
 ] as const;
 
@@ -47,6 +48,7 @@ const STATUS_BY_CODE: Record<ApiErrorCode, number> = {
   UPLOAD_FAILED: 500,
   LEDGER_INVALID: 500,
   CONFLICT: 409,
+  READ_ONLY: 403,
   INTERNAL: 500,
 };
 

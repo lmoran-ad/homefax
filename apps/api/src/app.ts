@@ -5,6 +5,7 @@ import { createContext, type AppContext } from "./lib/context";
 import { badRequest } from "./lib/errors";
 import { authPlugin } from "./plugins/auth";
 import { errorHandlerPlugin } from "./plugins/error-handler";
+import { readOnlyPlugin } from "./plugins/read-only";
 import { registerRoutes } from "./routes/index";
 
 export async function buildApp(
@@ -48,6 +49,7 @@ export async function buildApp(
 
   await app.register(errorHandlerPlugin);
   await app.register(authPlugin, { ctx });
+  await app.register(readOnlyPlugin, { ctx });
 
   app.get("/health", async () => ({
     ok: true,

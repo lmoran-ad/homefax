@@ -25,15 +25,31 @@ export function PropertyHero({
   const [copied, setCopied] = useState(false);
 
   const facts = property.facts;
-  const factLine = [
-    `${facts.bedrooms} Bed`,
-    `${facts.bathrooms} Bath`,
-    `${facts.livingSqft.toLocaleString("en-US")} sqft`,
+
+  /*
+   * Zero means "the source does not publish this", not "this house has none of
+   * them" — plenty of county parcel layers carry no bedroom or bathroom column
+   * at all. Printing "0 Bed | 0 Bath" turns a gap in the data into a false
+   * statement about the building, which is the one thing a record like this
+   * cannot do. Unknown facts are left out, and named underneath so their
+   * absence reads as an absence rather than an oversight.
+   */
+  const known = [
+    facts.bedrooms ? `${facts.bedrooms} Bed` : null,
+    facts.bathrooms ? `${facts.bathrooms} Bath` : null,
+    facts.livingSqft ? `${facts.livingSqft.toLocaleString("en-US")} sqft` : null,
     facts.lotSqft ? `${facts.lotSqft.toLocaleString("en-US")} sqft lot` : null,
-    `Built ${facts.yearBuilt}`,
-  ]
-    .filter(Boolean)
-    .join("  |  ");
+    facts.yearBuilt ? `Built ${facts.yearBuilt}` : null,
+  ].filter(Boolean);
+
+  const missing = [
+    facts.bedrooms ? null : "bedrooms",
+    facts.bathrooms ? null : "bathrooms",
+    facts.livingSqft ? null : "living area",
+    facts.yearBuilt ? null : "year built",
+  ].filter(Boolean) as string[];
+
+  const factLine = known.join("  |  ");
 
   async function copyToken() {
     await navigator.clipboard.writeText(property.tokenId).catch(() => undefined);
@@ -113,8 +129,21 @@ export function PropertyHero({
           </div>
         </div>
 
-        <div className="mt-[18px] border-t border-line-light pt-[16px] text-[13.5px] font-semibold text-body">
-          {factLine}
+        <div className="mt-[18px] border-t border-line-light pt-[16px]">
+          <div
+            data-testid="property-facts"
+            className="text-[13.5px] font-semibold text-body"
+          >
+            {factLine || "No building details on the public record."}
+          </div>
+          {missing.length > 0 && factLine ? (
+            <div
+              data-testid="property-facts-missing"
+              className="mt-[6px] text-[12.5px] text-faint"
+            >
+              Not published by the county: {missing.join(", ")}.
+            </div>
+          ) : null}
         </div>
 
         <div className="mt-[20px] flex flex-wrap gap-[10px]">
