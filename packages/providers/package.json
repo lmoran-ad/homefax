@@ -1,0 +1,25 @@
+{
+  "name": "@hometoken/providers",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "main": "./src/index.ts",
+  "types": "./src/index.ts",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "scripts": {
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "@hometoken/contracts": "workspace:*",
+    "@hometoken/db": "workspace:*",
+    "@hometoken/ledger": "workspace:*"
+  },
+  "devDependencies": {
+    "@types/node": "22.13.5",
+    "typescript": "5.7.3",
+    "vitest": "4.1.11"
+  }
+}

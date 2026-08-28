@@ -1,6 +1,7 @@
 export * from "./enums.js";
 export * from "./errors.js";
 export * from "./property.js";
+export * from "./health.js";
 export * from "./auth.js";
 export * from "./claim.js";
 export * from "./marketplace.js";
