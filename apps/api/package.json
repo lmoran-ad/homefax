@@ -1,0 +1,35 @@
+{
+  "name": "@hometoken/api",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "tsx watch src/server.ts",
+    "start": "tsx src/server.ts",
+    "build": "tsc --noEmit",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "@fastify/cookie": "11.0.2",
+    "@fastify/cors": "11.1.0",
+    "@hometoken/ai": "workspace:*",
+    "@hometoken/auth": "workspace:*",
+    "@hometoken/config": "workspace:*",
+    "@hometoken/contracts": "workspace:*",
+    "@hometoken/db": "workspace:*",
+    "@hometoken/ledger": "workspace:*",
+    "@hometoken/providers": "workspace:*",
+    "drizzle-orm": "0.45.2",
+    "fastify": "5.12.1",
+    "fastify-plugin": "5.0.1",
+    "zod": "4.4.3"
+  },
+  "devDependencies": {
+    "@types/node": "22.13.5",
+    "dotenv": "16.4.7",
+    "tsx": "4.19.2",
+    "typescript": "5.7.3",
+    "vitest": "4.1.11"
+  }
+}
