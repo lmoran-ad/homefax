@@ -75,7 +75,10 @@ export type PermitSource = {
 export const DENVER_PARCELS: ParcelSource = {
   id: "denver-parcels",
   label: "Denver County Assessor · parcels",
-  url: "https://services1.arcgis.com/zdB7qR0BtYrg0Xpl/ArcGIS/rest/services/ODC_PROP_PARCELS_A/FeatureServer/0",
+  // Layer 245, not 0 — the service publishes a single layer at a high index,
+  // and asking for one that does not exist fails as a URL parse error rather
+  // than a 404, because ArcGIS answers it with a redirect fetch cannot follow.
+  url: "https://services1.arcgis.com/zdB7qR0BtYrg0Xpl/ArcGIS/rest/services/ODC_PROP_PARCELS_A/FeatureServer/245",
   fields: {
     address: "SITUS_ADDRESS_LINE1",
     parcelId: "SCHEDNUM",
