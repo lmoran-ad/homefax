@@ -6,6 +6,7 @@ export * from "./enums";
 export * from "./errors";
 export * from "./property";
 export * from "./health";
+export * from "./permit-systems";
 export * from "./auth";
 export * from "./claim";
 export * from "./marketplace";

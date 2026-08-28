@@ -1,11 +1,15 @@
 import {
   AppendEventRequestSchema,
   AskRequestSchema,
+  assessSystemsFromPermits,
+  classifyPermitSystem,
   ExtractionRequestSchema,
   ProvisionRequestSchema,
   PropertySearchRequestSchema,
   TransferRequestSchema,
   type PropertySummary,
+  type SystemAssessment,
+  type SystemKey,
 } from "@homefax/contracts";
 import {
   ownershipPeriods,
@@ -179,11 +183,27 @@ export function registerPropertyRoutes(
     // parcel. The provider falls back on its own, and anything past that is
     // logged and left.
     let permitCount = 0;
+    let assessments = new Map<SystemKey, SystemAssessment>();
     try {
       const permits = await ctx.permits.getPermitHistory({
         parcelId: parcel.parcelId,
         address: parcel.address,
       });
+
+      // What the permits say about the major systems. Without this a record
+      // provisioned from county data lands with every system UNKNOWN and a
+      // Home Health of exactly 50 — honest, but silent, while the permit
+      // history sitting beside it on the timeline plainly says more.
+      assessments = assessSystemsFromPermits(
+        permits.map((permit) => ({
+          system: classifyPermitSystem(permit.scope),
+          occurredAt: permit.issuedAt,
+          finaled: permit.status === "FINALED",
+          label: permit.scope,
+        })),
+        today(),
+      );
+
       for (const permit of permits) {
         // The contractor and the declared value are most of what makes a
         // permit worth reading: a third party, on the record, saying who did
@@ -234,16 +254,28 @@ export function registerPropertyRoutes(
       ["other", "Other"],
     ];
     for (const [key, name] of systemDefs) {
+      const assessed = assessments.get(key as SystemKey);
       await ctx.db.insert(propertySystems).values({
         propertyId: row.id,
         systemType: key,
         displayName: name,
-        status: "UNKNOWN",
-        verificationLevel: "UNVERIFIED",
-        rows: [
-          ["Status source", "No record yet"],
-          ["Last updated", "—"],
-        ],
+        status: assessed?.status ?? "UNKNOWN",
+        // A permit is the jurisdiction attesting to the work, so a system
+        // graded from one is source-verified in the same sense the event is.
+        verificationLevel: assessed ? "SOURCE_VERIFIED" : "UNVERIFIED",
+        installedAt: assessed?.installedAt ?? null,
+        expectedLifeYears: assessed?.expectedLifeYears ?? null,
+        estimatedRemainingYears: assessed?.remainingYears ?? null,
+        rows: assessed
+          ? [
+              ["Status source", assessed.label],
+              ["Permit record", assessed.reason],
+              ["Expected life", `${assessed.expectedLifeYears} years`],
+            ]
+          : [
+              ["Status source", "No record yet"],
+              ["Last updated", "—"],
+            ],
         hidden: key === "other",
       });
     }

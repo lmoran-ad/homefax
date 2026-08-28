@@ -1,5 +1,5 @@
 import { hashPassword } from "@homefax/auth";
-import { calculateHealthScore } from "@homefax/contracts";
+import { calculateHealthScore, classifyPermitSystem } from "@homefax/contracts";
 import {
   claims,
   contractors,
@@ -27,6 +27,7 @@ import {
   SourceError,
 } from "@homefax/providers";
 import { sql } from "drizzle-orm";
+import { z } from "zod";
 import type { FastifyInstance } from "fastify";
 import { timingSafeEqual } from "node:crypto";
 import type { AppContext } from "../lib/context";
@@ -376,6 +377,44 @@ export function registerAdminRoutes(app: FastifyInstance, ctx: AppContext): void
     } catch (error) {
       return {
         addresses: [],
+        error: error instanceof Error ? error.message : String(error),
+      };
+    }
+  });
+
+  /**
+   * Runs the permit lookup for one address, and says what came back.
+   *
+   * "No permits" and "the lookup is broken" produce the same empty timeline,
+   * and most houses genuinely have never had a permit pulled — so the two are
+   * indistinguishable from the record itself. This runs the same query
+   * provisioning runs and reports the result, which separates them.
+   */
+  app.get("/admin/sources/permit-lookup", async (request) => {
+    if (!ctx.env.DEMO_MODE) {
+      throw forbidden("Source diagnostics are available in demo mode only");
+    }
+    const { address, parcelId } = z
+      .object({ address: z.string().default(""), parcelId: z.string().default("") })
+      .parse(request.query);
+
+    try {
+      const permits = await ctx.permits.getPermitHistory({ parcelId, address });
+      return {
+        address,
+        parcelId,
+        found: permits.length,
+        // What each one would become on the timeline and on a system card.
+        permits: permits.slice(0, 20).map((permit) => ({
+          ...permit,
+          system: classifyPermitSystem(permit.scope),
+        })),
+      };
+    } catch (error) {
+      return {
+        address,
+        parcelId,
+        found: 0,
         error: error instanceof Error ? error.message : String(error),
       };
     }
