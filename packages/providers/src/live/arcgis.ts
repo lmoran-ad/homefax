@@ -91,6 +91,54 @@ export class ArcgisLayer {
     return urlFor(this.base, where, limit);
   }
 
+  /**
+   * Counts on the server, grouped by a column.
+   *
+   * The alternative is to pull a page of rows and tally them here, which
+   * answers a different question than the one being asked: a page is the most
+   * recent N, so tallying it ranks by "busiest in the last few days" and every
+   * result lands on the same small number. Aggregation is what makes an
+   * all-time answer possible without downloading the layer.
+   */
+  async aggregate(input: {
+    where: string;
+    groupBy: readonly string[];
+    statistics: readonly {
+      type: "count" | "max" | "min" | "sum";
+      field: string;
+      as: string;
+    }[];
+    orderBy?: string;
+    limit: number;
+  }): Promise<Record<string, unknown>[]> {
+    const params = new URLSearchParams({
+      where: input.where,
+      groupByFieldsForStatistics: input.groupBy.join(","),
+      outStatistics: JSON.stringify(
+        input.statistics.map((statistic) => ({
+          statisticType: statistic.type,
+          onStatisticField: statistic.field,
+          outStatisticFieldName: statistic.as,
+        })),
+      ),
+      returnGeometry: "false",
+      resultRecordCount: String(input.limit),
+      f: "json",
+    });
+    if (input.orderBy) params.set("orderByFields", input.orderBy);
+
+    const url = `${this.base}/query?${params.toString()}`;
+    const payload = await fetchJson<EsriResponse>({ source: this.sourceId, url });
+    if (payload.error) {
+      throw new SourceError(
+        this.sourceId,
+        payload.error.message ?? "aggregate query rejected",
+        { url },
+      );
+    }
+    return (payload.features ?? []).map((feature) => feature.attributes);
+  }
+
   private async queryAt(
     base: string,
     where: string,

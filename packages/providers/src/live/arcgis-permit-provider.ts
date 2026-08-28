@@ -98,56 +98,47 @@ export class ArcgisPermitProvider implements PermitProvider {
   }
 
   /**
-   * Addresses with the most permits on file, most recent first.
+   * Addresses with the most permits on file, all time.
    *
    * A provisioned record is only as interesting as the history behind it, and
    * most houses have never had a permit pulled — so demonstrating this on an
    * address picked from memory usually shows an empty timeline and proves
    * nothing. This finds the addresses where there is something to see.
+   *
+   * Counted by the server rather than by tallying a page of rows here. A page
+   * is the most recent N, so tallying it ranks by "busiest in the last few
+   * days" and every answer comes back as the same small number — which is
+   * what it did, and what made the flaw visible.
    */
   async busiestAddresses(
     limit = 10,
   ): Promise<
-    { address: string; parcelId: string; permits: number; latest: string; work: string[] }[]
+    { address: string; parcelId: string; permits: number; latest: string }[]
   > {
     const f = this.source.fields;
-    const columns = [f.address, f.issuedAt, f.scope, f.parcelId].filter(
+    const groupBy = [f.address, f.parcelId].filter(
       (name): name is string => Boolean(name),
     );
 
-    const payload = await this.layer.query("1=1", 600, {
-      outFields: columns.join(","),
-      orderBy: `${f.issuedAt} DESC`,
+    const rows = await this.layer.aggregate({
+      where: "1=1",
+      groupBy,
+      statistics: [
+        { type: "count", field: f.permitNumber, as: "permits" },
+        { type: "max", field: f.issuedAt, as: "latest" },
+      ],
+      orderBy: "permits DESC",
+      limit,
     });
 
-    const byAddress = new Map<
-      string,
-      { address: string; parcelId: string; permits: number; latest: string; work: Set<string> }
-    >();
-
-    for (const feature of payload.features ?? []) {
-      const address = text(feature.attributes[f.address]);
-      const issuedAt = isoDate(feature.attributes[f.issuedAt]);
-      if (!address || !issuedAt) continue;
-
-      const entry = byAddress.get(address) ?? {
-        address,
-        parcelId: f.parcelId ? text(feature.attributes[f.parcelId]) : "",
-        permits: 0,
-        latest: issuedAt,
-        work: new Set<string>(),
-      };
-      entry.permits += 1;
-      if (issuedAt > entry.latest) entry.latest = issuedAt;
-      const scope = f.scope ? text(feature.attributes[f.scope]) : "";
-      if (scope) entry.work.add(scope);
-      byAddress.set(address, entry);
-    }
-
-    return [...byAddress.values()]
-      .sort((a, b) => b.permits - a.permits || (a.latest < b.latest ? 1 : -1))
-      .slice(0, limit)
-      .map(({ work, ...rest }) => ({ ...rest, work: [...work].slice(0, 4) }));
+    return rows
+      .map((row) => ({
+        address: text(row[f.address]),
+        parcelId: f.parcelId ? text(row[f.parcelId]) : "",
+        permits: Number(row.permits) || 0,
+        latest: isoDate(row.latest) ?? "",
+      }))
+      .filter((entry) => entry.address);
   }
 
   serviceLayers(): ReturnType<ArcgisLayer["serviceLayers"]> {

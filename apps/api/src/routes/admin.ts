@@ -373,7 +373,13 @@ export function registerAdminRoutes(app: FastifyInstance, ctx: AppContext): void
 
     try {
       const addresses = await ctx.permits.busiestAddresses(10);
-      return { addresses };
+      return {
+        addresses,
+        // Worth saying plainly next to the list: this jurisdiction's only work
+        // descriptor is a coarse construction category, so these permits date
+        // a record without grading a system. Trade layers are what do that.
+        note: "Denver's residential construction layer classifies work as New Building, Alteration/Tenant Finish, Repair/Replace or Phased Construction. Those date a record but do not name a system, so they score as `other`. Roofing, mechanical, plumbing and electrical permits are separate datasets.",
+      };
     } catch (error) {
       return {
         addresses: [],
