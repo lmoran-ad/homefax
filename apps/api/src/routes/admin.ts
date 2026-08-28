@@ -350,6 +350,38 @@ export function registerAdminRoutes(app: FastifyInstance, ctx: AppContext): void
   });
 
   /**
+   * Addresses worth demonstrating on.
+   *
+   * A provisioned record is only as interesting as the history behind it, and
+   * most houses have never had a permit pulled — so picking an address from
+   * memory usually produces a timeline with two county events on it and proves
+   * nothing. This reports where the permit data actually is, along with what
+   * each lookup would find, so a demonstration can start from an address that
+   * has something to show.
+   */
+  app.get("/admin/sources/addresses", async () => {
+    if (!ctx.env.DEMO_MODE) {
+      throw forbidden("Source diagnostics are available in demo mode only");
+    }
+    if (!(ctx.permits instanceof ArcgisPermitProvider)) {
+      return {
+        addresses: [],
+        note: "No live permit source is configured, so there is nothing to rank.",
+      };
+    }
+
+    try {
+      const addresses = await ctx.permits.busiestAddresses(10);
+      return { addresses };
+    } catch (error) {
+      return {
+        addresses: [],
+        error: error instanceof Error ? error.message : String(error),
+      };
+    }
+  });
+
+  /**
    * Says whether this instance can actually serve a page, and if not, why.
    *
    * A deployment that will not load gives you nothing to go on from a browser

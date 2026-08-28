@@ -58,11 +58,18 @@ export function ClaimPanel({ role }: { role: "agent" | "homeowner" }) {
   async function provision() {
     setProvisioning(true);
     try {
-      const { property } = await request<{ property: PropertySummary }>(
-        "/properties/provision",
-        { method: "POST", body: { address } },
+      const { property, permitsImported } = await request<{
+        property: PropertySummary;
+        permitsImported: number;
+      }>("/properties/provision", { method: "POST", body: { address } });
+      // Whether the jurisdiction had permits for this address is the most
+      // interesting thing about a new record, and counting timeline rows to
+      // find out is a poor substitute for being told.
+      toast(
+        permitsImported > 0
+          ? `HomeFax provisioned for ${property.address}, with ${permitsImported} permit${permitsImported === 1 ? "" : "s"} from the jurisdiction.`
+          : `HomeFax provisioned for ${property.address}. The jurisdiction has no permits on file for it.`,
       );
-      toast(`HomeFax provisioned for ${property.address}.`);
       router.push(`/properties/${property.tokenId}`);
     } catch (error) {
       toast(
