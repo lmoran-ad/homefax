@@ -2,9 +2,14 @@
   "$schema": "https://turbo.build/schema.json",
   "globalEnv": [
     "NODE_ENV",
+    "APP_NAME",
     "DEMO_MODE",
+    "DEMO_TODAY",
     "DATABASE_URL",
+    "POSTGRES_URL",
+    "POSTGRES_PRISMA_URL",
     "AUTH_JWT_SECRET",
+    "SEED_SECRET",
     "ANTHROPIC_API_KEY",
     "ANTHROPIC_MODEL",
     "API_BASE_URL",
@@ -12,7 +17,8 @@
     "WEB_PORT",
     "API_PORT",
     "STORAGE_DRIVER",
-    "LOCAL_STORAGE_PATH"
+    "LOCAL_STORAGE_PATH",
+    "VERCEL"
   ],
   "tasks": {
     "build": {
