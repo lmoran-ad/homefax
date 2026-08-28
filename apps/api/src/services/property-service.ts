@@ -307,38 +307,59 @@ export async function refreshHealthScore(
   return health.score;
 }
 
+/**
+ * Finds a record from whatever an address box was given.
+ *
+ * A query arrives in two shapes: the street alone, as someone types it, or a
+ * full "street, city, postal code" — which is what picking a suggestion
+ * produces, and what a paste from anywhere else looks like. The stored column
+ * holds the street alone, so matching the whole string against it finds
+ * nothing for an address that is plainly there; that is a record reported
+ * missing while sitting in the table, which is the worst answer this can give.
+ *
+ * So the street is matched on its own, and the city and postal code are used
+ * to choose between rows rather than to find them. Ranking, not filtering:
+ * a mistyped city should not hide the right house.
+ */
 export async function findByAddress(
   ctx: AppContext,
   address: string,
 ): Promise<PropertyRow | null> {
-  const needle = address.trim();
-  if (!needle) return null;
+  const raw = address.trim();
+  if (!raw) return null;
 
-  const [exact] = await ctx.db
-    .select()
-    .from(properties)
-    .where(ilike(properties.addressLine1, needle))
-    .limit(1);
-  if (exact) return exact;
+  const parts = raw
+    .split(",")
+    .map((part) => part.trim())
+    .filter(Boolean);
+  const street = parts[0] ?? raw;
+  const tail = parts.slice(1);
+  const postalCode = tail
+    .map((part) => part.replace(/[^0-9]/g, ""))
+    .find((digits) => digits.length === 5);
+  const city = tail.find((part) => !/^\d[\d-]*$/.test(part));
 
-  const [prefix] = await ctx.db
-    .select()
-    .from(properties)
-    .where(ilike(properties.addressLine1, `${needle}%`))
-    .limit(1);
-  if (prefix) return prefix;
-
-  const [contains] = await ctx.db
+  const candidates = await ctx.db
     .select()
     .from(properties)
     .where(
       or(
-        ilike(properties.addressLine1, `%${needle}%`),
-        and(
-          ilike(sql`${properties.addressLine1} || ', ' || ${properties.city}`, `%${needle}%`),
-        ),
+        ilike(properties.addressLine1, street),
+        ilike(properties.addressLine1, `${street}%`),
+        ilike(properties.addressLine1, `%${street}%`),
       ),
     )
-    .limit(1);
-  return contains ?? null;
+    .limit(25);
+  if (candidates.length === 0) return null;
+
+  const score = (row: PropertyRow): number => {
+    const line = row.addressLine1.toLowerCase();
+    const needle = street.toLowerCase();
+    let points = line === needle ? 100 : line.startsWith(needle) ? 60 : 20;
+    if (postalCode && row.postalCode === postalCode) points += 12;
+    if (city && row.city.toLowerCase() === city.toLowerCase()) points += 8;
+    return points;
+  };
+
+  return [...candidates].sort((a, b) => score(b) - score(a))[0] ?? null;
 }

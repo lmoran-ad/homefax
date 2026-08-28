@@ -196,6 +196,47 @@ describe("the ArcGIS parcel provider", () => {
     });
   });
 
+  it("suggests distinct addresses and asks for only the columns it shows", async () => {
+    const seen: string[] = [];
+    stubFetch((url) => {
+      seen.push(url);
+      return {
+        features: [
+          { attributes: { SITUS_ADDR: "6663 N CEYLON ST", SCHEDNUM: "1", CITY: "DENVER", ZIP: "80249-8650" } },
+          // A parcel layer carries a row per unit; the same street address
+          // twenty times is not a list of suggestions.
+          { attributes: { SITUS_ADDR: "6663 N CEYLON ST", SCHEDNUM: "2", CITY: "DENVER", ZIP: "80249" } },
+          { attributes: { SITUS_ADDR: "6665 N CEYLON ST", SCHEDNUM: "3", CITY: "DENVER", ZIP: "80249" } },
+        ],
+      };
+    });
+
+    const provider = new ArcgisParcelProvider(PARCELS, new FixtureParcelProvider());
+    const suggestions = await provider.suggestAddresses("6663 n ceylon");
+
+    expect(suggestions.map((s) => s.address)).toEqual([
+      "6663 N CEYLON ST",
+      "6665 N CEYLON ST",
+    ]);
+    expect(suggestions[0]).toMatchObject({ postalCode: "80249", city: "DENVER" });
+
+    const params = new URL(seen[0]!).searchParams;
+    expect(params.get("outFields")).not.toBe("*");
+    expect(params.get("returnDistinctValues")).toBe("true");
+  });
+
+  it("does not query the county for two characters", async () => {
+    const seen: string[] = [];
+    stubFetch((url) => {
+      seen.push(url);
+      return { features: [] };
+    });
+    const provider = new ArcgisParcelProvider(PARCELS, new FixtureParcelProvider());
+
+    await expect(provider.suggestAddresses("66")).resolves.toEqual([]);
+    expect(seen).toEqual([]);
+  });
+
   it("does not let an address close a quote in the where clause", async () => {
     const seen: string[] = [];
     stubFetch((url) => {

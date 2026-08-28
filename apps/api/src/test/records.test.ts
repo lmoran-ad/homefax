@@ -305,3 +305,45 @@ describe("document visibility", () => {
     expect(response.status).toBe(404);
   });
 });
+
+describe("address lookup", () => {
+  type Lookup =
+    | { kind: "found"; property: { tokenId: string } }
+    | { kind: "missing"; query: string };
+
+  const lookup = (address: string) =>
+    call<Lookup>(app, {
+      url: `/api/properties/lookup?address=${encodeURIComponent(address)}`,
+      cookie: agent,
+    });
+
+  it("finds the record whichever way the address is written", async () => {
+    // The suggestion list produces the full form, and so does a paste from
+    // anywhere else. Matching that whole string against a column holding only
+    // the street reports a record missing while it sits in the table.
+    for (const address of [
+      "123 Main Street",
+      "123 Main Street, Denver",
+      "123 Main Street, Denver, 80206",
+      "123 main street, denver, co 80206",
+      "  123 Main Street  ",
+    ]) {
+      const { body } = await lookup(address);
+      expect(body, `lookup failed for ${JSON.stringify(address)}`).toMatchObject({
+        kind: "found",
+        property: { tokenId: SHOWCASE },
+      });
+    }
+  });
+
+  it("uses the postal code to choose between streets that share a name", async () => {
+    // Denver and Boulder both have a Pearl Street in the dataset.
+    const { body } = await lookup("890 Pearl Street, Boulder, 80302");
+    expect(body).toMatchObject({ kind: "found" });
+  });
+
+  it("still reports a genuinely absent address as missing", async () => {
+    const { body } = await lookup("9999 Nowhere Lane, Denver, 80206");
+    expect(body.kind).toBe("missing");
+  });
+});

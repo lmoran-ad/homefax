@@ -1,4 +1,5 @@
 import type {
+  AddressSuggestion,
   ParcelProvider,
   ParcelRecord,
   ProvisionedParcel,
@@ -123,6 +124,56 @@ export class ArcgisParcelProvider implements ParcelProvider {
     }
 
     return { ...record, systemStatus: "UNKNOWN", events };
+  }
+
+  /**
+   * Addresses the county holds that begin with what has been typed.
+   *
+   * Distinct, because a parcel layer carries a row per unit and a building
+   * would otherwise fill the list with the same street address twenty times.
+   * Only four columns come back — this runs on every keystroke, and the other
+   * sixty-odd are not going to be read.
+   */
+  async suggestAddresses(prefix: string): Promise<AddressSuggestion[]> {
+    const needle = normalizeAddress(prefix);
+    // Two characters matches most of Denver and tells the typist nothing.
+    if (needle.length < 3) return [];
+
+    const f = this.source.fields;
+    const columns = [f.address, f.parcelId, f.city, f.postalCode].filter(
+      (name): name is string => Boolean(name),
+    );
+
+    try {
+      const payload = await this.layer.query(
+        `UPPER(${f.address}) LIKE '${sqlLiteral(needle)}%'`,
+        12,
+        {
+          outFields: columns.join(","),
+          distinct: true,
+          orderBy: f.address,
+        },
+      );
+      const seen = new Set<string>();
+      const suggestions: AddressSuggestion[] = [];
+      for (const feature of payload.features ?? []) {
+        const address = text(feature.attributes[f.address]);
+        if (!address || seen.has(address)) continue;
+        seen.add(address);
+        suggestions.push({
+          address,
+          city: text(f.city ? feature.attributes[f.city] : "") || this.source.defaults.city,
+          state: this.source.defaults.state,
+          postalCode:
+            text(f.postalCode ? feature.attributes[f.postalCode] : "").slice(0, 5) ||
+            this.source.defaults.postalCode,
+          parcelId: text(feature.attributes[f.parcelId]),
+        });
+      }
+      return suggestions.slice(0, 8);
+    } catch {
+      return this.fallback.suggestAddresses(prefix);
+    }
   }
 
   /** The layer's real column names and a sample row, for diagnostics. */

@@ -30,13 +30,17 @@ export class ArcgisLayer {
     return this.repaired ?? this.configured;
   }
 
-  async query(where: string, limit: number): Promise<EsriResponse> {
+  async query(
+    where: string,
+    limit: number,
+    options: QueryOptions = {},
+  ): Promise<EsriResponse> {
     try {
-      return await this.queryAt(this.base, where, limit);
+      return await this.queryAt(this.base, where, limit, options);
     } catch (error) {
       const base = await this.repairLayerIndex();
       if (!base) throw error;
-      return this.queryAt(base, where, limit);
+      return this.queryAt(base, where, limit, options);
     }
   }
 
@@ -91,8 +95,9 @@ export class ArcgisLayer {
     base: string,
     where: string,
     limit: number,
+    options: QueryOptions = {},
   ): Promise<EsriResponse> {
-    const url = urlFor(base, where, limit);
+    const url = urlFor(base, where, limit, options);
     const payload = await fetchJson<EsriResponse>({ source: this.sourceId, url });
 
     // ArcGIS answers a rejected query with HTTP 200 and an error object, so a
@@ -137,17 +142,32 @@ export class ArcgisLayer {
   }
 }
 
-function urlFor(base: string, where: string, limit: number): string {
+export type QueryOptions = {
+  /** Narrow the columns. A suggestion needs four, not seventy. */
+  outFields?: string;
+  /** Collapse repeats — one parcel per address rather than one per unit. */
+  distinct?: boolean;
+  orderBy?: string;
+};
+
+function urlFor(
+  base: string,
+  where: string,
+  limit: number,
+  options: QueryOptions = {},
+): string {
   // Built with URLSearchParams rather than by hand: a `where` clause carries
   // spaces, quotes and percent signs, and a single unencoded one turns the
   // whole request into something the runtime will not parse.
   const params = new URLSearchParams({
     where,
-    outFields: "*",
+    outFields: options.outFields ?? "*",
     returnGeometry: "false",
     resultRecordCount: String(limit),
     f: "json",
   });
+  if (options.distinct) params.set("returnDistinctValues", "true");
+  if (options.orderBy) params.set("orderByFields", options.orderBy);
   return `${base}/query?${params.toString()}`;
 }
 

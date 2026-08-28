@@ -43,11 +43,30 @@ export type ProvisionedParcel = ParcelRecord & {
   systemStatus: SystemStatus;
 };
 
+export type AddressSuggestion = {
+  /** Exactly as the source spells it, which is what a lookup has to match. */
+  address: string;
+  city: string;
+  state: string;
+  postalCode: string;
+  parcelId: string;
+};
+
 export interface ParcelProvider {
   /** Real source later: county assessor and recorder bulk data. */
   findByAddress(address: string): Promise<ParcelRecord | null>;
   findByParcelId(parcelId: string): Promise<ParcelRecord | null>;
   provision(address: string): Promise<ProvisionedParcel>;
+  /**
+   * Addresses beginning with what has been typed so far.
+   *
+   * A county stores addresses in exactly one form — "6663 N CEYLON ST", with
+   * the directional and the abbreviated street type — and a lookup is a prefix
+   * match against that. Nobody types it that way from memory, so without this
+   * the honest answer to most real addresses is "not found" for a house that
+   * is plainly in the data.
+   */
+  suggestAddresses(prefix: string): Promise<AddressSuggestion[]>;
 }
 
 export type MlsListing = {

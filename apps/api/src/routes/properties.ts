@@ -84,6 +84,26 @@ export function registerPropertyRoutes(
     return { results: results.slice(0, 3) };
   });
 
+  /**
+   * Addresses the source holds that start with what has been typed.
+   *
+   * A county spells an address exactly one way — "6663 N CEYLON ST", with the
+   * directional and the abbreviated type — and a lookup is a prefix match
+   * against that spelling. Nobody produces it from memory, so without this the
+   * answer to most real addresses is "no record", for a house that is plainly
+   * in the data. Picking from the list means the lookup that follows is
+   * matching the county's own string against itself.
+   *
+   * Signed-in only. The data behind it is public, but an open endpoint that
+   * forwards a typed string to a third party on every keystroke is someone
+   * else's rate limit to spend.
+   */
+  app.get("/properties/address-suggest", async (request) => {
+    await app.requireUser(request);
+    const { q } = z.object({ q: z.string().default("") }).parse(request.query);
+    return { suggestions: await ctx.parcels.suggestAddresses(q) };
+  });
+
   app.get("/properties/lookup", async (request) => {
     const { address } = z
       .object({ address: z.string().default("") })

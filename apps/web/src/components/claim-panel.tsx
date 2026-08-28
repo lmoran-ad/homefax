@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import type { PropertySummary } from "@homefax/contracts";
+import { AddressInput } from "./address-input";
 import { Button } from "./buttons";
 import { useToast } from "./feedback";
 import { Eyebrow, Mono, SectionHeading, Spinner } from "./ui";
@@ -30,8 +31,15 @@ export function ClaimPanel({ role }: { role: "agent" | "homeowner" }) {
 
   const isAgent = role === "agent";
 
-  async function lookup() {
-    if (!address.trim()) {
+  /**
+   * `override` is what a picked suggestion wrote into the box. React has not
+   * committed that state yet when the pick handler runs, so looking up the
+   * component's own `address` here would query the half-typed string the
+   * suggestion just replaced.
+   */
+  async function lookup(override?: string) {
+    const query = (override ?? address).trim();
+    if (!query) {
       setResult(null);
       return;
     }
@@ -39,7 +47,7 @@ export function ClaimPanel({ role }: { role: "agent" | "homeowner" }) {
     try {
       setResult(
         await request<Lookup>(
-          `/properties/lookup?address=${encodeURIComponent(address)}`,
+          `/properties/lookup?address=${encodeURIComponent(query)}`,
         ),
       );
     } finally {
@@ -93,13 +101,19 @@ export function ClaimPanel({ role }: { role: "agent" | "homeowner" }) {
           void lookup();
         }}
       >
-        <input
+        <AddressInput
           value={address}
-          onChange={(event) => setAddress(event.target.value)}
+          onChange={(next) => {
+            setAddress(next);
+            // The old answer described the old address. Leaving it up invites
+            // somebody to act on a result for a house they stopped typing.
+            setResult(null);
+          }}
+          onPick={(_, formatted) => void lookup(formatted)}
+          onSubmit={() => void lookup()}
           placeholder="123 Main Street, Denver, 80206"
-          data-testid="claim-lookup-input"
-          aria-label="Property address"
-          className="min-w-[220px] flex-1 rounded-[10px] border border-input bg-white px-4 py-[13px] text-[15px] text-ink placeholder:text-faint"
+          testId="claim-lookup-input"
+          label="Property address"
         />
         <Button type="submit" disabled={busy} testId="claim-lookup-submit">
           {busy ? "Looking up…" : "Look up"}

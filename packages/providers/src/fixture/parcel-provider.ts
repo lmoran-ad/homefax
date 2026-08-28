@@ -1,5 +1,6 @@
 import { fixtureProperties } from "@homefax/fixtures";
 import type {
+  AddressSuggestion,
   ParcelProvider,
   ParcelRecord,
   ProvisionedParcel,
@@ -50,6 +51,24 @@ export class FixtureParcelProvider implements ParcelProvider {
       );
     });
     return match ? toRecord(match) : null;
+  }
+
+  /** The seeded markets, matched the same way the live source matches. */
+  async suggestAddresses(prefix: string): Promise<AddressSuggestion[]> {
+    const needle = prefix.trim().toLowerCase();
+    if (needle.length < 3) return [];
+    return fixtureProperties
+      .filter((p) =>
+        `${p.address}, ${p.city} ${p.postalCode}`.toLowerCase().includes(needle),
+      )
+      .slice(0, 8)
+      .map((p) => ({
+        address: p.address,
+        city: p.city,
+        state: p.state,
+        postalCode: p.postalCode,
+        parcelId: p.parcelId,
+      }));
   }
 
   async findByParcelId(parcelId: string): Promise<ParcelRecord | null> {

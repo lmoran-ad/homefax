@@ -97,6 +97,8 @@ export const TESTID = {
   claimLookupSubmit: "claim-lookup-submit",
   claimLookupResult: "claim-lookup-result",
   provisionButton: "provision-button",
+  addressSuggestions: "address-suggestions",
+  addressSuggestion: "address-suggestion",
   seededStats: "seeded-stats",
 
   // Ask This Home
