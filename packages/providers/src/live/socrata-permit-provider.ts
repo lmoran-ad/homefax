@@ -1,4 +1,5 @@
 import type { PermitProvider, PermitRecord } from "../contracts/types";
+import { normalizeAddress, sqlLiteral } from "./arcgis";
 import { fetchJson, isoDate, text } from "./http";
 import type { PermitSource } from "./sources";
 
@@ -16,7 +17,7 @@ import type { PermitSource } from "./sources";
  */
 export class SocrataPermitProvider implements PermitProvider {
   constructor(
-    private readonly source: PermitSource,
+    private readonly source: PermitSource & { domain: string; dataset: string },
     private readonly fallback: PermitProvider,
   ) {}
 
@@ -30,11 +31,11 @@ export class SocrataPermitProvider implements PermitProvider {
     if (input.address) {
       const street = normalizeAddress(input.address);
       if (street) {
-        clauses.push(`starts_with(upper(${f.address}), '${soqlLiteral(street)}')`);
+        clauses.push(`starts_with(upper(${f.address}), '${sqlLiteral(street)}')`);
       }
     }
     if (f.parcelId && input.parcelId) {
-      clauses.push(`${f.parcelId} = '${soqlLiteral(input.parcelId)}'`);
+      clauses.push(`${f.parcelId} = '${sqlLiteral(input.parcelId)}'`);
     }
     if (clauses.length === 0) return this.fallback.getPermitHistory(input);
 
@@ -53,25 +54,36 @@ export class SocrataPermitProvider implements PermitProvider {
     }
   }
 
-  /** The raw first row, for diagnostics. */
-  async sample(): Promise<{ fields: string[]; row: Record<string, unknown> | null }> {
+  /** The dataset's real column names and a sample row, for diagnostics. */
+  async sample(): Promise<{
+    url: string;
+    fields: string[];
+    row: Record<string, unknown> | null;
+  }> {
     const rows = await this.query("", 1);
     const row = rows[0] ?? null;
-    return { fields: row ? Object.keys(row) : [], row };
+    return {
+      url: this.urlFor("", 1),
+      fields: row ? Object.keys(row) : [],
+      row,
+    };
+  }
+
+  private urlFor(where: string, limit: number): string {
+    const params = new URLSearchParams({ $limit: String(limit) });
+    if (where) params.set("$where", where);
+    return `https://${this.source.domain}/resource/${this.source.dataset}.json?${params.toString()}`;
   }
 
   private async query(
     where: string,
     limit: number,
   ): Promise<Record<string, unknown>[]> {
-    const params = new URLSearchParams({ $limit: String(limit) });
-    if (where) params.set("$where", where);
-
-    const url = `https://${this.source.domain}/resource/${this.source.dataset}.json?${params.toString()}`;
+    const token = appToken();
     const payload = await fetchJson<Record<string, unknown>[]>({
       source: this.source.id,
-      url,
-      headers: appToken() ? { "X-App-Token": appToken()! } : {},
+      url: this.urlFor(where, limit),
+      headers: token ? { "X-App-Token": token } : {},
     });
     return Array.isArray(payload) ? payload : [];
   }
@@ -106,19 +118,4 @@ export class SocrataPermitProvider implements PermitProvider {
 function appToken(): string | undefined {
   const token = process.env.SOCRATA_APP_TOKEN;
   return token && token.trim() ? token.trim() : undefined;
-}
-
-function normalizeAddress(address: string): string {
-  const street = address.split(",")[0] ?? "";
-  return street
-    .toUpperCase()
-    .replace(/\b(APT|UNIT|STE|SUITE|#)\s*[\w-]+/g, "")
-    .replace(/[^A-Z0-9 ]/g, " ")
-    .replace(/\s+/g, " ")
-    .trim();
-}
-
-/** SoQL is SQL; the address arrives from a request body. Double the quotes. */
-function soqlLiteral(value: string): string {
-  return value.replace(/'/g, "''");
 }

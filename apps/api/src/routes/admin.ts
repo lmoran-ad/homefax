@@ -21,8 +21,10 @@ import {
 import { buildChain, type ChainableEvent } from "@homefax/ledger";
 import {
   ArcgisParcelProvider,
+  ArcgisPermitProvider,
   describeSources,
   SocrataPermitProvider,
+  SourceError,
 } from "@homefax/providers";
 import { sql } from "drizzle-orm";
 import type { FastifyInstance } from "fastify";
@@ -293,26 +295,43 @@ export function registerAdminRoutes(app: FastifyInstance, ctx: AppContext): void
 
     const described = describeSources();
 
-    const probe = async (
-      provider: { sample: () => Promise<{ fields: string[]; row: Record<string, unknown> | null }> } | null,
-    ) => {
+    type Sampler = {
+      sample: () => Promise<{
+        url: string;
+        fields: string[];
+        row: Record<string, unknown> | null;
+      }>;
+    };
+
+    const probe = async (provider: Sampler | null) => {
       if (!provider) return null;
       const startedAt = Date.now();
       try {
-        const { fields, row } = await provider.sample();
-        return { ok: true as const, latencyMs: Date.now() - startedAt, fields, row };
+        const { url, fields, row } = await provider.sample();
+        return { ok: true as const, latencyMs: Date.now() - startedAt, url, fields, row };
       } catch (error) {
         return {
           ok: false as const,
           latencyMs: Date.now() - startedAt,
           reason: error instanceof Error ? error.message : String(error),
+          // The request that failed, which is what separates "the layer moved"
+          // from "the number on the end is wrong" from "that query was
+          // malformed". All three report the same way without it.
+          url: error instanceof SourceError ? error.url : null,
         };
       }
     };
 
+    const samplerOf = (provider: unknown): Sampler | null =>
+      provider instanceof ArcgisParcelProvider ||
+      provider instanceof ArcgisPermitProvider ||
+      provider instanceof SocrataPermitProvider
+        ? provider
+        : null;
+
     const [parcels, permits] = await Promise.all([
-      probe(ctx.parcels instanceof ArcgisParcelProvider ? ctx.parcels : null),
-      probe(ctx.permits instanceof SocrataPermitProvider ? ctx.permits : null),
+      probe(samplerOf(ctx.parcels)),
+      probe(samplerOf(ctx.permits)),
     ]);
 
     return {

@@ -3,14 +3,9 @@ import type {
   ParcelRecord,
   ProvisionedParcel,
 } from "../contracts/types";
-import { fetchJson, isoDate, num, text, SourceError } from "./http";
+import { ArcgisLayer, normalizeAddress, sqlLiteral } from "./arcgis";
+import { num, text } from "./http";
 import type { ParcelSource } from "./sources";
-
-type EsriResponse = {
-  features?: { attributes: Record<string, unknown> }[];
-  error?: { code?: number; message?: string; details?: string[] };
-  fields?: { name: string; type: string }[];
-};
 
 /**
  * Reads parcels from a county's ArcGIS FeatureServer.
@@ -26,16 +21,20 @@ type EsriResponse = {
  * demonstration.
  */
 export class ArcgisParcelProvider implements ParcelProvider {
+  private readonly layer: ArcgisLayer;
+
   constructor(
     private readonly source: ParcelSource,
     private readonly fallback: ParcelProvider,
-  ) {}
+  ) {
+    this.layer = new ArcgisLayer(source.id, source.url);
+  }
 
   async findByAddress(address: string): Promise<ParcelRecord | null> {
     const needle = normalizeAddress(address);
     if (!needle) return null;
     try {
-      const row = await this.queryOne(
+      const row = await this.layer.queryOne(
         `UPPER(${this.source.fields.address}) LIKE '${sqlLiteral(needle)}%'`,
       );
       return row ? this.toRecord(row) : this.fallback.findByAddress(address);
@@ -48,7 +47,7 @@ export class ArcgisParcelProvider implements ParcelProvider {
     const id = parcelId.trim();
     if (!id) return null;
     try {
-      const row = await this.queryOne(
+      const row = await this.layer.queryOne(
         `${this.source.fields.parcelId} = '${sqlLiteral(id)}'`,
       );
       return row ? this.toRecord(row) : this.fallback.findByParcelId(parcelId);
@@ -70,7 +69,7 @@ export class ArcgisParcelProvider implements ParcelProvider {
     try {
       const needle = normalizeAddress(address);
       row = needle
-        ? await this.queryOne(
+        ? await this.layer.queryOne(
             `UPPER(${this.source.fields.address}) LIKE '${sqlLiteral(needle)}%'`,
           )
         : null;
@@ -94,15 +93,16 @@ export class ArcgisParcelProvider implements ParcelProvider {
       .filter(([, field, value]) => field && value > 0)
       .map(([label]) => label);
 
+    const today = new Date().toISOString().slice(0, 10);
     const events: ProvisionedParcel["events"] = [
       {
         id: `${record.tokenId}-P1`,
-        occurredAt: new Date().toISOString().slice(0, 10),
+        occurredAt: today,
         eventType: "PROPERTY_CREATED",
         title: "HomeFax provisioned from county records",
         meta: `${this.source.label} · parcel ${record.parcelId}`,
         description: published.length
-          ? `Created from the county's published parcel record. The assessor supplied ${published.join(", ")}. Anything absent is unknown rather than assumed, and no maintenance, permit or inspection history has been contributed yet.`
+          ? `Created from the county's published parcel record. The assessor supplied ${published.join(", ")}. Anything absent is unknown rather than assumed, and no maintenance or inspection history has been contributed yet.`
           : "Created from the county's published parcel record, which carried the address and parcel identifier only. Every other attribute is unknown rather than assumed.",
         verificationLevel: "SOURCE_VERIFIED",
         visibility: "PUBLIC",
@@ -112,7 +112,7 @@ export class ArcgisParcelProvider implements ParcelProvider {
     if (record.estimatedValue > 0) {
       events.push({
         id: `${record.tokenId}-P2`,
-        occurredAt: new Date().toISOString().slice(0, 10),
+        occurredAt: today,
         eventType: "TAX_ASSESSMENT",
         title: "Assessed value on file",
         meta: `${money(record.estimatedValue)} · ${this.source.label}`,
@@ -125,41 +125,9 @@ export class ArcgisParcelProvider implements ParcelProvider {
     return { ...record, systemStatus: "UNKNOWN", events };
   }
 
-  /** The raw first row plus the layer's real column names, for diagnostics. */
-  async sample(): Promise<{ fields: string[]; row: Record<string, unknown> | null }> {
-    const payload = await this.query("1=1", 1);
-    const row = payload.features?.[0]?.attributes ?? null;
-    return {
-      fields: payload.fields?.map((x) => x.name) ?? (row ? Object.keys(row) : []),
-      row,
-    };
-  }
-
-  private async queryOne(where: string): Promise<Record<string, unknown> | null> {
-    const payload = await this.query(where, 1);
-    return payload.features?.[0]?.attributes ?? null;
-  }
-
-  private async query(where: string, limit: number): Promise<EsriResponse> {
-    const url = `${this.source.url.replace(/\/$/, "")}/query?${new URLSearchParams({
-      where,
-      outFields: "*",
-      returnGeometry: "false",
-      resultRecordCount: String(limit),
-      f: "json",
-    }).toString()}`;
-
-    const payload = await fetchJson<EsriResponse>({ source: this.source.id, url });
-
-    // ArcGIS answers a rejected query with HTTP 200 and an error object, so a
-    // bad column name looks like success until this check.
-    if (payload.error) {
-      throw new SourceError(
-        this.source.id,
-        payload.error.message ?? "query rejected",
-      );
-    }
-    return payload;
+  /** The layer's real column names and a sample row, for diagnostics. */
+  sample(): ReturnType<ArcgisLayer["sample"]> {
+    return this.layer.sample();
   }
 
   private toRecord(row: Record<string, unknown>): ParcelRecord {
@@ -192,32 +160,6 @@ export class ArcgisParcelProvider implements ParcelProvider {
 
 const money = (n: number): string => `$${Math.round(n).toLocaleString("en-US")}`;
 
-/**
- * The street portion, upper-cased, for a prefix match against the county's
- * address column. Unit numbers and the city/state/zip tail are dropped: the
- * county stores them separately, and including them matches nothing.
- */
-function normalizeAddress(address: string): string {
-  const street = address.split(",")[0] ?? "";
-  return street
-    .toUpperCase()
-    .replace(/\b(APT|UNIT|STE|SUITE|#)\s*[\w-]+/g, "")
-    .replace(/[^A-Z0-9 ]/g, " ")
-    .replace(/\s+/g, " ")
-    .trim();
-}
-
-/**
- * Escapes a value for an ArcGIS `where` clause.
- *
- * The address reaches this from a request body. ArcGIS takes SQL, so a quote
- * that survives here is a query the caller wrote, and the layer is readable by
- * anyone — doubling the quote is what keeps that from being interesting.
- */
-function sqlLiteral(value: string): string {
-  return value.replace(/'/g, "''");
-}
-
 function deriveParcelId(address: string): string {
   return address.replace(/[^A-Za-z0-9]+/g, "-").toUpperCase().slice(0, 32);
 }
@@ -229,7 +171,7 @@ function tokenIdFor(state: string, city: string, seedSource: string): string {
     h ^= seedSource.charCodeAt(i);
     h = Math.imul(h, 16777619);
   }
-  const num = Math.abs(h) % 100_000_000;
+  const value = Math.abs(h) % 100_000_000;
   const cityCode = city.slice(0, 3).toUpperCase().padEnd(3, "X");
-  return `HF-US-${state}-${cityCode}-${String(num).padStart(8, "0")}`;
+  return `HF-US-${state}-${cityCode}-${String(value).padStart(8, "0")}`;
 }

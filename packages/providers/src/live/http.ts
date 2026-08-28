@@ -10,13 +10,20 @@
  */
 
 export class SourceError extends Error {
+  readonly url: string | null;
+
   constructor(
     readonly source: string,
     message: string,
-    options?: { cause?: unknown },
+    options?: { cause?: unknown; url?: string },
   ) {
     super(`${source}: ${message}`, options);
     this.name = "SourceError";
+    // The request that failed is the single most useful thing to report. A
+    // portal returns the same "not found" whether the layer moved, the number
+    // on the end is wrong, or the query was malformed — and these are all
+    // public, unauthenticated URLs, so there is nothing in one to protect.
+    this.url = options?.url ?? null;
   }
 }
 
@@ -49,6 +56,7 @@ export async function fetchJson<T>(options: FetchJsonOptions): Promise<T> {
         const error = new SourceError(
           options.source,
           `HTTP ${response.status} from ${hostOf(options.url)}`,
+          { url: options.url },
         );
         if (!retryable || attempt === 1) throw error;
         lastError = error;
@@ -65,8 +73,8 @@ export async function fetchJson<T>(options: FetchJsonOptions): Promise<T> {
       // A timeout or a socket failure. Worth one more try.
       lastError = new SourceError(
         options.source,
-        caught instanceof Error ? caught.message : String(caught),
-        { cause: caught },
+        describe(caught),
+        { cause: caught, url: options.url },
       );
       if (attempt === 1) throw lastError;
     }
@@ -75,6 +83,26 @@ export async function fetchJson<T>(options: FetchJsonOptions): Promise<T> {
   throw lastError instanceof Error
     ? lastError
     : new SourceError(options.source, "request failed");
+}
+
+/**
+ * `fetch` reports a refused connection, a DNS failure and a malformed URL with
+ * the same terse message and puts the useful half in `cause` — so a bare
+ * `error.message` says "fetch failed" or "Invalid URL" and nothing about why.
+ */
+function describe(error: unknown): string {
+  if (!(error instanceof Error)) return String(error);
+  const cause = (error as { cause?: unknown }).cause;
+  const detail =
+    cause instanceof Error
+      ? cause.message
+      : typeof cause === "string"
+        ? cause
+        : null;
+  const code = (cause as { code?: string } | undefined)?.code;
+  return [error.message, detail, code && code !== detail ? `(${code})` : null]
+    .filter(Boolean)
+    .join(" — ");
 }
 
 function hostOf(url: string): string {

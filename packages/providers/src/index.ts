@@ -4,6 +4,7 @@ import { FixtureMlsProvider } from "./fixture/mls-provider";
 import { FixtureParcelProvider } from "./fixture/parcel-provider";
 import { FixturePermitProvider } from "./fixture/permit-provider";
 import { ArcgisParcelProvider } from "./live/arcgis-parcel-provider";
+import { ArcgisPermitProvider } from "./live/arcgis-permit-provider";
 import { SocrataPermitProvider } from "./live/socrata-permit-provider";
 import {
   DENVER_PARCELS,
@@ -23,7 +24,12 @@ import type {
 } from "./contracts/types";
 
 export * from "./contracts/types";
-export { LocalStorageProvider, ArcgisParcelProvider, SocrataPermitProvider };
+export {
+  LocalStorageProvider,
+  ArcgisParcelProvider,
+  ArcgisPermitProvider,
+  SocrataPermitProvider,
+};
 export { DENVER_PARCELS, DENVER_PERMITS, withOverrides } from "./live/sources";
 export type { ParcelSource, PermitSource } from "./live/sources";
 export { SourceError } from "./live/http";
@@ -61,13 +67,35 @@ export function getMlsProvider(): MlsProvider {
   return mls;
 }
 
-/** `PERMIT_SOURCE=denver`, same arrangement as parcels. */
+/**
+ * `PERMIT_SOURCE=denver`, same arrangement as parcels. Which client is used
+ * follows the descriptor: an Esri layer where the jurisdiction publishes one,
+ * an open-data portal where it does not.
+ */
 export function getPermitProvider(): PermitProvider {
   if (permit) return permit;
   const fixture = new FixturePermitProvider();
   const live = livePermitSource();
-  permit = live ? new SocrataPermitProvider(live, fixture) : fixture;
+  permit = live ? permitProviderFor(live, fixture) : fixture;
   return permit;
+}
+
+function permitProviderFor(
+  source: PermitSource,
+  fallback: PermitProvider,
+): PermitProvider {
+  if (source.arcgisUrl) {
+    return new ArcgisPermitProvider({ ...source, arcgisUrl: source.arcgisUrl }, fallback);
+  }
+  if (source.domain && source.dataset) {
+    return new SocrataPermitProvider(
+      { ...source, domain: source.domain, dataset: source.dataset },
+      fallback,
+    );
+  }
+  // Configured but not usably so. The fixture keeps the demo whole, and the
+  // reason shows up in the source diagnostics rather than as silent nothing.
+  return fallback;
 }
 
 /**
@@ -88,13 +116,34 @@ export function describeSources(): {
       problems: parcelSource.problems,
     },
     permits: {
-      driver: permitSource.source ? "socrata" : "fixture",
-      source: permitSource.source
-        ? `https://${permitSource.source.domain}/resource/${permitSource.source.dataset}.json`
-        : null,
-      problems: permitSource.problems,
+      driver: permitDriver(permitSource.source),
+      source: permitEndpoint(permitSource.source),
+      problems: [
+        ...permitSource.problems,
+        ...(permitSource.source && permitDriver(permitSource.source) === "fixture"
+          ? [
+              "PERMIT_SOURCE is set but the descriptor has neither an ArcGIS URL nor a Socrata domain and dataset",
+            ]
+          : []),
+      ],
     },
   };
+}
+
+function permitDriver(source: PermitSource | null): string {
+  if (!source) return "fixture";
+  if (source.arcgisUrl) return "arcgis";
+  if (source.domain && source.dataset) return "socrata";
+  return "fixture";
+}
+
+function permitEndpoint(source: PermitSource | null): string | null {
+  if (!source) return null;
+  if (source.arcgisUrl) return source.arcgisUrl;
+  if (source.domain && source.dataset) {
+    return `https://${source.domain}/resource/${source.dataset}.json`;
+  }
+  return null;
 }
 
 function liveParcelSourceWithProblems(): {

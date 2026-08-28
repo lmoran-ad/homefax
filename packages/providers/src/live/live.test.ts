@@ -2,6 +2,7 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 import { FixtureParcelProvider } from "../fixture/parcel-provider";
 import { FixturePermitProvider } from "../fixture/permit-provider";
 import { ArcgisParcelProvider } from "./arcgis-parcel-provider";
+import { ArcgisPermitProvider } from "./arcgis-permit-provider";
 import { SocrataPermitProvider } from "./socrata-permit-provider";
 import { withOverrides, type ParcelSource, type PermitSource } from "./sources";
 
@@ -29,7 +30,7 @@ const PARCELS: ParcelSource = {
   defaults: { city: "Denver", state: "CO", postalCode: "80202" },
 };
 
-const PERMITS: PermitSource = {
+const PERMITS: PermitSource & { domain: string; dataset: string } = {
   id: "test-permits",
   label: "Test City Permits",
   domain: "data.example.test",
@@ -233,6 +234,71 @@ describe("the Socrata permit provider", () => {
   });
 });
 
+describe("the ArcGIS permit provider", () => {
+  const ARCGIS_PERMITS: PermitSource & { arcgisUrl: string } = {
+    id: "test-arcgis-permits",
+    label: "Test City Permits",
+    arcgisUrl: "https://example.test/ArcGIS/rest/services/PERMITS/FeatureServer/0",
+    fields: {
+      permitNumber: "PERMIT_NUM",
+      issuedAt: "ISSUED_DATE",
+      address: "ADDRESS",
+      scope: "WORK_DESC",
+      status: "STATUS",
+    },
+  };
+
+  it("reads Esri epoch-millisecond dates", async () => {
+    // Esri encodes dates as epoch milliseconds, not ISO strings. Reading one
+    // as a string yields an invalid date and drops the permit silently.
+    stubFetch(() => ({
+      features: [
+        {
+          attributes: {
+            PERMIT_NUM: "2021-BLD-7",
+            ISSUED_DATE: Date.UTC(2021, 4, 17),
+            ADDRESS: "1600 GLENARM PL",
+            WORK_DESC: "Water heater replacement",
+            STATUS: "Final",
+          },
+        },
+      ],
+    }));
+
+    const provider = new ArcgisPermitProvider(
+      ARCGIS_PERMITS,
+      new FixturePermitProvider(),
+    );
+    const permits = await provider.getPermitHistory({
+      parcelId: "x",
+      address: "1600 Glenarm Pl",
+    });
+
+    expect(permits).toEqual([
+      {
+        permitNumber: "2021-BLD-7",
+        issuedAt: "2021-05-17",
+        scope: "Water heater replacement",
+        status: "FINALED",
+      },
+    ]);
+  });
+
+  it("falls back when the layer rejects the query", async () => {
+    stubFetch(() => ({ error: { message: "Invalid field: ADDRESS" } }));
+    const provider = new ArcgisPermitProvider(
+      ARCGIS_PERMITS,
+      new FixturePermitProvider(),
+    );
+
+    const permits = await provider.getPermitHistory({
+      parcelId: "DEN-1234-567-89",
+      address: "123 Main Street",
+    });
+    expect(permits.length).toBeGreaterThan(0);
+  });
+});
+
 describe("source overrides", () => {
   it("replaces the endpoint and merges field names", () => {
     const { source, problems } = withOverrides(PARCELS, "PARCEL_SOURCE", {
@@ -254,6 +320,17 @@ describe("source overrides", () => {
 
     expect(source.fields.address).toBe("SITUS_ADDR");
     expect(problems[0]).toContain("not valid JSON");
+  });
+
+  it("switches a permit source to ArcGIS when pointed at a FeatureServer", () => {
+    // Whether a jurisdiction publishes permits on an open-data portal or as an
+    // Esri layer is not knowable in advance, so it has to be correctable
+    // without a code change.
+    const { source } = withOverrides(PERMITS, "PERMIT_SOURCE", {
+      PERMIT_SOURCE_URL: "https://city.test/FeatureServer/3",
+    } as NodeJS.ProcessEnv);
+
+    expect(source.arcgisUrl).toBe("https://city.test/FeatureServer/3");
   });
 
   it("leaves the descriptor untouched", () => {

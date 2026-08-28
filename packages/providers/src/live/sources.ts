@@ -46,13 +46,21 @@ export type PermitFieldMap = {
   finaledAt?: string;
 };
 
+/**
+ * Permits come from one of two shapes of endpoint, and which one a
+ * jurisdiction uses is not knowable without looking: some publish an
+ * open-data portal, others an Esri layer beside their parcels. Whichever is
+ * filled in decides the provider; `arcgisUrl` wins when both are.
+ */
 export type PermitSource = {
   id: string;
   label: string;
+  /** An ArcGIS FeatureServer layer, ending in /FeatureServer/<n>. */
+  arcgisUrl?: string;
   /** A Socrata host, e.g. data.somewhere.gov — no scheme. */
-  domain: string;
+  domain?: string;
   /** The dataset's four-by-four identifier, e.g. abcd-1234. */
-  dataset: string;
+  dataset?: string;
   fields: PermitFieldMap;
 };
 
@@ -116,13 +124,22 @@ export function withOverrides<T extends ParcelSource | PermitSource>(
   const next = { ...source, fields: { ...source.fields } } as T;
 
   const url = env[`${prefix}_URL`];
-  if (url && "url" in next) (next as ParcelSource).url = url;
+  if (url) {
+    if ("url" in next) (next as ParcelSource).url = url;
+    // Pointing a permit source at a FeatureServer switches it to ArcGIS, so a
+    // jurisdiction that turns out to publish permits as an Esri layer can be
+    // corrected from a dashboard rather than in code.
+    else (next as PermitSource).arcgisUrl = url;
+  }
 
   const domain = env[`${prefix}_DOMAIN`];
-  if (domain && "domain" in next) (next as PermitSource).domain = domain;
+  if (domain && !("url" in next)) {
+    (next as PermitSource).domain = domain;
+    (next as PermitSource).arcgisUrl = undefined;
+  }
 
   const dataset = env[`${prefix}_DATASET`];
-  if (dataset && "dataset" in next) (next as PermitSource).dataset = dataset;
+  if (dataset && !("url" in next)) (next as PermitSource).dataset = dataset;
 
   const fields = env[`${prefix}_FIELDS`];
   if (fields) {
