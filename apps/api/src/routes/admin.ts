@@ -289,12 +289,19 @@ export function registerAdminRoutes(app: FastifyInstance, ctx: AppContext): void
         properties: rows[0]?.count ?? 0,
         latencyMs: Date.now() - startedAt,
       }))
-      .catch((error: unknown) => ({
-        reachable: false as const,
-        code: (error as { code?: string }).code ?? null,
-        reason: error instanceof Error ? error.message : String(error),
-        latencyMs: Date.now() - startedAt,
-      }));
+      .catch((error: unknown) => {
+        // The query layer wraps a connection failure in an error whose message
+        // is the SQL it never got to run. The reason lives further down the
+        // cause chain, and it is the only part worth reading.
+        let root = error;
+        while (root instanceof Error && root.cause) root = root.cause;
+        return {
+          reachable: false as const,
+          code: (root as { code?: string }).code ?? null,
+          reason: root instanceof Error ? root.message : String(root),
+          latencyMs: Date.now() - startedAt,
+        };
+      });
 
     return {
       ok: database.reachable,

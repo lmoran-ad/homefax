@@ -49,7 +49,19 @@ const ServerEnvSchema = z.object({
    * credential in directly and keeps the connection string out of anyone's
    * clipboard.
    */
-  DATABASE_URL: z.string().min(1, "DATABASE_URL is required"),
+  DATABASE_URL: z
+    .string()
+    .trim()
+    .min(1, "DATABASE_URL is required")
+    .refine((value) => /^postgres(ql)?:\/\//i.test(value), {
+      // The driver parses a connection string against a dummy base URL, so
+      // anything that is not a complete URI silently becomes a host named
+      // "base" and fails much later as a DNS error that names nothing useful.
+      // A paste that brought along the variable name, a comment, quotes or an
+      // unreplaced [YOUR-PASSWORD] placeholder all land here.
+      message:
+        "DATABASE_URL must be a complete postgres:// or postgresql:// URI — the value alone, with no variable name, quotes, comment or placeholder around it",
+    }),
 
   AUTH_JWT_SECRET: z
     .string()
